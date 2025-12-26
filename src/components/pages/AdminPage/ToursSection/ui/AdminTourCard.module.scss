@@ -1,0 +1,283 @@
+@use "../../../../../styles/utils/function.scss" as *;
+
+.tourCard {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	cursor: default;
+
+	height: 100%;
+	border: 1px solid rgba(243, 244, 246, 1);
+	border-radius: 2.4rem;
+	background-color: #ffffff;
+	box-shadow: 0 4rem 6rem -4rem rgba(15, 23, 42, 0.3);
+
+	transition: transform 0.5s ease, box-shadow 0.5s ease;
+	will-change: transform, opacity;
+
+	&:hover {
+		transform: translateY(-0.6rem);
+		box-shadow: 0 5rem 7rem -4rem rgba(15, 23, 42, 0.5);
+
+		.cardImage img {
+			transform: scale(1.05);
+		}
+	}
+}
+
+.cardImage {
+	position: relative;
+	overflow: hidden;
+	height: 28rem;
+
+	img {
+		object-fit: cover;
+		transition: transform 0.5s ease;
+
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.cardContent {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	flex: 1;
+	gap: 2.8rem;
+	padding: 3.2rem;
+}
+
+.top {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.8rem;
+}
+
+.descriptionWrapper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.2rem;
+}
+
+.cardTitle {
+	color: rgba(17, 24, 39, 1);
+	font-size: 2.4rem;
+	font-weight: 700;
+	line-height: 3.2rem;
+	letter-spacing: 0%;
+
+	max-width: 80%;
+	margin: 0;
+}
+
+.rating {
+	display: flex;
+	align-items: center;
+
+	gap: 0.4rem;
+}
+
+.ratingNum {
+	color: rgba(234, 179, 8, 1);
+	font-size: 1.6rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+.text {
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.6rem;
+	font-weight: 400;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+
+	margin: 0;
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+}
+
+.listItem {
+	position: relative;
+
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.4rem;
+	font-weight: 400;
+	line-height: 2rem;
+	letter-spacing: 0%;
+
+	padding-left: 1.2rem;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 0;
+		transform: translateY(-50%);
+		width: 0.6rem;
+		height: 0.6rem;
+		border-radius: 50%;
+		background-color: rgba(147, 197, 253, 1);
+	}
+}
+
+.bottom {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 1.4rem;
+}
+
+.price {
+	display: flex;
+	flex-direction: column;
+
+	gap: 0.4rem;
+}
+
+.pricePlaceholder {
+	color: rgba(156, 163, 175, 1);
+	font-size: 1.2rem;
+	font-weight: 400;
+	line-height: 1.6rem;
+	letter-spacing: 0%;
+	text-transform: uppercase;
+}
+
+.priceText {
+	color: rgba(17, 24, 39, 1);
+	font-size: 3rem;
+	font-weight: 700;
+	line-height: 3.6rem;
+	letter-spacing: 0%;
+}
+
+.actions {
+	display: flex;
+	gap: 0.8rem;
+	width: 100%;
+}
+
+.secondary {
+	padding: 1.2rem 1.6rem;
+	border-radius: 1.2rem;
+	border: 1px solid rgba(226, 232, 240, 1);
+	background: #ffffff;
+	color: rgba(17, 24, 39, 1);
+	font-size: 1.4rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: rgba(248, 250, 252, 1);
+		border-color: rgba(203, 213, 225, 1);
+	}
+}
+
+.danger {
+	padding: 1.2rem 1.6rem;
+	border-radius: 1.2rem;
+	border: 1px solid rgba(239, 68, 68, 0.35);
+	background: #ffffff;
+	color: rgba(239, 68, 68, 1);
+	font-size: 1.4rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: rgba(254, 226, 226, 1);
+		border-color: rgba(220, 38, 38, 1);
+	}
+}
+
+@media (max-width: 768px) {
+	.tourCard {
+		border-radius: 1.6rem;
+		box-shadow: 0 2.4rem 3.2rem -2.4rem rgba(15, 23, 42, 0.25);
+
+		&:hover {
+			transform: none;
+			box-shadow: 0 2.4rem 3.2rem -2.4rem rgba(15, 23, 42, 0.25);
+
+			.cardImage img {
+				transform: none;
+			}
+		}
+	}
+
+	.cardImage {
+		height: 20rem;
+	}
+
+	.cardContent {
+		gap: 2rem;
+		padding: 2rem;
+	}
+
+	.top {
+		gap: 1.2rem;
+	}
+
+	.descriptionWrapper {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.6rem;
+	}
+
+	.cardTitle {
+		font-size: 2rem;
+		line-height: 2.6rem;
+		max-width: 100%;
+	}
+
+	.ratingNum {
+		font-size: 1.4rem;
+		line-height: 2rem;
+	}
+
+	.text {
+		font-size: 1.4rem;
+		line-height: 2.2rem;
+	}
+
+	.list {
+		gap: 0.8rem;
+	}
+
+	.listItem {
+		font-size: 1.2rem;
+		line-height: 1.8rem;
+	}
+
+	.bottom {
+		gap: 1.2rem;
+	}
+
+	.priceText {
+		font-size: 2.4rem;
+		line-height: 3rem;
+	}
+
+	.actions {
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.secondary,
+	.danger {
+		width: 100%;
+		justify-content: center;
+		font-size: 1.3rem;
+	}
+}

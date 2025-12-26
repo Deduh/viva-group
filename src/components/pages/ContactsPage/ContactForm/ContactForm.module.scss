@@ -1,0 +1,143 @@
+@use "../../../../styles/utils/function.scss" as *;
+
+.section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	overflow: hidden;
+
+	padding-block: 6.4rem;
+	gap: 6.6rem;
+
+	@media (max-width: 768px) {
+		padding-block: 4.8rem;
+		gap: 3.2rem;
+	}
+}
+
+.container {
+	max-width: 90rem;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+
+	@media (max-width: 768px) {
+		padding: 0 1.6rem;
+	}
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	overflow: hidden;
+
+	background: rgba(255, 255, 255, 0.75);
+	backdrop-filter: blur(3rem) saturate(180%);
+	-webkit-backdrop-filter: blur(3rem) saturate(180%);
+	border: 0.1rem solid rgba(255, 255, 255, 0.4);
+	box-shadow: 0 0.8rem 3.2rem rgba(15, 23, 42, 0.2),
+		0 0 0 0.1rem rgba(255, 255, 255, 0.6) inset;
+
+	width: 100%;
+	gap: 2.4rem;
+	padding: 4.8rem;
+	border-radius: 5rem;
+
+	will-change: transform, opacity;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 0.1rem;
+		background: linear-gradient(
+			90deg,
+			transparent,
+			rgba(59, 130, 246, 0.6),
+			transparent
+		);
+	}
+
+	@media (max-width: 768px) {
+		padding: 2.4rem;
+		border-radius: 2.4rem;
+	}
+}
+
+.cardTitle {
+	font-family: var(--font-oswald);
+	font-size: 4rem;
+	font-weight: 700;
+	line-height: 4.4rem;
+	color: #0f172a;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	text-align: center;
+	margin: 0;
+
+	will-change: transform, opacity;
+
+	@media (max-width: 768px) {
+		font-size: 2.6rem;
+		line-height: 3.2rem;
+		letter-spacing: 0.01em;
+	}
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+
+	@media (max-width: 768px) {
+		gap: 1.6rem;
+	}
+}
+
+.submitButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.8rem;
+
+	padding: 1.2rem 2rem;
+	border-radius: 999.9rem;
+	box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.1),
+		0 0.1rem 0.2rem -0.1rem rgba(0, 0, 0, 0.1);
+	background: rgba(59, 130, 246, 1);
+
+	color: rgba(255, 255, 255, 1);
+	font-size: 1.6rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	border: none;
+
+	transition: all 0.2s ease-in-out;
+	cursor: pointer;
+
+	will-change: transform, opacity;
+
+	&:hover:not(:disabled) {
+		filter: brightness(90%);
+	}
+
+	&:active:not(:disabled) {
+		filter: brightness(80%);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	@media (max-width: 768px) {
+		width: 100%;
+		padding: 1.2rem 1.6rem;
+		font-size: 1.4rem;
+	}
+}

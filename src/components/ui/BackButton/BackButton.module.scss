@@ -1,0 +1,27 @@
+@use "../../../styles/utils/function.scss" as *;
+
+.back {
+	display: inline-flex;
+	align-items: center;
+
+	width: fit-content;
+	gap: 0.8rem;
+	padding: 1.6rem 2rem;
+	border-radius: 1.6rem;
+	border: 1px solid transparent;
+
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+	font-weight: 500;
+	line-height: 2rem;
+	letter-spacing: 0%;
+	text-decoration: none;
+
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.5);
+		color: rgba(2, 132, 199, 1);
+	}
+}
+

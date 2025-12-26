@@ -1,0 +1,8 @@
+@use "../../../../../../styles/utils/function.scss" as *;
+
+.shell {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+}

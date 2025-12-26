@@ -1,0 +1,27 @@
+@use "../../../styles/utils/function.scss" as *;
+
+.section {
+	position: sticky;
+	overflow: hidden;
+	background: #000;
+
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: z("home-intro");
+}
+
+.contentContainer {
+	width: 100%;
+	height: 100%;
+
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	will-change: transform, opacity, border-radius;
+}

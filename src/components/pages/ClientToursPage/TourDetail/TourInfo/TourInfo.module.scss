@@ -1,0 +1,252 @@
+@use "../../../../../styles/utils/function.scss" as *;
+
+.tourInfo {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+}
+
+.imageWrapper {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border-radius: 1.2rem;
+	overflow: hidden;
+	background-color: rgba(243, 244, 246, 1);
+	border: 1px solid rgba(226, 232, 240, 1);
+	box-shadow: 0 0.1rem 0.3rem rgba(15, 23, 42, 0.05);
+}
+
+.image {
+	object-fit: cover;
+}
+
+.tourDetails {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2rem;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	gap: 1.6rem;
+}
+
+.title {
+	color: rgba(17, 24, 39, 1);
+	font-size: 3.2rem;
+	font-weight: 700;
+	line-height: 4rem;
+	letter-spacing: 0%;
+}
+
+.rating {
+	display: flex;
+	align-items: center;
+
+	gap: 0.4rem;
+}
+
+.ratingNum {
+	color: rgba(234, 179, 8, 1);
+	font-size: 1.8rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+.description {
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.6rem;
+	font-weight: 400;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+.fullDescription {
+	color: rgba(75, 85, 99, 1);
+	font-size: 1.6rem;
+	font-weight: 400;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+.priceInfo {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.priceLabel {
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.4rem;
+	font-weight: 500;
+	line-height: 2rem;
+	letter-spacing: 0%;
+}
+
+.priceValue {
+	color: rgba(17, 24, 39, 1);
+	font-size: 2.4rem;
+	font-weight: 700;
+	line-height: 3.2rem;
+	letter-spacing: 0%;
+}
+
+.properties {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+}
+
+.propertiesTitle {
+	color: rgba(17, 24, 39, 1);
+	font-size: 1.8rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+.propertiesList {
+	display: flex;
+	flex-direction: column;
+
+	gap: 0.8rem;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.propertyItem {
+	position: relative;
+
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.4rem;
+	font-weight: 400;
+	line-height: 2rem;
+	letter-spacing: 0%;
+
+	padding-left: 1.6rem;
+
+	&::before {
+		content: "✓";
+		position: absolute;
+		top: 50%;
+		left: 0;
+		transform: translateY(-50%);
+		color: rgba(16, 185, 129, 1);
+		font-size: 1.6rem;
+		font-weight: 600;
+	}
+}
+
+.meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	padding: 1.2rem 1.6rem;
+	border: 1px solid rgba(226, 232, 240, 1);
+	border-radius: 0.8rem;
+	box-shadow: 0 0.1rem 0.2rem rgba(15, 23, 42, 0.03);
+}
+
+.metaLabel {
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.4rem;
+	font-weight: 500;
+	line-height: 2rem;
+	letter-spacing: 0%;
+}
+
+.metaValue {
+	color: rgba(17, 24, 39, 1);
+	font-size: 1.6rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+@media (max-width: 768px) {
+	.tourInfo {
+		gap: 1.6rem;
+	}
+
+	.imageWrapper {
+		border-radius: 1rem;
+	}
+
+	.tourDetails {
+		gap: 1.4rem;
+	}
+
+	.header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.6rem;
+	}
+
+	.title {
+		font-size: 2.2rem;
+		line-height: 2.8rem;
+	}
+
+	.ratingNum {
+		font-size: 1.4rem;
+		line-height: 2rem;
+	}
+
+	.description,
+	.fullDescription {
+		font-size: 1.4rem;
+		line-height: 2.2rem;
+	}
+
+	.priceInfo {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.4rem;
+	}
+
+	.priceValue {
+		font-size: 2rem;
+		line-height: 2.6rem;
+	}
+
+	.propertiesTitle {
+		font-size: 1.6rem;
+	}
+
+	.propertyItem {
+		font-size: 1.2rem;
+		line-height: 1.8rem;
+		padding-left: 1.4rem;
+	}
+
+	.propertyItem::before {
+		font-size: 1.4rem;
+	}
+
+	.meta {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.4rem;
+		padding: 1rem 1.2rem;
+	}
+
+	.metaLabel {
+		font-size: 1.2rem;
+		line-height: 1.6rem;
+	}
+
+	.metaValue {
+		font-size: 1.4rem;
+		line-height: 2rem;
+	}
+}

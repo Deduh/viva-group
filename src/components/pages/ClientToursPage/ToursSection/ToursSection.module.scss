@@ -1,0 +1,80 @@
+@use "../../../../styles/utils/function.scss" as *;
+
+.section {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+}
+
+.title {
+	color: rgba(17, 24, 39, 1);
+	font-size: 3.2rem;
+	font-weight: 700;
+	line-height: 4rem;
+	letter-spacing: 0%;
+}
+
+.toursGrid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+
+	gap: 2.4rem;
+}
+
+.loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8rem 2rem;
+	min-height: 20rem;
+}
+
+.empty {
+	text-align: center;
+	padding: 4rem 2rem;
+}
+
+.emptyText {
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.6rem;
+	font-weight: 400;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+@media (max-width: 1200px) {
+	.toursGrid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 768px) {
+	.section {
+		gap: 1.6rem;
+	}
+
+	.title {
+		font-size: 2.2rem;
+		line-height: 2.8rem;
+	}
+
+	.toursGrid {
+		grid-template-columns: 1fr;
+		gap: 1.6rem;
+	}
+
+	.loading {
+		padding: 4rem 1.6rem;
+		min-height: 16rem;
+	}
+
+	.empty {
+		padding: 3.2rem 1.6rem;
+	}
+
+	.emptyText {
+		font-size: 1.4rem;
+		line-height: 2rem;
+	}
+}

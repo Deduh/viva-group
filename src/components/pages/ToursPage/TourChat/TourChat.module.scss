@@ -1,0 +1,30 @@
+.container {
+	width: 100%;
+}
+
+.empty {
+	padding: 4rem 2rem;
+	text-align: center;
+	color: #64748b;
+	background: #fff;
+	border: 0.1rem solid #e2e8f0;
+	border-radius: 1.2rem;
+}
+
+.empty p {
+	font-size: 1.6rem;
+	margin: 0 0 0.8rem 0;
+}
+
+.emptyHint {
+	font-size: 1.4rem;
+	color: #94a3b8;
+}
+
+.loading {
+	padding: 4rem 2rem;
+	text-align: center;
+	background: #fff;
+	border: 0.1rem solid #e2e8f0;
+	border-radius: 1.2rem;
+}

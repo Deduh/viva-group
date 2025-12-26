@@ -1,0 +1,43 @@
+@use "../../../../../../styles/utils/function.scss" as *;
+
+.shell {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+}
+
+.content {
+	display: grid;
+	grid-template-columns: 1fr 45rem;
+
+	gap: 4rem;
+}
+
+.bookingSection {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+}
+
+@media (max-width: 1024px) {
+	.content {
+		grid-template-columns: 1fr;
+		gap: 2.4rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.shell {
+		gap: 1.6rem;
+	}
+
+	.content {
+		gap: 2rem;
+	}
+
+	.bookingSection {
+		gap: 1.6rem;
+	}
+}

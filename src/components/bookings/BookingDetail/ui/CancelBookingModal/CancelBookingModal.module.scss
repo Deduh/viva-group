@@ -1,0 +1,82 @@
+@use "../../../../../styles/utils/function.scss" as *;
+
+.content {
+	padding: 1.6rem 0;
+}
+
+.content p {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.6rem;
+	font-weight: 400;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	margin: 0 0 1.6rem 0;
+}
+
+.warning {
+	color: rgba(239, 68, 68, 1);
+	font-size: 1.4rem;
+	font-weight: 600;
+	line-height: 2rem;
+	letter-spacing: 0%;
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 1.2rem;
+	margin-top: 2.4rem;
+}
+
+.cancelButton {
+	padding: 1rem 2.4rem;
+	border: 1px solid rgba(186, 230, 253, 1);
+	border-radius: 999.9rem;
+	background: rgba(255, 255, 255, 0.5);
+	backdrop-filter: blur(0.8rem);
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 2rem;
+	letter-spacing: 0%;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+
+	&:hover:not(:disabled) {
+		background: rgba(255, 255, 255, 0.8);
+		border-color: rgba(186, 230, 253, 1);
+		color: rgba(2, 132, 199, 1);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+.confirmButton {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	padding: 1rem 2.4rem;
+	border: none;
+	border-radius: 999.9rem;
+	background: rgba(239, 68, 68, 1);
+	color: rgba(255, 255, 255, 1);
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 2rem;
+	letter-spacing: 0%;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+
+	&:hover:not(:disabled) {
+		background: rgba(220, 38, 38, 1);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+

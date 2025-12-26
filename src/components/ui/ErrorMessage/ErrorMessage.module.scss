@@ -1,0 +1,107 @@
+.fullPage {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	padding: 2rem;
+}
+
+.container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 30rem;
+	padding: 2rem;
+}
+
+.content {
+	max-width: 50rem;
+	text-align: center;
+}
+
+.icon {
+	font-size: 4rem;
+	margin-bottom: 1.6rem;
+}
+
+.title {
+	font-size: 2rem;
+	font-weight: 700;
+	margin-bottom: 0.8rem;
+	color: #fff;
+}
+
+.message {
+	font-size: 1.6rem;
+	color: rgba(255, 255, 255, 0.6);
+	margin-bottom: 2rem;
+	line-height: 1.6;
+}
+
+.details {
+	margin: 2rem 0;
+	text-align: left;
+	background: rgba(255, 0, 0, 0.05);
+	border: 0.1rem solid rgba(255, 0, 0, 0.2);
+	border-radius: 0.8rem;
+	padding: 1.6rem;
+	cursor: pointer;
+
+	summary {
+		font-size: 1.4rem;
+		color: rgba(255, 255, 255, 0.7);
+		margin-bottom: 1rem;
+		user-select: none;
+
+		&:hover {
+			color: #fff;
+		}
+	}
+}
+
+.errorText {
+	font-size: 1.2rem;
+	color: #ff6b6b;
+	background: rgba(0, 0, 0, 0.3);
+	padding: 1.2rem;
+	border-radius: 0.4rem;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-word;
+	margin-bottom: 1rem;
+}
+
+.stack {
+	font-size: 1.1rem;
+	color: rgba(255, 255, 255, 0.5);
+	background: rgba(0, 0, 0, 0.3);
+	padding: 1.2rem;
+	border-radius: 0.4rem;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-word;
+	max-height: 30rem;
+	overflow-y: auto;
+}
+
+.button {
+	padding: 1.2rem 2.4rem;
+	font-size: 1.6rem;
+	font-weight: 600;
+	color: #fff;
+	background: rgba(255, 255, 255, 0.1);
+	border: 0.1rem solid rgba(255, 255, 255, 0.2);
+	border-radius: 0.8rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.15);
+		border-color: rgba(255, 255, 255, 0.3);
+		transform: translateY(-0.2rem);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+}

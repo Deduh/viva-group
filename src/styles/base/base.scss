@@ -1,0 +1,37 @@
+@use "../utils/variables" as *;
+
+*,
+*:after,
+*:before {
+	box-sizing: border-box;
+}
+
+html {
+	font-size: calc(100vw / 1920 * 10);
+	line-height: 1;
+	background-color: #ffffff;
+
+	@media (max-width: 768px) {
+		font-size: calc(100vw / 390 * 10);
+	}
+}
+
+body {
+	font-family: var(--font-inter);
+	background-color: #ffffff;
+	overflow-x: hidden;
+}
+
+a {
+	color: inherit;
+	outline: none;
+	text-decoration: none;
+}
+
+button {
+	background: none;
+	color: inherit;
+	cursor: pointer;
+	outline: none;
+	border: none;
+}

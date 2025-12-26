@@ -1,0 +1,64 @@
+@use "../../../../styles/utils/function.scss" as *;
+
+.introWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	gap: 22.6rem;
+
+	@media (max-width: 768px) {
+		gap: 0;
+	}
+}
+
+.description {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	gap: 10rem;
+
+	@media (max-width: 768px) {
+		gap: 5.2rem;
+	}
+}
+
+.title {
+	color: #ffffff;
+	font-family: var(--font-oswald);
+	font-size: 19.2rem;
+	font-weight: 400;
+	line-height: 19.2rem;
+	letter-spacing: 0.96rem;
+	text-transform: uppercase;
+
+	will-change: transform, opacity;
+
+	@media (max-width: 768px) {
+		font-size: 4.8rem;
+		line-height: 3.84rem;
+		letter-spacing: 1.463rem;
+		text-align: center;
+	}
+}
+
+.text {
+	width: 52rem;
+
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 1.6rem;
+	font-weight: 500;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	text-align: center;
+
+	will-change: transform, opacity;
+
+	@media (max-width: 768px) {
+		width: 33.7rem;
+
+		font-size: 1.4rem;
+		line-height: 2.275rem;
+	}
+}

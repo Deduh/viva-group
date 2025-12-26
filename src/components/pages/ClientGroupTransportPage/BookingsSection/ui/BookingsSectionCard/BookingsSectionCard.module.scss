@@ -1,0 +1,120 @@
+.bookingCard {
+	display: block;
+	padding: 1.6rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 1.2rem;
+	background: #ffffff;
+	box-shadow: 0 0.8rem 1.6rem rgba(15, 23, 42, 0.06);
+	text-decoration: none;
+	color: inherit;
+	transition: all 0.2s ease;
+
+	&:hover {
+		transform: translateY(-0.2rem);
+		box-shadow: 0 1.2rem 2rem rgba(15, 23, 42, 0.1);
+		border-color: #cbd5e1;
+	}
+}
+
+.bookingInfo {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+}
+
+.bookingId {
+	margin: 0;
+	color: #94a3b8;
+	font-size: 1.3rem;
+	font-weight: 600;
+}
+
+.bookingTitle {
+	margin: 0;
+	color: #0f172a;
+	font-size: 1.8rem;
+	font-weight: 700;
+}
+
+.bookingMeta {
+	margin: 0;
+	color: #475569;
+	font-size: 1.4rem;
+	line-height: 1.5;
+}
+
+.statusBadge {
+	align-self: flex-start;
+	padding: 0.5rem 0.9rem;
+	border-radius: 1.2rem;
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #0f172a;
+	border: 1px solid #e2e8f0;
+
+	&[data-status="PENDING"] {
+		background: rgba(245, 158, 11, 0.12);
+		color: #b45309;
+		border-color: rgba(245, 158, 11, 0.25);
+	}
+
+	&[data-status="CONFIRMED"] {
+		background: rgba(16, 185, 129, 0.12);
+		color: #0f766e;
+		border-color: rgba(16, 185, 129, 0.25);
+	}
+
+	&[data-status="CANCELLED"] {
+		background: rgba(239, 68, 68, 0.12);
+		color: #b91c1c;
+		border-color: rgba(239, 68, 68, 0.25);
+	}
+
+	&[data-status="IN_PROGRESS"] {
+		background: rgba(59, 130, 246, 0.12);
+		color: #1d4ed8;
+		border-color: rgba(59, 130, 246, 0.25);
+	}
+
+	&[data-status="COMPLETED"] {
+		background: rgba(139, 92, 246, 0.12);
+		color: #6b21a8;
+		border-color: rgba(139, 92, 246, 0.25);
+	}
+}
+
+@media (max-width: 768px) {
+	.bookingCard {
+		padding: 1.2rem;
+		border-radius: 1rem;
+
+		&:hover {
+			transform: none;
+			box-shadow: 0 0.8rem 1.6rem rgba(15, 23, 42, 0.06);
+			border-color: #e2e8f0;
+		}
+	}
+
+	.bookingInfo {
+		gap: 0.8rem;
+	}
+
+	.bookingId {
+		font-size: 1.1rem;
+	}
+
+	.bookingTitle {
+		font-size: 1.6rem;
+	}
+
+	.bookingMeta {
+		font-size: 1.2rem;
+		line-height: 1.4;
+	}
+
+	.statusBadge {
+		padding: 0.4rem 0.8rem;
+		font-size: 1.1rem;
+	}
+}

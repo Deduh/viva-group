@@ -1,0 +1,150 @@
+.form {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+	padding: 3.2rem;
+	border: 1px solid rgba(186, 230, 253, 1);
+	border-radius: 1.6rem;
+	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(1.2rem);
+	background: linear-gradient(
+		90deg,
+		rgba(224, 242, 254, 1),
+		rgba(219, 234, 254, 1) 100%
+	);
+}
+
+.header {
+	display: flex;
+	flex-direction: column;
+
+	gap: 0.8rem;
+}
+
+.title {
+	color: rgba(3, 105, 161, 1);
+	font-size: 2.4rem;
+	font-weight: 700;
+	line-height: 3.2rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.subtitle {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+	font-weight: 500;
+	line-height: 2rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.actions {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+}
+
+.cancelButton,
+.submitButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	gap: 0.8rem;
+	padding: 1.2rem 2rem;
+	border-radius: 999.9rem;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+
+	font-size: 1.6rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+
+	will-change: transform, opacity;
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+.cancelButton {
+	background: rgba(255, 255, 255, 0.5);
+	backdrop-filter: blur(0.8rem);
+	-webkit-backdrop-filter: blur(0.8rem);
+	box-shadow: 0 0.2rem 0.8rem rgba(15, 23, 42, 0.1);
+	border: none;
+
+	color: #0f172a;
+
+	&:hover:not(:disabled) {
+		filter: brightness(90%);
+	}
+
+	&:active:not(:disabled) {
+		filter: brightness(80%);
+	}
+}
+
+.unavailableNote {
+	margin: 0;
+	color: rgba(239, 68, 68, 1);
+	font-size: 1.4rem;
+	font-weight: 600;
+	line-height: 2rem;
+	text-align: center;
+}
+
+@media (max-width: 768px) {
+	.form {
+		gap: 1.6rem;
+		padding: 2rem;
+		border-radius: 1.2rem;
+	}
+
+	.title {
+		font-size: 2rem;
+		line-height: 2.6rem;
+	}
+
+	.subtitle {
+		font-size: 1.3rem;
+		line-height: 1.8rem;
+	}
+
+	.actions {
+		gap: 0.8rem;
+	}
+
+	.cancelButton,
+	.submitButton {
+		padding: 1rem 1.6rem;
+		font-size: 1.4rem;
+	}
+
+	.unavailableNote {
+		font-size: 1.3rem;
+		line-height: 1.8rem;
+	}
+}
+
+.submitButton {
+	box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.1),
+		0 0.1rem 0.2rem -0.1rem rgba(0, 0, 0, 0.1);
+	background: rgba(59, 130, 246, 1);
+	border: none;
+
+	color: rgba(255, 255, 255, 1);
+
+	&:hover:not(:disabled) {
+		filter: brightness(90%);
+	}
+
+	&:active:not(:disabled) {
+		filter: brightness(80%);
+	}
+}

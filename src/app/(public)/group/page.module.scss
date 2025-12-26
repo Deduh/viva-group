@@ -1,0 +1,36 @@
+.page {
+	min-height: 100vh;
+	padding-bottom: 6rem;
+}
+
+.container {
+	max-width: 120rem;
+	margin: 0 auto;
+	padding: 0 2rem;
+}
+
+.booking {
+	padding: 6rem 0;
+}
+
+.bookingGrid {
+	display: grid;
+	grid-template-columns: 1.2fr 1fr;
+	gap: 4rem;
+}
+
+@media (max-width: 968px) {
+	.bookingGrid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 768px) {
+	.booking {
+		padding: 4rem 0;
+	}
+
+	.container {
+		padding: 0 1.6rem;
+	}
+}

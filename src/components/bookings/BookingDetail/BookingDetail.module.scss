@@ -1,0 +1,490 @@
+@use "../../../styles/utils/function.scss" as *;
+
+.container {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+}
+
+.navigation {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	gap: 1.6rem;
+}
+
+.header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 2rem;
+	flex-wrap: wrap;
+}
+
+.bookingId {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+	font-weight: 500;
+	line-height: 2rem;
+	letter-spacing: 0%;
+	margin-bottom: 0.4rem;
+}
+
+.header h1 {
+	color: rgba(3, 105, 161, 1);
+	font-size: 3.2rem;
+	font-weight: 700;
+	line-height: 4rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.statusBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.8rem;
+	padding: 0.8rem 1.6rem;
+	border-radius: 999.9rem;
+	font-size: 1.4rem;
+	font-weight: 600;
+	line-height: 2rem;
+	letter-spacing: 0%;
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	box-shadow: 0 0.8rem 2rem rgba(15, 23, 42, 0.12),
+		0 0 0 0.1rem rgba(255, 255, 255, 0.6) inset;
+	backdrop-filter: blur(1.2rem);
+	background: rgba(255, 255, 255, 0.7);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 1.2rem 2.4rem rgba(15, 23, 42, 0.16),
+			0 0 0 0.1rem rgba(255, 255, 255, 0.7) inset;
+	}
+}
+
+.statusChevron {
+	transition: transform 0.2s ease;
+}
+
+.statusDropdown {
+	position: relative;
+}
+
+.statusList {
+	position: absolute;
+	right: 0;
+	top: calc(100% + 0.8rem);
+	min-width: 22rem;
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	border-radius: 1.6rem;
+	background: rgba(255, 255, 255, 1);
+	box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14),
+		0 0 0 0.1rem rgba(255, 255, 255, 0.6) inset;
+	opacity: 0;
+	transform: translateY(-6px);
+	pointer-events: none;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	padding: 0.8rem;
+	display: grid;
+	gap: 0.4rem;
+	z-index: 2;
+}
+
+.statusListOpen {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+.statusItem {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	padding: 0.8rem 1rem;
+	border-radius: 1rem;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	background: rgba(255, 255, 255, 0.65);
+	cursor: pointer;
+	font-size: 1.3rem;
+	font-weight: 700;
+	transition: all 0.15s ease;
+	text-align: left;
+
+	&[data-active="true"] {
+		background: rgba(59, 130, 246, 0.14);
+		border-color: rgba(59, 130, 246, 0.35);
+
+		&:hover {
+			background: rgba(59, 130, 246, 0.14);
+			border-color: rgba(59, 130, 246, 0.35);
+		}
+	}
+
+	&:hover {
+		background: rgba(248, 250, 252, 0.85);
+		border-color: rgba(226, 232, 240, 0.9);
+	}
+}
+
+.statusDot {
+	width: 0.8rem;
+	height: 0.8rem;
+	border-radius: 50%;
+}
+
+.content {
+	display: grid;
+	grid-template-columns: 1fr auto;
+}
+
+.mainInfo {
+	display: grid;
+	gap: 2.4rem;
+}
+
+.tourCard {
+	display: grid;
+	grid-template-columns: 20rem 1fr;
+	gap: 2rem;
+	padding: 2.4rem;
+	border: 1px solid rgba(186, 230, 253, 1);
+	border-radius: 1.6rem;
+	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(1.2rem);
+	background: linear-gradient(
+		90deg,
+		rgba(224, 242, 254, 1),
+		rgba(219, 234, 254, 1) 100%
+	);
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.tourImage {
+	position: relative;
+	width: 100%;
+	height: 20rem;
+	border-radius: 1.2rem;
+	border: 1px solid rgba(186, 230, 253, 0.5);
+	overflow: hidden;
+	background: rgba(255, 255, 255, 0.5);
+	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
+}
+
+.image {
+	object-fit: cover;
+}
+
+.tourInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+}
+
+.tourDestination {
+	color: rgba(3, 105, 161, 1);
+	font-size: 2.4rem;
+	font-weight: 700;
+	line-height: 3.2rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.tourDescription {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.5rem;
+	font-weight: 400;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.tourMeta {
+	display: flex;
+	align-items: center;
+	gap: 1.6rem;
+	margin-top: auto;
+}
+
+.tourRating {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	color: rgba(3, 105, 161, 1);
+	font-size: 1.4rem;
+	font-weight: 600;
+	line-height: 2rem;
+	letter-spacing: 0%;
+}
+
+.tourPrice {
+	color: rgba(2, 132, 199, 1);
+	font-size: 2rem;
+	font-weight: 700;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+.bookingInfo {
+	padding: 3.2rem;
+	border: 1px solid rgba(186, 230, 253, 1);
+	border-radius: 1.6rem;
+	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(1.2rem);
+	background: linear-gradient(
+		90deg,
+		rgba(224, 242, 254, 1),
+		rgba(219, 234, 254, 1) 100%
+	);
+}
+
+.bookingInfo h2 {
+	color: rgba(3, 105, 161, 1);
+	font-size: 2.4rem;
+	font-weight: 700;
+	line-height: 3.2rem;
+	letter-spacing: 0%;
+	margin: 0 0 2.4rem 0;
+}
+
+.infoGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+	gap: 2rem;
+	margin-bottom: 2.4rem;
+}
+
+.infoItem {
+	display: flex;
+	align-items: flex-start;
+	gap: 1.2rem;
+}
+
+.infoIcon {
+	color: rgba(2, 132, 199, 1);
+	flex-shrink: 0;
+	margin-top: 0.2rem;
+}
+
+.infoLabel {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+	font-weight: 500;
+	line-height: 2rem;
+	letter-spacing: 0%;
+	margin: 0 0 0.4rem 0;
+}
+
+.infoValue {
+	color: rgba(3, 105, 161, 1);
+	font-size: 1.6rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.notes {
+	margin-top: 2.4rem;
+	padding-top: 2.4rem;
+	border-top: 1px solid rgba(186, 230, 253, 0.5);
+}
+
+.notes h3 {
+	color: rgba(3, 105, 161, 1);
+	font-size: 1.8rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	margin: 0 0 1.2rem 0;
+}
+
+.notes p {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.5rem;
+	font-weight: 400;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.statusGrid {
+	display: grid;
+	gap: 1.2rem;
+	margin-top: 1.2rem;
+}
+
+.cancelButton {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	padding: 0.8rem 1.6rem;
+	border: 1px solid rgba(239, 68, 68, 0.3);
+	border-radius: 999.9rem;
+	background: rgba(255, 255, 255, 0.5);
+	backdrop-filter: blur(0.8rem);
+	color: rgba(239, 68, 68, 1);
+	font-size: 1.4rem;
+	font-weight: 600;
+	line-height: 2rem;
+	letter-spacing: 0%;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+
+	&:hover:not(:disabled) {
+		background: rgba(239, 68, 68, 1);
+		color: rgba(255, 255, 255, 1);
+		border-color: rgba(239, 68, 68, 1);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+@media (max-width: 768px) {
+	.container {
+		gap: 1.6rem;
+	}
+
+	.navigation {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1.2rem;
+	}
+
+	.header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1.2rem;
+	}
+
+	.bookingId {
+		font-size: 1.2rem;
+	}
+
+	.header h1 {
+		font-size: 2.4rem;
+		line-height: 3rem;
+	}
+
+	.statusDropdown {
+		width: 100%;
+	}
+
+	.statusBadge {
+		padding: 0.7rem 1.2rem;
+		font-size: 1.3rem;
+	}
+
+	.statusList {
+		left: 0;
+		right: 0;
+		min-width: 100%;
+	}
+
+	.statusDropdown .statusBadge {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.statusItem {
+		font-size: 1.2rem;
+	}
+
+	.content {
+		grid-template-columns: 1fr;
+	}
+
+	.mainInfo {
+		gap: 1.6rem;
+	}
+
+	.tourCard {
+		padding: 1.6rem;
+		gap: 1.6rem;
+		border-radius: 1.2rem;
+	}
+
+	.tourImage {
+		height: 18rem;
+	}
+
+	.tourDestination {
+		font-size: 2rem;
+		line-height: 2.6rem;
+	}
+
+	.tourDescription {
+		font-size: 1.4rem;
+		line-height: 2.2rem;
+	}
+
+	.tourMeta {
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.tourPrice {
+		font-size: 1.6rem;
+		line-height: 2rem;
+	}
+
+	.bookingInfo {
+		padding: 2rem;
+		border-radius: 1.2rem;
+	}
+
+	.bookingInfo h2 {
+		font-size: 2rem;
+		line-height: 2.6rem;
+		margin-bottom: 1.6rem;
+	}
+
+	.infoGrid {
+		gap: 1.2rem;
+		grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+		margin-bottom: 1.6rem;
+	}
+
+	.infoLabel {
+		font-size: 1.2rem;
+		line-height: 1.6rem;
+	}
+
+	.infoValue {
+		font-size: 1.4rem;
+		line-height: 2rem;
+	}
+
+	.notes {
+		margin-top: 1.6rem;
+		padding-top: 1.6rem;
+	}
+
+	.notes h3 {
+		font-size: 1.6rem;
+		line-height: 2.2rem;
+	}
+
+	.notes p {
+		font-size: 1.4rem;
+		line-height: 2.2rem;
+	}
+
+	.statusGrid {
+		gap: 0.8rem;
+		margin-top: 1rem;
+	}
+
+	.cancelButton {
+		width: 100%;
+		justify-content: center;
+	}
+}

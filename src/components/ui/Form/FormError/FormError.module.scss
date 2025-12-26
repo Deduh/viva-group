@@ -1,0 +1,17 @@
+.error {
+	font-size: 1.4rem;
+	color: #ef4444;
+	margin-top: 0.4rem;
+	animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-0.4rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

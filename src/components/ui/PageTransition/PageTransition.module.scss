@@ -1,0 +1,21 @@
+@use "../../../styles/utils/function.scss" as *;
+
+.container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: z("page-transition");
+	pointer-events: none;
+	display: flex;
+	overflow: hidden;
+}
+
+.column {
+	flex: 1;
+	background: #fff;
+	will-change: transform;
+	pointer-events: auto;
+	visibility: hidden;
+}

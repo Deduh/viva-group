@@ -1,0 +1,12 @@
+@use "sass:list";
+@use "./variables.scss" as *;
+
+@function z($name, $list: $z-indexes) {
+	@if list.index($list, $name) {
+		@return (list.length($list) - list.index($list, $name)) + 1;
+	}
+
+	@warn 'There is no item "#{$name}" in this list; Choose one of: #{$list}';
+
+	@return null;
+}

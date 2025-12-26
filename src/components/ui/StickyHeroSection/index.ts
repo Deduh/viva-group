@@ -1,0 +1,1 @@
+export { StickyHeroSection } from "./StickyHeroSection"

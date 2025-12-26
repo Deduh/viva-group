@@ -1,0 +1,75 @@
+@use "../../../styles/utils/function.scss" as *;
+
+.container {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+
+	gap: 1.6rem;
+	height: min(60rem, 70vh);
+	min-height: 40rem;
+	padding: 3.2rem;
+	border: 1px solid rgba(186, 230, 253, 1);
+	border-radius: 1.6rem;
+	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(1.2rem);
+	background: linear-gradient(
+		90deg,
+		rgba(224, 242, 254, 1),
+		rgba(219, 234, 254, 1) 100%
+	);
+}
+
+.header {
+	border-bottom: 1px solid rgba(186, 230, 253, 0.5);
+}
+
+.header h3 {
+	color: rgba(3, 105, 161, 1);
+	font-size: 2.4rem;
+	font-weight: 700;
+	line-height: 3.2rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.loading,
+.error {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: min(60rem, 70vh);
+	min-height: 40rem;
+	padding: 3.2rem;
+	border: 1px solid rgba(186, 230, 253, 1);
+	border-radius: 1.6rem;
+	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(1.2rem);
+	background: linear-gradient(
+		90deg,
+		rgba(224, 242, 254, 1),
+		rgba(219, 234, 254, 1) 100%
+	);
+}
+
+@media (max-width: 768px) {
+	.container {
+		height: min(44rem, 60vh);
+		min-height: 32rem;
+		padding: 2rem;
+		border-radius: 1.2rem;
+		gap: 1.2rem;
+	}
+
+	.loading,
+	.error {
+		height: min(44rem, 60vh);
+		min-height: 32rem;
+		padding: 2rem;
+		border-radius: 1.2rem;
+	}
+
+	.header h3 {
+		font-size: 2rem;
+	}
+}

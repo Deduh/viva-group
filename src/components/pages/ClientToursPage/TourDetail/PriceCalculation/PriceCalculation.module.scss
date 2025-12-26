@@ -1,0 +1,88 @@
+@use "../../../../../styles/utils/function.scss" as *;
+
+.priceCalculation {
+	display: flex;
+	flex-direction: column;
+
+	padding: 3.2rem;
+	border: 1px solid rgba(186, 230, 253, 1);
+	border-radius: 1.6rem;
+	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(1.2rem);
+	background: linear-gradient(
+		90deg,
+		rgba(224, 242, 254, 1),
+		rgba(219, 234, 254, 1) 100%
+	);
+
+	gap: 1.2rem;
+}
+
+.calculationRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.calculationLabel {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+	font-weight: 500;
+	line-height: 2rem;
+	letter-spacing: 0%;
+}
+
+.calculationValue {
+	color: rgba(3, 105, 161, 1);
+	font-size: 1.6rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+.calculationDivider {
+	height: 0.1rem;
+	background-color: rgba(186, 230, 253, 1);
+	margin: 0.4rem 0;
+}
+
+.calculationTotalLabel {
+	color: rgba(3, 105, 161, 1);
+	font-size: 1.8rem;
+	font-weight: 700;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+}
+
+.calculationTotalValue {
+	color: rgba(3, 105, 161, 1);
+	font-size: 2.4rem;
+	font-weight: 700;
+	line-height: 3.2rem;
+	letter-spacing: 0%;
+}
+
+@media (max-width: 768px) {
+	.priceCalculation {
+		padding: 2rem;
+		border-radius: 1.2rem;
+	}
+
+	.calculationLabel {
+		font-size: 1.3rem;
+	}
+
+	.calculationValue {
+		font-size: 1.4rem;
+		line-height: 2rem;
+	}
+
+	.calculationTotalLabel {
+		font-size: 1.6rem;
+	}
+
+	.calculationTotalValue {
+		font-size: 2rem;
+		line-height: 2.6rem;
+	}
+}
