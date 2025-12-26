@@ -31,7 +31,6 @@ const links: LinkItem[] = [
 		subLinks: [
 			{ href: "https://viva-fest.ru", label: "Viva Фестивали" },
 			{ href: "https://viva-education.com", label: "Viva Образование" },
-			{ href: "https://viva-consulting.com", label: "Viva Карго" },
 		],
 		icon: Layers,
 	},
