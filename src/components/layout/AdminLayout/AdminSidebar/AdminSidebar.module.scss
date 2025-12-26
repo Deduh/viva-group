@@ -217,6 +217,14 @@
 	}
 }
 
+.navItemMobile {
+	display: none;
+
+	@media (max-width: 768px) {
+		display: flex;
+	}
+}
+
 .navActive {
 	@media (max-width: 768px) {
 		display: flex;

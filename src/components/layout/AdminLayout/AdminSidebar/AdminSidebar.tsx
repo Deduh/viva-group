@@ -315,7 +315,10 @@ export function AdminSidebar() {
 						)
 					})}
 
-					<TransitionLink href="/" className={`${s.navItem} ${s.publicSite}`}>
+					<TransitionLink
+						href="/"
+						className={`${s.navItem} ${s.publicSite} ${s.navItemMobile}`}
+					>
 						<Package size={20} />
 
 						<span>Публичный сайт</span>
@@ -324,7 +327,7 @@ export function AdminSidebar() {
 					<TransitionLink
 						href="/login"
 						onClick={handleSignOut}
-						className={`${s.navItem} ${s.logout}`}
+						className={`${s.navItem} ${s.logout} ${s.navItemMobile}`}
 					>
 						<Power className={s.icon} strokeWidth={3} />
 
