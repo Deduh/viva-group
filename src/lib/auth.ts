@@ -2,7 +2,6 @@ import type { NextAuthOptions } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
 import { env } from "./env"
-import { findMockUser } from "./mock"
 import type { Role } from "./roles"
 
 export const authSecret = env.NEXTAUTH_SECRET || "dev-nextauth-secret"
@@ -110,20 +109,6 @@ export const authOptions: NextAuthOptions = {
 			},
 			async authorize(credentials) {
 				if (!credentials?.email || !credentials.password) return null
-
-				if (env.MOCK_AUTH) {
-					const user = findMockUser(credentials.email, credentials.password)
-
-					if (!user) return null
-
-					return {
-						...user,
-						accessToken: "mock-access-token",
-						refreshToken: "mock-refresh-token",
-						accessExpiresIn: "7d",
-						refreshExpiresIn: "30d",
-					}
-				}
 
 				const res = await fetch(`${apiBaseUrl}/auth/login`, {
 					method: "POST",

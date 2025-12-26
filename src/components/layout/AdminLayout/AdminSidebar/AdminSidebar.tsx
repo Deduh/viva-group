@@ -4,6 +4,7 @@ import { MarkerIcon3 } from "@/components/icons/MarkerIcon3"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { useAuth } from "@/hooks/useAuth"
+import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import {
 	Compass,
@@ -16,13 +17,17 @@ import {
 import { signOut } from "next-auth/react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useCallback } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import s from "./AdminSidebar.module.scss"
 
 export function AdminSidebar() {
 	const pathname = usePathname()
 	const router = useRouter()
 	const { user } = useAuth()
+	const [isMenuOpen, setIsMenuOpen] = useState(false)
+	const [isMenuVisible, setIsMenuVisible] = useState(false)
+	const navRef = useRef<HTMLElement | null>(null)
+	const menuButtonRef = useRef<HTMLButtonElement | null>(null)
 
 	const navItems = [
 		// Клиент
@@ -123,6 +128,145 @@ export function AdminSidebar() {
 		[setIsTransitionComplete, router]
 	)
 
+	const handleOpenMenu = () => {
+		if (isMenuOpen) return
+		setIsMenuVisible(true)
+		setIsMenuOpen(true)
+	}
+
+	const handleCloseMenu = () => setIsMenuOpen(false)
+
+	const handleToggleMenu = () => {
+		if (isMenuOpen) {
+			handleCloseMenu()
+		} else {
+			handleOpenMenu()
+		}
+	}
+
+	const handleNavClick = (event: React.MouseEvent<HTMLElement>) => {
+		const target = event.target as HTMLElement
+
+		if (target.closest("a")) {
+			setIsMenuOpen(false)
+		}
+	}
+
+	useEffect(() => {
+		if (!isMenuOpen) return
+
+		const handleOutsideClick = (event: MouseEvent) => {
+			const target = event.target as Node
+
+			if (navRef.current?.contains(target)) return
+			if (menuButtonRef.current?.contains(target)) return
+
+			setIsMenuOpen(false)
+		}
+
+		document.addEventListener("pointerdown", handleOutsideClick)
+
+		return () => {
+			document.removeEventListener("pointerdown", handleOutsideClick)
+		}
+	}, [isMenuOpen])
+
+	useEffect(() => {
+		if (!isMenuOpen) {
+			if (!isMenuVisible) return
+			if (!navRef.current) {
+				setIsMenuVisible(false)
+				return
+			}
+
+			if (window.matchMedia("(min-width: 769px)").matches) {
+				setIsMenuVisible(false)
+				return
+			}
+
+			gsap.killTweensOf(navRef.current)
+			gsap.to(navRef.current, {
+				scale: 0.92,
+				y: -8,
+				autoAlpha: 0,
+				duration: 0.2,
+				ease: "power2.in",
+				onComplete: () => setIsMenuVisible(false),
+			})
+		}
+	}, [isMenuOpen, isMenuVisible])
+
+	useGSAP(
+		() => {
+			if (!menuButtonRef.current) return
+
+			const lines = menuButtonRef.current.querySelectorAll<HTMLElement>(
+				`.${s.menuLine}`
+			)
+
+			if (lines.length < 3) return
+
+			gsap.set(lines, { transformOrigin: "center" })
+
+			if (isMenuOpen) {
+				gsap.to(lines[0], {
+					y: 6,
+					rotate: 45,
+					duration: 0.25,
+					ease: "power2.out",
+				})
+				gsap.to(lines[1], { opacity: 0, duration: 0.2, ease: "power2.out" })
+				gsap.to(lines[2], {
+					y: -6,
+					rotate: -45,
+					duration: 0.25,
+					ease: "power2.out",
+				})
+			} else {
+				gsap.to(lines[0], {
+					y: 0,
+					rotate: 0,
+					duration: 0.25,
+					ease: "power2.out",
+				})
+				gsap.to(lines[1], { opacity: 1, duration: 0.2, ease: "power2.out" })
+				gsap.to(lines[2], {
+					y: 0,
+					rotate: 0,
+					duration: 0.25,
+					ease: "power2.out",
+				})
+			}
+		},
+		{ dependencies: [isMenuOpen], scope: menuButtonRef }
+	)
+
+	useGSAP(
+		() => {
+			if (!navRef.current || !isMenuOpen || !isMenuVisible) return
+			if (window.matchMedia("(min-width: 769px)").matches) return
+
+			gsap.killTweensOf(navRef.current)
+			gsap.fromTo(
+				navRef.current,
+				{
+					scale: 0.92,
+					y: -8,
+					autoAlpha: 0,
+					transformOrigin: "top right",
+				},
+				{
+					scale: 1,
+					y: 0,
+					autoAlpha: 1,
+					duration: 0.35,
+					ease: "back.out(1.4)",
+				}
+			)
+		},
+		{ dependencies: [isMenuOpen, isMenuVisible], scope: navRef }
+	)
+
 	return (
 		<aside className={s.sidebar}>
 			<div className={s.sidebarContent}>
@@ -148,7 +292,11 @@ export function AdminSidebar() {
 					)}
 				</div>
 
-				<nav className={s.nav}>
+				<nav
+					ref={navRef}
+					className={`${s.nav} ${isMenuVisible ? s.navActive : ""}`}
+					onClick={handleNavClick}
+				>
 					{filteredNavItems.map(item => {
 						const Icon = item.icon
 						const isActive =
@@ -166,6 +314,22 @@ export function AdminSidebar() {
 							</Link>
 						)
 					})}
+
+					<TransitionLink href="/" className={`${s.navItem} ${s.publicSite}`}>
+						<Package size={20} />
+
+						<span>Публичный сайт</span>
+					</TransitionLink>
+
+					<TransitionLink
+						href="/login"
+						onClick={handleSignOut}
+						className={`${s.navItem} ${s.logout}`}
+					>
+						<Power className={s.icon} strokeWidth={3} />
+
+						<span>Выйти</span>
+					</TransitionLink>
 				</nav>
 			</div>
 
@@ -186,6 +350,21 @@ export function AdminSidebar() {
 					<span>Выйти</span>
 				</TransitionLink>
 			</div>
+
+			<button
+				className={s.menu}
+				type="button"
+				onClick={handleToggleMenu}
+				aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
+				aria-expanded={isMenuOpen}
+				ref={menuButtonRef}
+			>
+				<div className={s.menuLine} />
+
+				<div className={s.menuLine} />
+
+				<div className={s.menuLine} />
+			</button>
 		</aside>
 	)
 }

@@ -56,7 +56,7 @@ export function Footer() {
 
 							<div className={s.links}>
 								<Link
-									href="https://t.me/viva_support"
+									href="https://t.me/"
 									className={s.link}
 									target="_blank"
 									rel="noreferrer"
@@ -73,8 +73,8 @@ export function Footer() {
 									WhatsApp
 								</Link>
 
-								<Link href="mailto:support@viva-group.ru" className={s.link}>
-									support@viva-group.ru
+								<Link href="mailto:vivatoursochi@gmail.com" className={s.link}>
+									vivatoursochi@gmail.com
 								</Link>
 
 								<Link href={"#"} className={s.link}>

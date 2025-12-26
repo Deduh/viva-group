@@ -11,10 +11,6 @@ const envSchema = z.object({
 	NEXT_PUBLIC_WS_URL: z.url().optional(),
 	DATABASE_URL: z.string().url().optional(),
 	AUTH_API_URL: z.string().url().optional(),
-	MOCK_AUTH: z
-		.enum(["true", "false"])
-		.optional()
-		.transform(val => val === "true"),
 })
 
 type EnvInput = {
@@ -26,7 +22,6 @@ type EnvInput = {
 	NEXT_PUBLIC_WS_URL?: string
 	DATABASE_URL?: string
 	AUTH_API_URL?: string
-	MOCK_AUTH?: string
 }
 
 function getEnv(): EnvInput {
@@ -39,7 +34,6 @@ function getEnv(): EnvInput {
 		NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL,
 		DATABASE_URL: process.env.DATABASE_URL,
 		AUTH_API_URL: process.env.AUTH_API_URL,
-		MOCK_AUTH: process.env.MOCK_AUTH,
 	}
 }
 

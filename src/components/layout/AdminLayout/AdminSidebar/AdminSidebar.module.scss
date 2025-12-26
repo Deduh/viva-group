@@ -2,6 +2,7 @@
 
 .sidebar {
 	position: sticky;
+	overflow: visible;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -20,13 +21,18 @@
 	background: rgba(255, 255, 255, 0.6);
 
 	@media (max-width: 768px) {
-		min-width: fit-content;
-		max-width: fit-content;
-		width: fit-content;
+		flex-direction: row;
+		align-items: center;
+
+		min-width: 100%;
+		max-width: 100%;
+		width: 100%;
 		padding: 0.8rem;
 		top: 0.8rem;
 		border-radius: 2.4rem;
-		height: calc(100vh - 1.6rem);
+		height: fit-content;
+
+		z-index: z("header");
 	}
 }
 
@@ -45,8 +51,10 @@
 	padding: 1.6rem;
 
 	@media (max-width: 768px) {
+		flex-direction: row;
 		align-items: center;
-		padding-inline: 0;
+		padding-block: 0;
+		gap: 1.6rem;
 	}
 }
 
@@ -145,6 +153,23 @@
 	flex-direction: column;
 
 	gap: 0.8rem;
+
+	@media (max-width: 768px) {
+		position: absolute;
+		right: 0;
+		left: auto;
+		top: calc(100% + 0.8rem);
+		display: none;
+		min-width: 24rem;
+		padding: 1rem;
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		border-radius: 2rem;
+		box-shadow: 0 2rem 2.5rem -0.5rem rgba(0, 0, 0, 0.1),
+			0 0.8rem 1rem -0.6rem rgba(0, 0, 0, 0.1);
+		backdrop-filter: blur(1.6rem);
+		background: rgba(255, 255, 255, 0.95);
+		z-index: z("header");
+	}
 }
 
 .navItem {
@@ -189,9 +214,24 @@
 	@media (max-width: 768px) {
 		width: fit-content;
 		padding: 1rem 1.4rem;
+	}
+}
 
-		span {
-			display: none;
+.navActive {
+	@media (max-width: 768px) {
+		display: flex;
+	}
+
+	.navItem {
+		@media (max-width: 768px) {
+			width: 100%;
+			justify-content: flex-start;
+		}
+	}
+
+	.navItem span {
+		@media (max-width: 768px) {
+			display: inline;
 		}
 	}
 }
@@ -213,7 +253,7 @@
 	padding: 0.8rem;
 
 	@media (max-width: 768px) {
-		padding-inline: 0;
+		display: none;
 	}
 }
 
@@ -236,4 +276,37 @@
 		background: rgba(240, 249, 255, 1);
 		color: rgba(239, 68, 68, 1);
 	}
+}
+
+.menu {
+	display: none;
+
+	@media (max-width: 768px) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		gap: 0.4rem;
+		width: 4.8rem;
+		aspect-ratio: 1 / 1;
+		border-radius: 50%;
+		border: 1px solid rgba(255, 255, 255, 0.4);
+		backdrop-filter: blur(0.4rem);
+		background: rgba(255, 255, 255, 0.4);
+		transition: filter 0.2s ease;
+
+		&:hover {
+			filter: brightness(96%);
+		}
+
+		&:active {
+			filter: brightness(92%);
+		}
+	}
+}
+
+.menuLine {
+	width: 2rem;
+	height: 0.2rem;
+	background-color: rgba(30, 41, 59, 1);
 }

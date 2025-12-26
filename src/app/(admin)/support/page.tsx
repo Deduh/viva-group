@@ -64,8 +64,6 @@ export default function SupportPage() {
 						<div className={s.title}>
 							<Send size={18} /> Telegram
 						</div>
-
-						<span className={s.tag}>Быстрее всего</span>
 					</div>
 
 					<p className={s.desc}>
@@ -75,7 +73,11 @@ export default function SupportPage() {
 
 					<ul className={s.infoList}>
 						<li>
-							@viva_support <span>· 10:00–19:00 МСК</span>
+							@SKusatov <span>· 10:00–19:00 МСК</span>
+						</li>
+
+						<li>
+							@x1n_x1n <span>· 10:00–19:00 МСК</span>
 						</li>
 
 						<li>
@@ -98,16 +100,18 @@ export default function SupportPage() {
 						<div className={s.title}>
 							<MessageCircle size={18} /> WhatsApp
 						</div>
-
-						<span className={s.tag}>Для звонков</span>
 					</div>
 
 					<p className={s.desc}>
-						Если удобнее голосом или нужно быстро созвониться — пишите в
-						WhatsApp, перезвоним.
+						Если нужно решить быстро экстренные ситуации по поводу туров —
+						пишите в WhatsApp.
 					</p>
 
 					<ul className={s.infoList}>
+						<li>
+							+7 999 123-45-67 <span>· звонки/сообщения</span>
+						</li>
+
 						<li>
 							+7 999 123-45-67 <span>· звонки/сообщения</span>
 						</li>

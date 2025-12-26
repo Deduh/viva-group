@@ -1,24 +1,69 @@
 import { TourChat } from "@/components/pages/ToursPage/TourChat/TourChat"
 import { TransitionLink } from "@/components/ui/PageTransition"
+import { api } from "@/lib/api"
+import { formatCurrency } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getDetailPageImageSizes,
 	getTourImageAlt,
 } from "@/lib/image-utils"
+import { buildTitle, getSiteUrl } from "@/lib/seo"
+import type { Metadata } from "next"
 import Image from "next/image"
 import { notFound } from "next/navigation"
-
-import { api } from "@/lib/api"
-import { formatCurrency } from "@/lib/format"
 import styles from "./page.module.scss"
 
 interface TourDetailPageProps {
 	params: Promise<{ id: string }>
 }
 
-export default async function TourDetailPage({
+export async function generateMetadata({
 	params,
-}: TourDetailPageProps) {
+}: TourDetailPageProps): Promise<Metadata> {
+	const { id } = await params
+	const tour = await api.getTour(id).catch(() => null)
+	const baseUrl = getSiteUrl()
+
+	if (!tour) {
+		return {
+			title: buildTitle("Тур не найден"),
+			description: "Запрашиваемый тур не найден.",
+			robots: { index: false, follow: false },
+		}
+	}
+
+	const title = buildTitle(tour.destination)
+	const description = tour.shortDescription
+	const url = `${baseUrl}/tours/${tour.id}`
+
+	return {
+		title,
+		description,
+		alternates: {
+			canonical: url,
+		},
+		openGraph: {
+			title,
+			description,
+			url,
+			type: "article",
+			images: [
+				{
+					url: tour.image,
+					alt: getTourImageAlt(tour.destination, tour.shortDescription),
+				},
+			],
+		},
+		twitter: {
+			card: "summary_large_image",
+			title,
+			description,
+			images: [tour.image],
+		},
+	}
+}
+
+export default async function TourDetailPage({ params }: TourDetailPageProps) {
 	const { id } = await params
 	const tour = await api.getTour(id).catch(() => null)
 	if (!tour) return notFound()

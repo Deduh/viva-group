@@ -5,7 +5,8 @@ import { Providers } from "./providers"
 
 export const metadata: Metadata = {
 	title: "Viva Group",
-	description: "Next.js starter with classic src/components structure",
+	description:
+		"Премиальные туры и групповые перевозки. Подбор маршрутов, перелетов и авторских программ.",
 }
 
 const inter = Inter({
