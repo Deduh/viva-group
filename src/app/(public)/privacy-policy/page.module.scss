@@ -1,0 +1,157 @@
+@use "../../../styles/utils/function.scss" as *;
+
+.introWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	gap: 22.6rem;
+
+	@media (max-width: 768px) {
+		gap: 0;
+	}
+}
+
+.description {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	gap: 10rem;
+
+	@media (max-width: 768px) {
+		gap: 5.2rem;
+	}
+}
+
+.title {
+	color: #ffffff;
+	font-family: var(--font-oswald);
+	font-size: 19.2rem;
+	font-weight: 400;
+	line-height: 19.2rem;
+	letter-spacing: 0.96rem;
+	text-transform: uppercase;
+
+	will-change: transform, opacity;
+
+	@media (max-width: 768px) {
+		font-size: 4.8rem;
+		line-height: 3.84rem;
+		letter-spacing: 1.463rem;
+		text-align: center;
+	}
+}
+
+.text {
+	width: 52rem;
+
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 1.6rem;
+	font-weight: 500;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	text-align: center;
+
+	will-change: transform, opacity;
+
+	@media (max-width: 768px) {
+		width: 33.7rem;
+
+		font-size: 1.4rem;
+		line-height: 2.275rem;
+	}
+}
+
+.container {
+	padding-block: 9.6rem;
+
+	@media (max-width: 768px) {
+		padding-block: 4.8rem;
+	}
+}
+
+.hero {
+	margin: 0 auto 2rem;
+	width: min(100% - 8rem, 104rem);
+	padding: 4rem;
+	border: 1px solid rgba(255, 255, 255, 0.9);
+	border-radius: 3.2rem;
+	box-shadow: 0 1rem 3rem -0.5rem rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(3rem);
+	background: rgba(255, 255, 255, 0.7);
+
+	@media (max-width: 768px) {
+		margin: 0 auto 1.2rem;
+		width: calc(100% - 3.2rem);
+		padding: 2.4rem;
+		border-radius: 2.4rem;
+	}
+}
+
+.heroContent {
+	max-width: 80rem;
+}
+
+.eyebrow {
+	color: rgba(59, 130, 246, 1);
+	font-size: 1.2rem;
+	font-weight: 700;
+	letter-spacing: 0.18rem;
+	text-transform: uppercase;
+}
+
+.subtitle {
+	margin-top: 1.6rem;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.6rem;
+	line-height: 2.4rem;
+}
+
+.content {
+	margin: 0 auto;
+	width: min(100% - 8rem, 104rem);
+	display: grid;
+	gap: 1.6rem;
+
+	@media (max-width: 768px) {
+		margin: 0 auto;
+		width: calc(100% - 3.2rem);
+		gap: 1.2rem;
+	}
+}
+
+.card {
+	padding: 2.4rem;
+	border: 1px solid rgba(255, 255, 255, 0.85);
+	border-radius: 2.4rem;
+	box-shadow: 0 1rem 2.5rem -0.5rem rgba(0, 0, 0, 0.06);
+	background: rgba(255, 255, 255, 0.85);
+
+	@media (max-width: 768px) {
+		padding: 1.8rem;
+		border-radius: 1.8rem;
+	}
+
+	h2 {
+		margin-bottom: 1rem;
+		color: rgba(15, 23, 42, 1);
+		font-size: 2rem;
+		font-weight: 700;
+		line-height: 2.6rem;
+	}
+
+	p,
+	li {
+		color: rgba(71, 85, 105, 1);
+		font-size: 1.5rem;
+		line-height: 2.3rem;
+	}
+
+	ul {
+		padding-left: 1.8rem;
+		display: grid;
+		gap: 0.6rem;
+		list-style: disc;
+	}
+}

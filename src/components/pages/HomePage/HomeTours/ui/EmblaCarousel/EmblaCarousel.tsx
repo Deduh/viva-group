@@ -8,6 +8,7 @@ import {
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
+import { formatCurrency } from "@/lib/format"
 import type { Tour } from "@/types"
 import { useGSAP } from "@gsap/react"
 import { EmblaOptionsType } from "embla-carousel"
@@ -138,7 +139,9 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 												Цена за человека
 											</span>
 
-											<span className={s.priceText}>${item.price}</span>
+											<span className={s.priceText}>
+												{formatCurrency(item.price)}
+											</span>
 										</div>
 
 										<button className={s.bottomButton} type="button">

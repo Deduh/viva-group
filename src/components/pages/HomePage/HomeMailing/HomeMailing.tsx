@@ -118,8 +118,8 @@ export const HomeMailing = memo(function HomeMailing() {
 					<div className={s.contact} data-mailing-contact>
 						<span className={s.contactTitle}>Позвоните нам</span>
 
-						<Link className={s.contactLink} href="tel:+74994502100">
-							+7 (499) 450-21-00
+						<Link className={s.contactLink} href="tel:+78624440888">
+							+7 (862) 444-0-888
 						</Link>
 					</div>
 
@@ -128,9 +128,9 @@ export const HomeMailing = memo(function HomeMailing() {
 
 						<Link
 							className={s.contactLink}
-							href="mailto:hello@vivagroup.travel"
+							href="mailto:vivatoursochi@gmail.com"
 						>
-							hello@vivagroup.travel
+							vivatoursochi@gmail.com
 						</Link>
 					</div>
 				</div>

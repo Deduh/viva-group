@@ -56,7 +56,7 @@ export function Footer() {
 
 							<div className={s.links}>
 								<Link
-									href="https://t.me/"
+									href="https://t.me/SKusatov"
 									className={s.link}
 									target="_blank"
 									rel="noreferrer"
@@ -65,7 +65,7 @@ export function Footer() {
 								</Link>
 
 								<Link
-									href="https://wa.me/79991234567"
+									href="https://wa.me/77775658706"
 									className={s.link}
 									target="_blank"
 									rel="noreferrer"
@@ -77,13 +77,13 @@ export function Footer() {
 									vivatoursochi@gmail.com
 								</Link>
 
-								<Link href={"#"} className={s.link}>
-									Условия возврата
-								</Link>
+								<TransitionLink href="/terms-of-service" className={s.link}>
+									Условия использования
+								</TransitionLink>
 
-								<Link href={"#"} className={s.link}>
+								<TransitionLink href="/privacy-policy" className={s.link}>
 									Политика конфиденциальности
-								</Link>
+								</TransitionLink>
 							</div>
 						</div>
 					</div>

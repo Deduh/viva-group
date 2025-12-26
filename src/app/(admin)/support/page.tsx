@@ -3,7 +3,6 @@
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { Clock3, MessageCircle, Send, ShieldCheck } from "lucide-react"
 import { useSession } from "next-auth/react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import s from "./page.module.scss"
@@ -84,15 +83,6 @@ export default function SupportPage() {
 							<span>Темы:</span> баги, блокеры, вопросы по админке
 						</li>
 					</ul>
-
-					<Link
-						className={s.cta}
-						href="https://t.me/viva_support"
-						target="_blank"
-						rel="noreferrer"
-					>
-						Открыть чат
-					</Link>
 				</div>
 
 				<div className={s.card}>
@@ -109,26 +99,17 @@ export default function SupportPage() {
 
 					<ul className={s.infoList}>
 						<li>
-							+7 999 123-45-67 <span>· звонки/сообщения</span>
+							+7 (777) 565-87-06 <span>· звонки/сообщения</span>
 						</li>
 
 						<li>
-							+7 999 123-45-67 <span>· звонки/сообщения</span>
+							+7 (918) 208-92-69 <span>· звонки/сообщения</span>
 						</li>
 
 						<li>
 							<span>Темы:</span> вопросы по оплатам, срочные статусы
 						</li>
 					</ul>
-
-					<Link
-						className={s.cta}
-						href="https://wa.me/79991234567"
-						target="_blank"
-						rel="noreferrer"
-					>
-						Написать в WhatsApp
-					</Link>
 				</div>
 			</div>
 		</div>

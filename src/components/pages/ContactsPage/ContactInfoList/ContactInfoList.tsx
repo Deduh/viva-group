@@ -4,7 +4,7 @@ import { BLUR_PLACEHOLDER, getImageSizes } from "@/lib/image-utils"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { Clock, Mail, MapPin, Phone } from "lucide-react"
+import { Clock, Landmark, Mail, MapPin, Phone } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { memo, useRef } from "react"
@@ -114,12 +114,12 @@ export const ContactInfoList = memo(function ContactInfoList() {
 							</div>
 
 							<div className={s.cardDescription}>
-								<Link href="tel:+74951234567" className={s.contactLink}>
-									+7 (495) 123-45-67
+								<Link href="tel:+78624440888" className={s.contactLink}>
+									+7 (862) 444-0-888
 								</Link>
 
-								<Link href="tel:+79991234567" className={s.contactLink}>
-									+7 (999) 123-45-67
+								<Link href="tel:+79182089269" className={s.contactLink}>
+									WhatsApp, Валентина: +7 (918) 208-92-69
 								</Link>
 							</div>
 						</div>
@@ -137,17 +137,17 @@ export const ContactInfoList = memo(function ContactInfoList() {
 
 							<div className={s.cardDescription}>
 								<Link
-									href="mailto:info@viva-group.ru"
+									href="mailto:vivatoursochi@gmail.com"
 									className={s.contactLink}
 								>
-									info@viva-group.ru
+									vivatoursochi@gmail.com
 								</Link>
 
 								<Link
-									href="mailto:support@viva-group.ru"
+									href="mailto:v.barchahova@viva-tour.ru"
 									className={s.contactLink}
 								>
-									support@viva-group.ru
+									v.barchahova@viva-tour.ru (для заявок)
 								</Link>
 							</div>
 						</div>
@@ -191,19 +191,24 @@ export const ContactInfoList = memo(function ContactInfoList() {
 
 				<div className={s.cardsWrapper}>
 					<div className={s.card} data-contacts-card>
-						<div className={s.cardImage}>
-							<Image
-								src={"/advantages/home-advantages-3.webp"}
-								alt="Простое бронирование и страхование"
-								fill
-								sizes={getImageSizes({
-									mobile: "100vw",
-									tablet: "50vw",
-									desktop: "33vw",
-								})}
-								placeholder="blur"
-								blurDataURL={BLUR_PLACEHOLDER}
-							/>
+						<div className={s.cardWrapper}>
+							<div className={s.cardTop}>
+								<div className={s.icon} data-contacts-icon>
+									<Landmark className={s.iconWrapper} />
+								</div>
+
+								<h4 className={s.cardTitle}>Реквизиты</h4>
+							</div>
+
+							<div className={s.cardDescription}>
+								<p className={s.cardText}>ООО «ВИВА»</p>
+								<p className={s.cardText}>ИНН 2367011089, КПП 236701001</p>
+								<p className={s.cardText}>ОГРН 1192375070491, РТО №021784</p>
+								<p className={s.cardText}>Р/счет 40702810420000169025</p>
+								<p className={s.cardText}>
+									в Банке ООО &quot;БАНК ТОЧКА&quot;, БИК 044525104
+								</p>
+							</div>
 						</div>
 					</div>
 
@@ -219,9 +224,9 @@ export const ContactInfoList = memo(function ContactInfoList() {
 
 							<div className={s.cardDescription}>
 								<p className={s.cardText}>
-									Пн-Пт: 9:00 - 19:00
+									Пн-Пт: 9:00 - 18:00
 									<br />
-									Сб-Вс: 10:00 - 17:00
+									Сб-Вс: выходной
 								</p>
 							</div>
 						</div>
@@ -239,9 +244,9 @@ export const ContactInfoList = memo(function ContactInfoList() {
 
 							<div className={s.cardDescription}>
 								<p className={s.cardText}>
-									г. Москва, ул. Примерная, д. 123
+									354071, Российская Федерация,
 									<br />
-									Бизнес-центр &quot;Example&quot;, офис 456
+									г. Сочи, ул. Гагарина, д. 72, оф. 56/2
 								</p>
 							</div>
 						</div>
