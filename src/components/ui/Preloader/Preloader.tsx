@@ -1,10 +1,10 @@
 "use client"
 
-import { MarkerIcon } from "@/components/icons"
 import { usePreloader } from "@/context/PreloaderContext"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { useLenis } from "lenis/react"
+import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import s from "./Preloader.module.scss"
 
@@ -47,16 +47,7 @@ function createPreloaderAnimation(
 		})
 	}
 
-	tl.to(logo, {
-		boxShadow:
-			"0 2.5rem 5rem -1rem rgba(14, 165, 233, 0.3), 0 0 3rem 0 rgba(186, 230, 253, 0.6) inset",
-		scale: 1.02,
-		duration: 1.5,
-		yoyo: true,
-		repeat: 1,
-		ease: "sine.inOut",
-	})
-		.to(container, {
+	tl.to(container, {
 			yPercent: -100,
 			duration: 1.2,
 			ease: "expo.inOut",
@@ -168,6 +159,36 @@ export function Preloader() {
 				ease: "power3.out",
 				delay: 0.2,
 			})
+		},
+		{
+			scope: container,
+			dependencies: [shouldShowPreloader],
+		}
+	)
+
+	useGSAP(
+		() => {
+			if (!shouldShowPreloader || !container.current) return
+
+			const selector = gsap.utils.selector(container)
+			const logo = selector(`.${s.logoImage}`)[0] as HTMLElement | undefined
+
+			if (!logo) return
+
+			gsap.set(logo, { transformOrigin: "center" })
+
+			const pulse = gsap.to(logo, {
+				scale: 1.06,
+				duration: 1.2,
+				yoyo: true,
+				repeat: -1,
+				ease: "sine.inOut",
+				delay: 0.4,
+			})
+
+			return () => {
+				pulse.kill()
+			}
 		},
 		{
 			scope: container,
@@ -337,9 +358,12 @@ export function Preloader() {
 	return (
 		<div ref={container} className={s.preloader}>
 			<div ref={logoRef} className={s.logoWrapper}>
-				<MarkerIcon className={s.icon} />
-
-				<span className={s.text}>VIVA GROUP</span>
+				<Image
+					src="/viva-logo.webp"
+					alt="Viva Tour"
+					className={s.logoImage}
+					fill
+				/>
 			</div>
 		</div>
 	)

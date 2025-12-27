@@ -10,6 +10,7 @@ html {
 	font-size: calc(100vw / 1920 * 10);
 	line-height: 1;
 	background-color: #ffffff;
+	overscroll-behavior: none;
 
 	@media (max-width: 768px) {
 		font-size: calc(100vw / 390 * 10);
@@ -20,6 +21,7 @@ body {
 	font-family: var(--font-inter);
 	background-color: #ffffff;
 	overflow-x: hidden;
+	overscroll-behavior: none;
 }
 
 a {

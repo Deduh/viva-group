@@ -269,6 +269,9 @@
 	margin-inline: 4rem;
 
 	@media (max-width: 768px) {
+		flex-direction: column;
+
+		gap: 1.6rem;
 		margin-inline: 1.6rem;
 	}
 }
@@ -342,8 +345,13 @@
 .dots {
 	display: flex;
 	align-items: center;
+	flex-wrap: wrap;
 
 	gap: 0.8rem;
+
+	@media (max-width: 768px) {
+		justify-content: center;
+	}
 }
 
 .dot {

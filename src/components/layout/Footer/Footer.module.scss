@@ -58,10 +58,11 @@
 }
 
 .logo {
-	display: flex;
-	align-items: center;
+	position: relative;
 
-	gap: 1.2rem;
+	height: 7rem;
+	aspect-ratio: 4/1;
+	width: fit-content;
 
 	transition: all 0.2s ease-in-out;
 
@@ -72,18 +73,18 @@
 	&:active {
 		filter: brightness(80%);
 	}
+
+	@media (max-width: 768px) {
+		height: 4.8rem;
+	}
 }
 
-.logoText {
-	color: rgba(255, 255, 255, 1);
-	font-size: 2.4rem;
-	font-weight: 600;
-	line-height: 3.2rem;
-	letter-spacing: 0%;
+.logoImage {
+	object-fit: cover;
 }
 
 .contentText {
-	width: 29rem;
+	max-width: 29rem;
 
 	color: rgba(156, 163, 175, 1);
 	font-size: 1.4rem;

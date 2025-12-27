@@ -1,5 +1,5 @@
-import { MarkerIcon2 } from "@/components/icons"
 import { TransitionLink } from "@/components/ui/PageTransition"
+import Image from "next/image"
 import Link from "next/link"
 import s from "./Footer.module.scss"
 
@@ -10,9 +10,12 @@ export function Footer() {
 				<div className={s.footerTopWrapper}>
 					<div className={s.content}>
 						<TransitionLink className={s.logo} href="/">
-							<MarkerIcon2 />
-
-							<span className={s.logoText}>VIVA GROUP</span>
+							<Image
+								className={s.logoImage}
+								src="/viva-logo.webp"
+								alt="Viva Tour Logo"
+								fill
+							/>
 						</TransitionLink>
 
 						<p className={s.contentText}>

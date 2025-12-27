@@ -1,6 +1,5 @@
 "use client"
 
-import { MarkerIcon } from "@/components/icons"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { usePreloader } from "@/context/PreloaderContext"
@@ -17,6 +16,7 @@ import {
 	PlaneTakeoff,
 	UsersRound,
 } from "lucide-react"
+import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import s from "./Header.module.scss"
 import { LinkItem, NavItem } from "./ui/NavItem/NavItem"
@@ -299,9 +299,12 @@ export function Header() {
 	return (
 		<header ref={headerRef} className={s.header}>
 			<TransitionLink href="/" className={s.logo}>
-				<MarkerIcon className={s.icon} />
-
-				<div className={s.text}>VIVA GROUP</div>
+				<Image
+					className={s.logoImage}
+					src="/viva-logo.webp"
+					alt="Viva Tour Logo"
+					fill
+				/>
 			</TransitionLink>
 
 			<nav

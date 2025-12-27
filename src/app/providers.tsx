@@ -9,7 +9,7 @@ import { QueryClientProvider } from "@tanstack/react-query"
 import gsap from "gsap"
 import { LenisRef, ReactLenis } from "lenis/react"
 import { SessionProvider } from "next-auth/react"
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { Toaster } from "react-hot-toast"
 
 interface Props {
@@ -18,6 +18,20 @@ interface Props {
 
 export function Providers({ children }: Props) {
 	const lenisRef = useRef<LenisRef>(null)
+	const lenisOptions = useMemo(() => {
+		const isTouch =
+			typeof window !== "undefined" &&
+			window.matchMedia("(pointer: coarse)").matches
+
+		return {
+			autoRaf: false,
+			smoothWheel: true,
+			syncTouch: !isTouch,
+			syncTouchLerp: 0.075,
+			touchInertiaExponent: 1.7,
+			touchMultiplier: 1,
+		}
+	}, [])
 
 	useEffect(() => {
 		function update(time: number) {
@@ -43,12 +57,7 @@ export function Providers({ children }: Props) {
 						<ReactLenis
 							ref={lenisRef}
 							root
-							options={{
-								autoRaf: false,
-								smoothWheel: true,
-								syncTouch: true,
-								touchMultiplier: 1,
-							}}
+							options={lenisOptions}
 						>
 							{children}
 
