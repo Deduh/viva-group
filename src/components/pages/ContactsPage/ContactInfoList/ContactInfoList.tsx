@@ -239,14 +239,19 @@ export const ContactInfoList = memo(function ContactInfoList() {
 									<MapPin className={s.iconWrapper} />
 								</div>
 
-								<h4 className={s.cardTitle}>Адрес</h4>
+								<h4 className={s.cardTitle}>Адреса</h4>
 							</div>
 
 							<div className={s.cardDescription}>
 								<p className={s.cardText}>
-									354071, Российская Федерация,
+									354071, Российская Федерация, г. Сочи, ул. Гагарина, д. 72,
+									оф. 56/2
 									<br />
-									г. Сочи, ул. Гагарина, д. 72, оф. 56/2
+									г. Гуанчжоу, Китай, 广州市 番禺区 9-69商铺西南方向160米
+									邮政编码: 511442
+									<br />
+									г. Якутск, 677000, ТРК Туймаада, улица Орджоникидзе, 38, 703
+									офис, 7 этаж
 								</p>
 							</div>
 						</div>
