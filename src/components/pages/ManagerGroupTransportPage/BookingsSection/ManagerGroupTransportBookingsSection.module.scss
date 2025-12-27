@@ -40,12 +40,18 @@
 }
 
 .empty {
-	padding: 2.4rem 1.6rem;
-	border: 1px dashed #cbd5e1;
-	border-radius: 1.2rem;
-	background: #f8fafc;
-	color: #475569;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 4rem 2rem;
+
 	text-align: center;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.6rem;
+	font-weight: 500;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
 }
 
 @media (max-width: 768px) {
