@@ -24,6 +24,17 @@ body {
 	overscroll-behavior: none;
 }
 
+@media (max-width: 768px) {
+	body {
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+
+	body::-webkit-scrollbar {
+		display: none;
+	}
+}
+
 a {
 	color: inherit;
 	outline: none;
