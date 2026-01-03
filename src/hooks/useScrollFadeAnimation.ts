@@ -6,8 +6,8 @@ import { RefObject } from "react"
 gsap.registerPlugin(ScrollTrigger)
 
 interface UseScrollFadeAnimationOptions {
-	containerRef: RefObject<HTMLElement>
-	wrapperRef: RefObject<HTMLElement>
+	containerRef: RefObject<HTMLElement | null>
+	wrapperRef: RefObject<HTMLElement | null>
 	enabled?: boolean
 	scale?: number
 	opacity?: number
