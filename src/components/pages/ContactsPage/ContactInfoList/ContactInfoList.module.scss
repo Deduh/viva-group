@@ -119,8 +119,8 @@
 	height: 100%;
 	padding: 2.4rem;
 	gap: 1.6rem;
-	box-shadow: 0 4rem 8rem -5rem rgba(37, 99, 235, 0.8);
-	background: rgba(234, 242, 255, 1);
+	box-shadow: 0 4rem 8rem -5rem rgba(7, 151, 166, 0.8);
+	background: rgba(230, 245, 246, 1);
 
 	transition: background-color 0.3s ease;
 
@@ -142,8 +142,8 @@
 	justify-content: center;
 	background: linear-gradient(
 		135deg,
-		rgba(59, 130, 246, 1),
-		rgba(99, 102, 241, 1) 100%
+		rgba(7, 151, 166, 1),
+		rgba(4, 120, 132, 1) 100%
 	);
 	color: #ffffff;
 
@@ -204,7 +204,7 @@
 	transition: color 0.2s ease;
 
 	&:hover {
-		color: rgba(59, 130, 246, 1);
+		color: rgba(7, 151, 166, 1);
 	}
 }
 

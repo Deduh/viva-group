@@ -28,9 +28,6 @@ interface NavItemProps {
 
 export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 	const pathname = usePathname()
-	const isActive = item.href
-		? pathname === item.href || pathname.startsWith(item.href + "/")
-		: false
 	const Icon = item.icon
 
 	const container = useRef(null)
@@ -40,6 +37,15 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 
 	const hasSubLinks = item.subLinks && item.subLinks.length > 0
 	const [isMobileSubMenuOpen, setIsMobileSubMenuOpen] = useState(false)
+	const isActive = item.href
+		? pathname === item.href || pathname.startsWith(item.href + "/")
+		: hasSubLinks
+		? item.subLinks!.some(
+				sub =>
+					sub.href.startsWith("/") &&
+					(pathname === sub.href || pathname.startsWith(sub.href + "/"))
+		  )
+		: false
 
 	useEffect(() => {
 		if (!isMenuOpen) {
@@ -84,7 +90,7 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 			{item.isMenuOnly ? (
 				<button
 					type="button"
-					className={s.linkWrapper}
+					className={`${s.linkWrapper} ${isActive ? s.active : ""}`}
 					onClick={() => setIsMobileSubMenuOpen(true)}
 				>
 					{Icon && (

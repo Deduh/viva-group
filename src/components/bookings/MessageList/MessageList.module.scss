@@ -65,7 +65,7 @@
 		content: "";
 		flex: 1;
 		height: 0.1rem;
-		background: rgba(186, 230, 253, 0.5);
+		background: rgba(7, 151, 166, 0.2);
 	}
 
 	span {
@@ -78,7 +78,7 @@
 		line-height: 1.6rem;
 		letter-spacing: 0%;
 		border-radius: 999.9rem;
-		border: 1px solid rgba(186, 230, 253, 0.3);
+		border: 1px solid rgba(7, 151, 166, 0.2);
 		position: relative;
 		z-index: 1;
 	}
@@ -141,7 +141,7 @@
 }
 
 .message.own .messageBubble {
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	background: linear-gradient(135deg, #0797a6 0%, #0797a6 100%);
 	color: #fff;
 	border-bottom-right-radius: 0.4rem;
 }
@@ -149,8 +149,8 @@
 .message.other .messageBubble {
 	background: rgba(255, 255, 255, 0.8);
 	backdrop-filter: blur(0.4rem);
-	color: rgba(3, 105, 161, 1);
-	border: 1px solid rgba(186, 230, 253, 0.5);
+	color: rgba(7, 151, 166, 1);
+	border: 1px solid rgba(7, 151, 166, 0.2);
 	border-bottom-left-radius: 0.4rem;
 }
 

@@ -1,0 +1,124 @@
+@use "../../../../styles/utils/function.scss" as *;
+
+.introWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	gap: 22.6rem;
+
+	@media (max-width: 768px) {
+		gap: 4rem;
+	}
+}
+
+.description {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	gap: 10rem;
+
+	@media (max-width: 768px) {
+		gap: 5.2rem;
+	}
+}
+
+.title {
+	color: #ffffff;
+	font-family: var(--font-oswald);
+	font-size: 22.85rem;
+	font-weight: 400;
+	line-height: 18.278rem;
+	letter-spacing: 2.72rem;
+
+	will-change: transform, opacity;
+
+	@media (max-width: 768px) {
+		font-size: 4.8rem;
+		line-height: 3.84rem;
+		letter-spacing: 1.463rem;
+	}
+}
+
+.text {
+	width: 52rem;
+
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 1.6rem;
+	font-weight: 500;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	text-align: center;
+
+	will-change: transform, opacity;
+
+	@media (max-width: 768px) {
+		width: 33.7rem;
+
+		font-size: 1.4rem;
+		line-height: 2.275rem;
+	}
+}
+
+.searchWrapper {
+	will-change: transform, opacity;
+}
+
+.button {
+	display: flex;
+	align-items: center;
+	background: rgba(7, 151, 166);
+
+	gap: 1.2rem;
+	padding: 1rem 0.8rem 1rem 2.4rem;
+	border-radius: 2.4rem;
+	box-shadow: 0 1rem 1.5rem -0.3rem rgba(0, 0, 0, 0.1),
+		0 0.4rem 0.6rem -0.4rem rgba(0, 0, 0, 0.1);
+
+	transition: all 0.2s ease-in-out;
+
+	&:hover {
+		filter: brightness(90%);
+	}
+
+	&:active {
+		filter: brightness(80%);
+	}
+}
+
+.buttonText {
+	color: rgba(255, 255, 255, 1);
+	font-size: 1.4rem;
+	font-weight: 600;
+	line-height: 2rem;
+	letter-spacing: 0%;
+}
+
+.buttonIcon {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+
+	width: 3.2rem;
+	height: 3.2rem;
+	border-radius: 999.9rem;
+	background: rgba(255, 255, 255, 0.2);
+
+	color: #ffffff;
+}
+
+.arrowMain,
+.arrowSecondary {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}

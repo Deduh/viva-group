@@ -24,7 +24,7 @@ const statusColors: Record<BookingStatus, string> = {
 	PENDING: "#f59e0b",
 	CONFIRMED: "#10b981",
 	CANCELLED: "#ef4444",
-	IN_PROGRESS: "#3b82f6",
+	IN_PROGRESS: "#0797a6",
 	COMPLETED: "#8b5cf6",
 }
 

@@ -10,8 +10,8 @@
 	backdrop-filter: blur(1.2rem);
 	background: linear-gradient(
 		90deg,
-		rgba(224, 242, 254, 1),
-		rgba(219, 234, 254, 1) 100%
+		rgba(230, 245, 246, 1),
+		rgba(218, 239, 242, 1) 100%
 	);
 }
 
@@ -23,7 +23,7 @@
 }
 
 .title {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 2.4rem;
 	font-weight: 700;
 	line-height: 3.2rem;
@@ -135,7 +135,7 @@
 .submitButton {
 	box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.1),
 		0 0.1rem 0.2rem -0.1rem rgba(0, 0, 0, 0.1);
-	background: rgba(59, 130, 246, 1);
+	background: rgba(7, 151, 166, 1);
 	border: none;
 
 	color: rgba(255, 255, 255, 1);

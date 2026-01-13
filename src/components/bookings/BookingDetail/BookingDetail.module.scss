@@ -33,7 +33,7 @@
 }
 
 .header h1 {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 3.2rem;
 	font-weight: 700;
 	line-height: 4rem;
@@ -114,12 +114,12 @@
 	text-align: left;
 
 	&[data-active="true"] {
-		background: rgba(59, 130, 246, 0.14);
-		border-color: rgba(59, 130, 246, 0.35);
+		background: rgba(7, 151, 166, 0.14);
+		border-color: rgba(7, 151, 166, 0.35);
 
 		&:hover {
-			background: rgba(59, 130, 246, 0.14);
-			border-color: rgba(59, 130, 246, 0.35);
+			background: rgba(7, 151, 166, 0.14);
+			border-color: rgba(7, 151, 166, 0.35);
 		}
 	}
 
@@ -156,8 +156,8 @@
 	backdrop-filter: blur(1.2rem);
 	background: linear-gradient(
 		90deg,
-		rgba(224, 242, 254, 1),
-		rgba(219, 234, 254, 1) 100%
+		rgba(230, 245, 246, 1),
+		rgba(218, 239, 242, 1) 100%
 	);
 
 	@media (max-width: 768px) {
@@ -187,7 +187,7 @@
 }
 
 .tourDestination {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 2.4rem;
 	font-weight: 700;
 	line-height: 3.2rem;
@@ -215,7 +215,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 1.4rem;
 	font-weight: 600;
 	line-height: 2rem;
@@ -223,7 +223,7 @@
 }
 
 .tourPrice {
-	color: rgba(2, 132, 199, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 2rem;
 	font-weight: 700;
 	line-height: 2.4rem;
@@ -238,13 +238,13 @@
 	backdrop-filter: blur(1.2rem);
 	background: linear-gradient(
 		90deg,
-		rgba(224, 242, 254, 1),
-		rgba(219, 234, 254, 1) 100%
+		rgba(230, 245, 246, 1),
+		rgba(218, 239, 242, 1) 100%
 	);
 }
 
 .bookingInfo h2 {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 2.4rem;
 	font-weight: 700;
 	line-height: 3.2rem;
@@ -266,7 +266,7 @@
 }
 
 .infoIcon {
-	color: rgba(2, 132, 199, 1);
+	color: rgba(7, 151, 166, 1);
 	flex-shrink: 0;
 	margin-top: 0.2rem;
 }
@@ -281,7 +281,7 @@
 }
 
 .infoValue {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 1.6rem;
 	font-weight: 600;
 	line-height: 2.4rem;
@@ -296,7 +296,7 @@
 }
 
 .notes h3 {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 1.8rem;
 	font-weight: 600;
 	line-height: 2.4rem;

@@ -29,6 +29,7 @@ const links: LinkItem[] = [
 		label: "Разделы",
 		isMenuOnly: true,
 		subLinks: [
+			{ href: "/cargo", label: "Viva Карго" },
 			{ href: "https://viva-fest.ru", label: "Viva Фестивали" },
 			{ href: "https://viva-education.com", label: "Viva Образование" },
 		],

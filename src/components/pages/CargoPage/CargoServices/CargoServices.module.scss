@@ -1,0 +1,140 @@
+.section {
+	display: flex;
+	justify-content: center;
+	background-color: #ffffff;
+
+	padding-block: 9.6rem;
+	border-radius: 3.2rem 3.2rem 0 0;
+
+	@media (max-width: 768px) {
+		padding-block: 4.8rem;
+		border-radius: 2.4rem 2.4rem 0 0;
+	}
+}
+
+.inner {
+	display: flex;
+	flex-direction: column;
+
+	width: 120rem;
+	max-width: 92vw;
+	gap: 4.8rem;
+
+	@media (max-width: 768px) {
+		gap: 3.2rem;
+	}
+}
+
+.description {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+
+	gap: 1.6rem;
+}
+
+.eyebrow {
+	color: rgba(7, 151, 166, 1);
+	font-size: 1.2rem;
+	font-weight: 600;
+	letter-spacing: 0.32rem;
+	text-transform: uppercase;
+}
+
+.title {
+	color: rgba(17, 24, 39, 1);
+	font-size: 4.8rem;
+	font-weight: 800;
+	line-height: 4.8rem;
+
+	will-change: transform, opacity;
+
+	@media (max-width: 768px) {
+		font-size: 3.4rem;
+		line-height: 4rem;
+	}
+}
+
+.text {
+	width: 72rem;
+	max-width: 100%;
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.6rem;
+	line-height: 2.4rem;
+
+	will-change: transform, opacity;
+}
+
+.cards {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 2.4rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 1.6rem;
+	}
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
+	background: rgba(230, 245, 246, 1);
+
+	gap: 1.6rem;
+	padding: 2.4rem;
+	border-radius: 2.4rem;
+	box-shadow: 0 2.4rem 4rem -3rem rgba(7, 151, 166, 0.6);
+
+	transition: transform 0.35s ease, box-shadow 0.35s ease;
+	will-change: transform, opacity;
+
+	&:hover {
+		transform: translateY(-0.6rem);
+		box-shadow: 0 3rem 5rem -2.6rem rgba(7, 151, 166, 0.7);
+	}
+
+	@media (max-width: 768px) {
+		padding: 2rem;
+	}
+}
+
+.cardHeader {
+	display: flex;
+	align-items: center;
+
+	gap: 1.2rem;
+}
+
+.icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(
+		135deg,
+		rgba(7, 151, 166, 1),
+		rgba(7, 151, 166, 1) 100%
+	);
+
+	width: 4.8rem;
+	height: 4.8rem;
+	border-radius: 1.4rem;
+
+	color: #ffffff;
+
+	will-change: transform, opacity;
+}
+
+.cardTitle {
+	color: rgba(17, 24, 39, 1);
+	font-size: 1.8rem;
+	font-weight: 600;
+	line-height: 2.6rem;
+}
+
+.cardText {
+	color: rgba(107, 114, 128, 1);
+	font-size: 1.4rem;
+	line-height: 2.2rem;
+}

@@ -84,9 +84,9 @@
 
 	&.active {
 		border-radius: 999.9rem;
-		box-shadow: 0 1rem 1.5rem -0.3rem rgba(191, 219, 254, 1),
-			0 0.4rem 0.6rem -0.4rem rgba(191, 219, 254, 1);
-		background: rgba(37, 99, 235, 1);
+		box-shadow: 0 1rem 1.5rem -0.3rem rgba(7, 151, 166, 0.35),
+			0 0.4rem 0.6rem -0.4rem rgba(7, 151, 166, 0.25);
+		background: rgba(7, 151, 166, 1);
 
 		color: rgba(255, 255, 255, 1);
 	}

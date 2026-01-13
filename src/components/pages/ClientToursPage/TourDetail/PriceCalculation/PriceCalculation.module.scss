@@ -11,8 +11,8 @@
 	backdrop-filter: blur(1.2rem);
 	background: linear-gradient(
 		90deg,
-		rgba(224, 242, 254, 1),
-		rgba(219, 234, 254, 1) 100%
+		rgba(230, 245, 246, 1),
+		rgba(218, 239, 242, 1) 100%
 	);
 
 	gap: 1.2rem;
@@ -33,7 +33,7 @@
 }
 
 .calculationValue {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 1.6rem;
 	font-weight: 600;
 	line-height: 2.4rem;
@@ -47,7 +47,7 @@
 }
 
 .calculationTotalLabel {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 1.8rem;
 	font-weight: 700;
 	line-height: 2.4rem;
@@ -55,7 +55,7 @@
 }
 
 .calculationTotalValue {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 2.4rem;
 	font-weight: 700;
 	line-height: 3.2rem;

@@ -1,6 +1,5 @@
 "use client"
 
-import { MarkerIcon3 } from "@/components/icons/MarkerIcon3"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { useAuth } from "@/hooks/useAuth"
@@ -15,6 +14,7 @@ import {
 	UsersRound,
 } from "lucide-react"
 import { signOut } from "next-auth/react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -271,10 +271,13 @@ export function AdminSidebar() {
 		<aside className={s.sidebar}>
 			<div className={s.sidebarContent}>
 				<div className={s.header}>
-					<div className={s.logoWrapper}>
-						<MarkerIcon3 />
-
-						<h2 className={s.logo}>Viva Group</h2>
+					<div className={s.logoImage}>
+						<Image
+							src="/viva-logo.webp"
+							alt="Viva Group"
+							fill
+							style={{ objectFit: "cover" }}
+						/>
 					</div>
 
 					{user && (

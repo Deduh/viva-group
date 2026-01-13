@@ -50,7 +50,7 @@ export default function RootLayout({
 					}
 					#__preloader-logo {
 						position: relative;
-						aspect-ratio: 4/1;
+						aspect-ratio: 5.3/1;
 						height: 15rem;
 						width: fit-content;
 					}

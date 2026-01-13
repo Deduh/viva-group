@@ -63,7 +63,7 @@ export function useToast() {
 			duration: options?.duration || 3000,
 			position: options?.position || "top-right",
 			icon: "ℹ️",
-			style: withAccent("rgba(59, 130, 246, 0.35)"),
+			style: withAccent("rgba(7, 151, 166, 0.35)"),
 		})
 	}
 

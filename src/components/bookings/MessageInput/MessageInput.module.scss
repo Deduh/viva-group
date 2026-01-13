@@ -2,7 +2,7 @@
 
 .container {
 	padding: 0;
-	border-top: 1px solid rgba(186, 230, 253, 0.5);
+	border-top: 1px solid rgba(7, 151, 166, 0.2);
 }
 
 .inputWrapper {
@@ -11,14 +11,14 @@
 	gap: 1.2rem;
 	background: rgba(255, 255, 255, 0.6);
 	backdrop-filter: blur(0.8rem);
-	border: 1px solid rgba(186, 230, 253, 1);
+	border: 1px solid rgba(7, 151, 166, 0.2);
 	border-radius: 1.6rem;
 	padding: 1rem 1.2rem;
 	transition: all 0.2s ease-in-out;
 
 	&:focus-within {
-		border-color: rgba(2, 132, 199, 1);
-		box-shadow: 0 0 0 0.3rem rgba(59, 130, 246, 0.1);
+		border-color: rgba(7, 151, 166, 0.6);
+		box-shadow: 0 0 0 0.3rem rgba(7, 151, 166, 0.1);
 		background: rgba(255, 255, 255, 0.8);
 	}
 }
@@ -28,7 +28,7 @@
 	border: none;
 	background: transparent;
 	resize: none;
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 1.4rem;
 	font-weight: 400;
 	font-family: inherit;
@@ -60,7 +60,7 @@
 	width: 4rem;
 	height: 4rem;
 	border: none;
-	background: rgba(59, 130, 246, 1);
+	background: rgba(7, 151, 166, 1);
 	color: rgba(255, 255, 255, 1);
 	border-radius: 50%;
 	cursor: pointer;

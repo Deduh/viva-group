@@ -9,23 +9,23 @@
 	height: min(60rem, 70vh);
 	min-height: 40rem;
 	padding: 3.2rem;
-	border: 1px solid rgba(186, 230, 253, 1);
+	border: 1px solid rgba(7, 151, 166, 0.25);
 	border-radius: 1.6rem;
 	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
 	backdrop-filter: blur(1.2rem);
 	background: linear-gradient(
 		90deg,
-		rgba(224, 242, 254, 1),
-		rgba(219, 234, 254, 1) 100%
+		rgba(230, 245, 246, 1),
+		rgba(218, 239, 242, 1) 100%
 	);
 }
 
 .header {
-	border-bottom: 1px solid rgba(186, 230, 253, 0.5);
+	border-bottom: 1px solid rgba(7, 151, 166, 0.2);
 }
 
 .header h3 {
-	color: rgba(3, 105, 161, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 2.4rem;
 	font-weight: 700;
 	line-height: 3.2rem;
@@ -41,14 +41,14 @@
 	height: min(60rem, 70vh);
 	min-height: 40rem;
 	padding: 3.2rem;
-	border: 1px solid rgba(186, 230, 253, 1);
+	border: 1px solid rgba(7, 151, 166, 0.25);
 	border-radius: 1.6rem;
 	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
 	backdrop-filter: blur(1.2rem);
 	background: linear-gradient(
 		90deg,
-		rgba(224, 242, 254, 1),
-		rgba(219, 234, 254, 1) 100%
+		rgba(230, 245, 246, 1),
+		rgba(218, 239, 242, 1) 100%
 	);
 }
 

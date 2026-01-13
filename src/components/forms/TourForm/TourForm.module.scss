@@ -57,8 +57,8 @@
 	transition: all 0.2s ease;
 
 	.switchInput:checked + & {
-		background: rgba(59, 130, 246, 0.15);
-		border-color: rgba(59, 130, 246, 0.4);
+		background: rgba(7, 151, 166, 0.15);
+		border-color: rgba(7, 151, 166, 0.4);
 	}
 }
 
@@ -177,8 +177,8 @@
 
 .submitButton {
 	color: #fff;
-	background: rgba(17, 24, 39, 1);
-	box-shadow: 0 1.2rem 2.4rem -0.8rem rgba(15, 23, 42, 0.35);
+	background: rgba(7, 151, 166, 1);
+	box-shadow: 0 1.2rem 2.4rem -0.8rem rgba(7, 151, 166, 0.35);
 
 	&:hover:not(:disabled) {
 		filter: brightness(90%);

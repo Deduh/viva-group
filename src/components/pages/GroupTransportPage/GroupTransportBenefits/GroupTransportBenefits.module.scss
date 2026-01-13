@@ -55,7 +55,7 @@
 }
 
 .subtitle {
-	color: rgba(59, 130, 246, 1);
+	color: rgba(7, 151, 166, 1);
 	font-size: 1.4rem;
 	font-weight: 600;
 	line-height: 2rem;
@@ -150,7 +150,7 @@
 	height: 2rem;
 	margin-top: 0.2rem;
 
-	color: rgba(59, 130, 246, 1);
+	color: rgba(7, 151, 166, 1);
 
 	will-change: transform, opacity;
 
@@ -178,7 +178,7 @@
 	border-radius: 999.9rem;
 	box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.1),
 		0 0.1rem 0.2rem -0.1rem rgba(0, 0, 0, 0.1);
-	background: rgba(59, 130, 246, 1);
+	background: rgba(7, 151, 166, 1);
 
 	color: rgba(255, 255, 255, 1);
 	font-size: 1.6rem;
@@ -233,7 +233,7 @@
 	&:nth-child(1) {
 		background: linear-gradient(
 			175.03deg,
-			rgba(239, 246, 255, 1),
+			rgba(232, 248, 250, 1),
 			rgba(255, 255, 255, 1) 100%
 		);
 	}
@@ -241,7 +241,7 @@
 	&:nth-child(2) {
 		background: linear-gradient(
 			175.03deg,
-			rgba(238, 242, 255, 1),
+			rgba(225, 241, 244, 1),
 			rgba(255, 255, 255, 1) 100%
 		);
 	}

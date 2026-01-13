@@ -1,0 +1,7 @@
+export { CargoAdvantages } from "./CargoAdvantages/CargoAdvantages"
+export { CargoCalculator } from "./CargoCalculator/CargoCalculator"
+export { CargoContacts } from "./CargoContacts/CargoContacts"
+export { CargoFaq } from "./CargoFaq/CargoFaq"
+export { CargoIntro } from "./CargoIntro/CargoIntro"
+export { CargoProcess } from "./CargoProcess/CargoProcess"
+export { CargoServices } from "./CargoServices/CargoServices"

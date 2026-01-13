@@ -65,16 +65,11 @@
 	gap: 0.8rem;
 }
 
-.logo {
-	color: rgba(30, 41, 59, 1);
-	font-size: 2.4rem;
-	font-weight: 700;
-	line-height: 3.2rem;
-	letter-spacing: -0.06rem;
+.logoImage {
+	position: relative;
 
-	@media (max-width: 768px) {
-		display: none;
-	}
+	height: 4.2rem;
+	aspect-ratio: 5.3/1;
 }
 
 .userInfo {
@@ -110,7 +105,7 @@
 	border-radius: 50%;
 	box-shadow: 0 0.4rem 0.6rem -0.1rem rgba(186, 230, 253, 1),
 		0 0.2rem 0.4rem -0.2rem rgba(186, 230, 253, 1);
-	background: rgba(59, 130, 246, 1);
+	background: rgba(7, 151, 166, 1);
 
 	color: rgba(255, 255, 255, 1);
 	font-size: 1.4rem;
@@ -190,24 +185,25 @@
 	transition: all 0.2s ease-in-out;
 
 	&:hover {
-		background: rgba(255, 255, 255, 0.5);
-		color: rgba(2, 132, 199, 1);
+		background: rgba(7, 151, 166, 0.08);
+		border-color: rgba(7, 151, 166, 0.2);
+		color: rgba(7, 151, 166, 1);
 	}
 
 	&.active {
-		border-color: rgba(186, 230, 253, 1);
+		border-color: rgba(7, 151, 166, 0.35);
 		box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.05);
 		backdrop-filter: blur(1.2rem);
 		background: linear-gradient(
 			90deg,
-			rgba(224, 242, 254, 1),
-			rgba(219, 234, 254, 1) 100%
+			rgba(230, 245, 246, 1),
+			rgba(218, 239, 242, 1) 100%
 		);
 
-		color: rgba(3, 105, 161, 1);
+		color: rgba(7, 151, 166, 1);
 
 		.icon {
-			color: rgba(14, 165, 233, 1);
+			color: rgba(7, 151, 166, 1);
 		}
 	}
 
@@ -247,6 +243,7 @@
 .icon {
 	height: 1.4rem;
 	width: fit-content;
+	color: inherit;
 
 	@media (max-width: 768px) {
 		height: 1.8rem;
@@ -281,7 +278,7 @@
 
 	&:hover {
 		border: 1px solid rgba(254, 202, 202, 1);
-		background: rgba(240, 249, 255, 1);
+		background: rgba(236, 250, 251, 1);
 		color: rgba(239, 68, 68, 1);
 	}
 }
