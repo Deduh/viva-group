@@ -59,7 +59,7 @@ export default function RootLayout({
 					}
 					@media (max-width: 768px) {
 						#__preloader-logo {
-							height: 8rem;
+							height: 6rem;
 						}
 					}
 				`,

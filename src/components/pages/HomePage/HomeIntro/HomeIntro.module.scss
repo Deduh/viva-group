@@ -8,8 +8,7 @@
 	gap: 22.6rem;
 
 	@media (max-width: 768px) {
-		gap: 0;
-		anchor-name: --heroIntro;
+		gap: 4rem;
 	}
 }
 
@@ -64,13 +63,6 @@
 
 .searchWrapper {
 	will-change: transform, opacity;
-
-	@media (max-width: 768px) {
-		position: absolute;
-		position-anchor: --heroIntro;
-
-		bottom: 8.4rem;
-	}
 }
 
 .button {
