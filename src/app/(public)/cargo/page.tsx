@@ -7,6 +7,7 @@ import {
 	CargoProcess,
 	CargoServices,
 } from "@/components/pages/CargoPage"
+import { CargoWidget } from "@/components/pages/CargoPage/CargoWidget/CargoWidget"
 
 export default function CargoPage() {
 	return (
@@ -24,6 +25,8 @@ export default function CargoPage() {
 
 				<CargoContacts />
 			</PublicWrapper>
+
+			<CargoWidget />
 		</div>
 	)
 }

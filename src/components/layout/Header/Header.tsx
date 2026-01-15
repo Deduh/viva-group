@@ -331,25 +331,27 @@ export function Header() {
 				</div>
 			</nav>
 
-			<TransitionLink
-				href={dashboardHref}
-				className={s.button}
-				ref={buttonRef}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
-			>
-				<div className={s.buttonText}>Личный кабинет</div>
+			<div className={s.buttonWrapper}>
+				<TransitionLink
+					href={dashboardHref}
+					className={s.button}
+					ref={buttonRef}
+					onMouseEnter={handleMouseEnter}
+					onMouseLeave={handleMouseLeave}
+				>
+					<div className={s.buttonText}>Личный кабинет</div>
 
-				<div className={s.buttonIcon}>
-					<div className={s.arrowMain} data-header-arrow-main>
-						<ArrowUpRight size={"2rem"} color="#ffffff" />
-					</div>
+					<div className={s.buttonIcon}>
+						<div className={s.arrowMain} data-header-arrow-main>
+							<ArrowUpRight size={"2rem"} color="#ffffff" />
+						</div>
 
-					<div className={s.arrowSecondary} data-header-arrow-secondary>
-						<ArrowUpRight size={"2rem"} color="#ffffff" />
+						<div className={s.arrowSecondary} data-header-arrow-secondary>
+							<ArrowUpRight size={"2rem"} color="#ffffff" />
+						</div>
 					</div>
-				</div>
-			</TransitionLink>
+				</TransitionLink>
+			</div>
 
 			<button
 				className={s.menu}
