@@ -113,6 +113,10 @@ export const TourSchema = z.object({
 	updatedAt: z.iso.datetime().optional(),
 })
 
+const nullToUndefined = <T>(val: T | null | undefined): T | undefined => {
+	return val ?? undefined
+}
+
 export const BookingSchema = z.object({
 	id: z.string().min(1, "ID бронирования обязателен"),
 	userId: z.string().min(1, "ID пользователя обязателен"),
@@ -122,10 +126,10 @@ export const BookingSchema = z.object({
 		.number()
 		.int()
 		.positive("Количество участников должно быть положительным числом"),
-	notes: z.string().nullish(),
+	notes: z.string().nullable().optional().transform(nullToUndefined),
 	createdAt: z.iso.datetime("Некорректная дата создания"),
-	updatedAt: z.iso.datetime().nullish(),
-	startDate: z.iso.datetime().nullish(),
+	updatedAt: z.iso.datetime().nullable().optional().transform(nullToUndefined),
+	startDate: z.iso.datetime().nullable().optional().transform(nullToUndefined),
 	paymentStatus: PaymentStatusInputSchema.optional(),
 	totalAmount: optionalPositiveNumberSchema.optional(),
 })
