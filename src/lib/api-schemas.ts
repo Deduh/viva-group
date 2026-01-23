@@ -66,15 +66,18 @@ const PaymentStatusInputSchema = z.preprocess(value => {
 		: undefined
 }, PaymentStatusSchema.optional())
 
-const attachmentsSchema = z.preprocess(value => {
-	if (value === null || value === undefined) return []
-	if (Array.isArray(value)) return value
-	return [value]
-}, z.array(z.union([z.string(), z.record(z.string(), z.any())])))
+const attachmentsSchema = z.preprocess(
+	value => {
+		if (value === null || value === undefined) return []
+		if (Array.isArray(value)) return value
+		return [value]
+	},
+	z.array(z.union([z.string(), z.record(z.string(), z.any())])),
+)
 
 const nullableDateSchema = z.preprocess(
 	value => (value === null ? undefined : value),
-	z.union([z.string(), z.date(), z.number()])
+	z.union([z.string(), z.date(), z.number()]),
 )
 
 export const TourSchema = z.object({
@@ -92,14 +95,14 @@ export const TourSchema = z.object({
 				val.startsWith("/") ||
 				val.startsWith("http://") ||
 				val.startsWith("https://"),
-			"URL изображения должен быть относительным путем или полным URL"
+			"URL изображения должен быть относительным путем или полным URL",
 		),
 	tags: stringArraySchema.default([]),
 	rating: z
 		.preprocess(
 			value =>
 				value === null || value === undefined || value === "" ? 0 : value,
-			z.coerce.number().min(0).max(5, "Рейтинг должен быть от 0 до 5")
+			z.coerce.number().min(0).max(5, "Рейтинг должен быть от 0 до 5"),
 		)
 		.default(0),
 	duration: optionalPositiveNumberSchema.optional(),
@@ -119,10 +122,10 @@ export const BookingSchema = z.object({
 		.number()
 		.int()
 		.positive("Количество участников должно быть положительным числом"),
-	notes: z.string().optional(),
+	notes: z.string().nullish(),
 	createdAt: z.iso.datetime("Некорректная дата создания"),
-	updatedAt: z.iso.datetime().optional(),
-	startDate: z.iso.datetime().optional(),
+	updatedAt: z.iso.datetime().nullish(),
+	startDate: z.iso.datetime().nullish(),
 	paymentStatus: PaymentStatusInputSchema.optional(),
 	totalAmount: optionalPositiveNumberSchema.optional(),
 })
