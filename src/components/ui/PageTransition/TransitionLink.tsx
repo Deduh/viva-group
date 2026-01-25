@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useCallback } from "react"
 
 interface TransitionLinkProps
-	extends LinkProps,
+	extends
+		LinkProps,
 		Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href"> {
 	children: ReactNode
 	className?: string
@@ -18,7 +19,7 @@ export const TransitionLink = forwardRef<
 	TransitionLinkProps
 >(function TransitionLink(
 	{ href, children, className, onClick, ...props },
-	ref
+	ref,
 ) {
 	const router = useRouter()
 	const { setIsTransitionComplete } = usePageTransition()
@@ -62,7 +63,7 @@ export const TransitionLink = forwardRef<
 				},
 			})
 		},
-		[href, onClick, router, setIsTransitionComplete]
+		[href, onClick, router, setIsTransitionComplete],
 	)
 
 	return (

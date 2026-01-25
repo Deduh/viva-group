@@ -27,7 +27,7 @@ type AnimationOptions = {
 
 function createPreloaderAnimation(
 	elements: AnimationElements,
-	options: AnimationOptions = {}
+	options: AnimationOptions = {},
 ): gsap.core.Timeline {
 	const { container, logo } = elements
 	const { onComplete, skipInitialAnimation = false } = options
@@ -48,19 +48,18 @@ function createPreloaderAnimation(
 	}
 
 	tl.to(container, {
-			yPercent: -100,
+		yPercent: -100,
+		duration: 1.2,
+		ease: "expo.inOut",
+	}).to(
+		logo,
+		{
+			y: -200,
 			duration: 1.2,
 			ease: "expo.inOut",
-		})
-		.to(
-			logo,
-			{
-				y: -200,
-				duration: 1.2,
-				ease: "expo.inOut",
-			},
-			"<"
-		)
+		},
+		"<",
+	)
 
 	return tl
 }
@@ -105,7 +104,7 @@ export function Preloader() {
 				await document.fonts.ready
 
 				const criticalImages = document.querySelectorAll<HTMLImageElement>(
-					'img[data-priority="true"], img[loading="eager"]'
+					'img[data-priority="true"], img[loading="eager"]',
 				)
 
 				if (criticalImages.length > 0) {
@@ -124,8 +123,8 @@ export function Preloader() {
 											once: true,
 										})
 									}
-								})
-						)
+								}),
+						),
 					)
 				}
 
@@ -163,7 +162,7 @@ export function Preloader() {
 		{
 			scope: container,
 			dependencies: [shouldShowPreloader],
-		}
+		},
 	)
 
 	useGSAP(
@@ -193,7 +192,7 @@ export function Preloader() {
 		{
 			scope: container,
 			dependencies: [shouldShowPreloader],
-		}
+		},
 	)
 
 	useGSAP(
@@ -228,12 +227,14 @@ export function Preloader() {
 								opacity: 0,
 								duration: 0.1,
 								onComplete: () => {
-									container.current?.remove()
+									if (container.current) {
+										container.current.style.pointerEvents = "none"
+									}
 								},
 							})
 						}
 					},
-				}
+				},
 			)
 
 			tl.delay(remainingTime / 1000)
@@ -246,7 +247,7 @@ export function Preloader() {
 				shouldShowPreloader,
 				animationStarted,
 			],
-		}
+		},
 	)
 
 	useEffect(() => {
@@ -267,10 +268,10 @@ export function Preloader() {
 							onComplete: () => {
 								setIsLoaded(true)
 								if (container.current) {
-									container.current.remove()
+									container.current.style.pointerEvents = "none"
 								}
 							},
-						}
+						},
 					)
 				}
 			}
@@ -291,7 +292,7 @@ export function Preloader() {
 		const fallbackTimeout = setTimeout(() => {
 			if (!isLoaded && !animationStarted) {
 				console.warn(
-					"Прелоадер превысил время ожидания, принудительно скрываем с анимацией"
+					"Прелоадер превысил время ожидания, принудительно скрываем с анимацией",
 				)
 
 				if (container.current && logoRef.current) {
@@ -306,12 +307,8 @@ export function Preloader() {
 								setIsLoaded(true)
 
 								if (lenis) lenis.start()
-
-								if (container.current) {
-									container.current.remove()
-								}
 							},
-						}
+						},
 					)
 				} else {
 					setIsLoaded(true)
@@ -330,7 +327,9 @@ export function Preloader() {
 		if (!staticPreloader) return
 
 		if (!shouldShowPreloader) {
-			staticPreloader.remove()
+			staticPreloader.style.opacity = "0"
+			staticPreloader.style.pointerEvents = "none"
+			staticPreloader.style.display = "none"
 
 			return
 		}
@@ -342,7 +341,9 @@ export function Preloader() {
 					duration: 0.2,
 					ease: "power2.out",
 					onComplete: () => {
-						staticPreloader.remove()
+						staticPreloader.style.opacity = "0"
+						staticPreloader.style.pointerEvents = "none"
+						staticPreloader.style.display = "none"
 					},
 				})
 			}, TIMINGS.STATIC_REPLACE_DELAY)
