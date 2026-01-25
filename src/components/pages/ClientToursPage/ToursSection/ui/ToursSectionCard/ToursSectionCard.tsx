@@ -20,10 +20,11 @@ interface ToursSectionCardProps {
 
 export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 	const isAvailable = tour.available !== false
+	const tourSlug = tour.publicId ?? tour.id
 
 	return (
 		<Link
-			href={`/client/tours/tour/${tour.id}`}
+			href={`/client/tours/tour/${tourSlug}`}
 			className={`${s.tourCard} ${!isAvailable ? s.tourCardUnavailable : ""}`}
 		>
 			<div className={s.cardImage}>
@@ -50,7 +51,7 @@ export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 
 							{tour.rating && (
 								<div className={s.rating}>
-									<Star size={16} color="rgba(234, 179, 8, 1)" />
+									<Star size={"1.6rem"} color="rgba(234, 179, 8, 1)" />
 									<span className={s.ratingNum}>{tour.rating.toFixed(1)}</span>
 								</div>
 							)}

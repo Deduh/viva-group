@@ -11,16 +11,22 @@ interface ManagerBookingCardProps {
 }
 
 export function ManagerBookingCard({ booking }: ManagerBookingCardProps) {
-	return (
-		<Link href={`/manager/tours/booking/${booking.id}`} className={s.card}>
-			<div className={s.cardInfo}>
-				<p className={s.cardId}>#{booking.id}</p>
+	const displayBookingId = booking.publicId ?? booking.id
+	const displayTourId = booking.tourPublicId ?? booking.tourId
+	const guestsCount = booking.participants?.length ?? 0
 
-				<h3 className={s.cardTitle}>Тур {booking.tourId}</h3>
+	return (
+		<Link
+			href={`/manager/tours/booking/${displayBookingId}`}
+			className={s.card}
+		>
+			<div className={s.cardInfo}>
+				<p className={s.cardId}>#{displayBookingId}</p>
+
+				<h3 className={s.cardTitle}>Тур {displayTourId}</h3>
 
 				<p className={s.cardMeta}>
-					Гостей: {booking.partySize}
-					{booking.startDate ? ` · Дата: ${formatDate(booking.startDate)}` : ""}
+					Гостей: {guestsCount}
 					{booking.createdAt
 						? ` · Создано: ${formatDate(booking.createdAt)}`
 						: ""}

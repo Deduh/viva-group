@@ -74,7 +74,7 @@ export function GroupTransportBookingDetail({
 
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
-								<Users size={20} className={s.infoIcon} />
+								<Users size={"2rem"} className={s.infoIcon} />
 
 								<div>
 									<p className={s.infoLabel}>Пассажиров</p>
@@ -85,7 +85,7 @@ export function GroupTransportBookingDetail({
 
 							{forward?.departureDate && (
 								<div className={s.infoItem}>
-									<Calendar size={20} className={s.infoIcon} />
+									<Calendar size={"2rem"} className={s.infoIcon} />
 
 									<div>
 										<p className={s.infoLabel}>Вылет туда</p>
@@ -99,7 +99,7 @@ export function GroupTransportBookingDetail({
 
 							{booking.createdAt && (
 								<div className={s.infoItem}>
-									<Calendar size={20} className={s.infoIcon} />
+									<Calendar size={"2rem"} className={s.infoIcon} />
 
 									<div>
 										<p className={s.infoLabel}>Создано</p>

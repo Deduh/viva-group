@@ -1,5 +1,6 @@
 "use client"
 
+import { BOOKING_STATUS_LABEL } from "@/lib/booking-status"
 import { formatDate } from "@/lib/format"
 import type { GroupTransportBooking } from "@/types/group-transport"
 import Link from "next/link"
@@ -7,14 +8,6 @@ import s from "./BookingsSectionCard.module.scss"
 
 type Props = {
 	booking: GroupTransportBooking
-}
-
-const statusLabels: Record<GroupTransportBooking["status"], string> = {
-	PENDING: "Ожидает подтверждения",
-	CONFIRMED: "Подтверждено",
-	CANCELLED: "Отменено",
-	IN_PROGRESS: "В процессе",
-	COMPLETED: "Завершено",
 }
 
 export function BookingsSectionCard({ booking }: Props) {
@@ -43,7 +36,7 @@ export function BookingsSectionCard({ booking }: Props) {
 						: ""}
 				</p>
 				<div className={s.statusBadge} data-status={booking.status}>
-					{statusLabels[booking.status]}
+					{BOOKING_STATUS_LABEL[booking.status]}
 				</div>
 			</div>
 		</Link>

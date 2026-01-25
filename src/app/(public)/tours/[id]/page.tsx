@@ -34,7 +34,8 @@ export async function generateMetadata({
 
 	const title = buildTitle(tour.destination)
 	const description = tour.shortDescription
-	const url = `${baseUrl}/tours/${tour.id}`
+	const tourSlug = tour.publicId ?? tour.id
+	const url = `${baseUrl}/tours/${tourSlug}`
 
 	return {
 		title,

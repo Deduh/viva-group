@@ -26,8 +26,10 @@ export function ManagerBookingsSection({
 		return bookings.filter(
 			b =>
 				b.id.toLowerCase().includes(q) ||
+				(b.publicId || "").toLowerCase().includes(q) ||
 				b.tourId.toLowerCase().includes(q) ||
-				(b.notes || "").toLowerCase().includes(q)
+				(b.tourPublicId || "").toLowerCase().includes(q) ||
+				(b.notes || "").toLowerCase().includes(q),
 		)
 	}, [bookings, debouncedSearch])
 

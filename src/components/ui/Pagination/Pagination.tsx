@@ -72,7 +72,7 @@ export const Pagination = memo(function Pagination({
 				className={s.button}
 				aria-label="Предыдущая страница"
 			>
-				<ChevronLeft size={20} />
+				<ChevronLeft size={"2rem"} />
 
 				<span>Назад</span>
 			</button>
@@ -104,7 +104,7 @@ export const Pagination = memo(function Pagination({
 			>
 				<span>Вперед</span>
 
-				<ChevronRight size={20} />
+				<ChevronRight size={"2rem"} />
 			</button>
 		</div>
 	)

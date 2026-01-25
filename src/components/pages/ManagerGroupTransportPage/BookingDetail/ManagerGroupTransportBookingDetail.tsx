@@ -40,7 +40,7 @@ export function ManagerGroupTransportBookingDetail({
 	const statusLabel = BOOKING_STATUS_LABEL[currentBooking.status]
 
 	const forward = currentBooking.segments.find(
-		seg => seg.direction === "forward"
+		seg => seg.direction === "forward",
 	)
 	const passengersTotal = currentBooking.segments.reduce((acc, seg) => {
 		const p = seg.passengers
@@ -63,8 +63,8 @@ export function ManagerGroupTransportBookingDetail({
 		user?.role === "ADMIN"
 			? "/manager/group-transport"
 			: user?.role === "MANAGER"
-			? "/manager/group-transport"
-			: "/client/group-transport"
+				? "/manager/group-transport"
+				: "/client/group-transport"
 
 	const handleStatusChange = async (status: BookingStatus) => {
 		if (status === currentBooking.status) {
@@ -98,7 +98,7 @@ export function ManagerGroupTransportBookingDetail({
 				ease: "power2.out",
 			})
 		},
-		{ dependencies: [isStatusOpen] }
+		{ dependencies: [isStatusOpen] },
 	)
 
 	useEffect(() => {
@@ -180,7 +180,7 @@ export function ManagerGroupTransportBookingDetail({
 
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
-								<Users size={20} className={s.infoIcon} />
+								<Users size={"2rem"} className={s.infoIcon} />
 
 								<div>
 									<p className={s.infoLabel}>Пассажиров</p>
@@ -191,7 +191,7 @@ export function ManagerGroupTransportBookingDetail({
 
 							{forward?.departureDate && (
 								<div className={s.infoItem}>
-									<Calendar size={20} className={s.infoIcon} />
+									<Calendar size={"2rem"} className={s.infoIcon} />
 
 									<div>
 										<p className={s.infoLabel}>Вылет туда</p>
@@ -204,7 +204,7 @@ export function ManagerGroupTransportBookingDetail({
 							)}
 
 							<div className={s.infoItem}>
-								<Calendar size={20} className={s.infoIcon} />
+								<Calendar size={"2rem"} className={s.infoIcon} />
 
 								<div>
 									<p className={s.infoLabel}>Дата создания</p>

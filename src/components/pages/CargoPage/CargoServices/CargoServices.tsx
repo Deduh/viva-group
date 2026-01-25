@@ -85,7 +85,7 @@ export const CargoServices = memo(function CargoServices() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=0.6"
+					"-=0.6",
 				)
 				.to(
 					"[data-services-card]",
@@ -97,7 +97,7 @@ export const CargoServices = memo(function CargoServices() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=0.4"
+					"-=0.4",
 				)
 				.to(
 					"[data-services-icon]",
@@ -109,7 +109,7 @@ export const CargoServices = memo(function CargoServices() {
 						ease: "back.out(1.7)",
 						clearProps: "all",
 					},
-					"<+=0.1"
+					"<+=0.1",
 				)
 
 			return () => {
@@ -120,7 +120,7 @@ export const CargoServices = memo(function CargoServices() {
 				tl.kill()
 			}
 		},
-		{ scope: container, dependencies: [] }
+		{ scope: container, dependencies: [] },
 	)
 
 	return (
@@ -149,7 +149,7 @@ export const CargoServices = memo(function CargoServices() {
 							<div key={service.title} className={s.card} data-services-card>
 								<div className={s.cardHeader}>
 									<div className={s.icon} data-services-icon>
-										<Icon size={22} />
+										<Icon size={"2.2rem"} />
 									</div>
 
 									<h3 className={s.cardTitle}>{service.title}</h3>

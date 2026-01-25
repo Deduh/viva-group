@@ -31,6 +31,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 	const { user } = useAuth()
 	const [showCancelModal, setShowCancelModal] = useState(false)
 	const cancelBookingMutation = useCancelBooking()
+	const displayBookingId = booking.publicId ?? booking.id
 
 	const getBackUrl = () => {
 		if (!user) return "/client/tours"
@@ -74,7 +75,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 						onClick={() => setShowCancelModal(true)}
 						disabled={cancelBookingMutation.isPending}
 					>
-						<X size={20} />
+						<X size={"2rem"} />
 
 						<span>Отменить бронирование</span>
 					</button>
@@ -83,7 +84,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 			<div className={s.header}>
 				<div>
-					<p className={s.bookingId}>Бронирование #{booking.id}</p>
+					<p className={s.bookingId}>Бронирование #{displayBookingId}</p>
 
 					<h1>Детали бронирования</h1>
 				</div>
@@ -137,7 +138,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 								<div className={s.tourMeta}>
 									<span className={s.tourRating}>
-										<Star size={16} fill="currentColor" />
+										<Star size={"1.6rem"} fill="currentColor" />
 
 										{tourQuery.data.rating}
 									</span>
@@ -155,31 +156,17 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
-								<Users size={20} className={s.infoIcon} />
+								<Users size={"2rem"} className={s.infoIcon} />
 
 								<div>
 									<p className={s.infoLabel}>Количество гостей</p>
 
-									<p className={s.infoValue}>{booking.partySize}</p>
+									<p className={s.infoValue}>{booking.participants.length}</p>
 								</div>
 							</div>
 
-							{booking.startDate && (
-								<div className={s.infoItem}>
-									<Calendar size={20} className={s.infoIcon} />
-
-									<div>
-										<p className={s.infoLabel}>Дата начала</p>
-
-										<p className={s.infoValue}>
-											{formatDate(booking.startDate)}
-										</p>
-									</div>
-								</div>
-							)}
-
 							<div className={s.infoItem}>
-								<Calendar size={20} className={s.infoIcon} />
+								<Calendar size={"2rem"} className={s.infoIcon} />
 
 								<div>
 									<p className={s.infoLabel}>Дата создания</p>
@@ -190,7 +177,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 							{booking.updatedAt && (
 								<div className={s.infoItem}>
-									<Calendar size={20} className={s.infoIcon} />
+									<Calendar size={"2rem"} className={s.infoIcon} />
 
 									<div>
 										<p className={s.infoLabel}>Последнее обновление</p>
@@ -204,7 +191,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 							{tourQuery.data && (
 								<div className={s.infoItem}>
-									<MapPin size={20} className={s.infoIcon} />
+									<MapPin size={"2rem"} className={s.infoIcon} />
 
 									<div>
 										<p className={s.infoLabel}>Направление</p>
@@ -213,6 +200,43 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 									</div>
 								</div>
 							)}
+						</div>
+
+						<div className={s.participants}>
+							<div className={s.participantsHeader}>
+								<h3>Участники</h3>
+
+								<span className={s.participantsCount}>
+									{booking.participants.length}
+								</span>
+							</div>
+
+							<div className={s.participantsList}>
+								{booking.participants.map((participant, index) => (
+									<div key={index} className={s.participantCard}>
+										<div className={s.participantTop}>
+											<p className={s.participantName}>
+												{participant.fullName}
+											</p>
+
+											<span className={s.participantIndex}>#{index + 1}</span>
+										</div>
+
+										<div className={s.participantMeta}>
+											<span>
+												Дата рождения: {formatDate(participant.birthDate)}
+											</span>
+
+											<span>
+												Пол:{" "}
+												{participant.gender === "male" ? "Мужской" : "Женский"}
+											</span>
+
+											<span>Паспорт: {participant.passportNumber}</span>
+										</div>
+									</div>
+								))}
+							</div>
 						</div>
 
 						{booking.notes && (
@@ -232,7 +256,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 				isOpen={showCancelModal}
 				onClose={() => setShowCancelModal(false)}
 				onConfirm={handleCancel}
-				bookingId={booking.id}
+				bookingId={displayBookingId}
 				isPending={cancelBookingMutation.isPending}
 			/>
 		</div>

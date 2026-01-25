@@ -17,7 +17,7 @@ import { BookingStatus } from "@/types/enums"
 import { useGSAP } from "@gsap/react"
 import { useQuery } from "@tanstack/react-query"
 import gsap from "gsap"
-import { Calendar, ChevronDown, MapPin, Star, Users } from "lucide-react"
+import { Calendar, ChevronDown, MapPin, Star } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import s from "./BookingDetail.module.scss"
@@ -30,15 +30,17 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 	const { user } = useAuth()
 	const [currentBooking, setCurrentBooking] = useState<Booking>(booking)
 	const updateStatus = useUpdateBookingStatus()
+	const displayBookingId = currentBooking.publicId ?? currentBooking.id
 
 	useEffect(() => {
 		setCurrentBooking(booking)
 	}, [booking])
 
+	const tourLookupId = currentBooking.tourPublicId ?? currentBooking.tourId
 	const tourQuery = useQuery({
-		queryKey: ["tours", currentBooking.tourId],
-		queryFn: () => api.getTour(currentBooking.tourId),
-		enabled: !!currentBooking.tourId,
+		queryKey: ["tours", tourLookupId],
+		queryFn: () => api.getTour(tourLookupId),
+		enabled: !!tourLookupId,
 	})
 
 	const statusColor = BOOKING_STATUS_COLOR[currentBooking.status]
@@ -57,7 +59,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 				ease: "power2.out",
 			})
 		},
-		{ dependencies: [isStatusOpen] }
+		{ dependencies: [isStatusOpen] },
 	)
 
 	useEffect(() => {
@@ -91,8 +93,8 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 		user?.role === "ADMIN"
 			? "/manager/tours"
 			: user?.role === "MANAGER"
-			? "/manager/tours"
-			: "/client/tours"
+				? "/manager/tours"
+				: "/client/tours"
 
 	return (
 		<div className={s.container}>
@@ -102,7 +104,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 			<div className={s.header}>
 				<div>
-					<p className={s.bookingId}>Бронирование #{currentBooking.id}</p>
+					<p className={s.bookingId}>Бронирование #{displayBookingId}</p>
 
 					<h1>Детали бронирования</h1>
 				</div>
@@ -188,7 +190,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 								<div className={s.tourMeta}>
 									<span className={s.tourRating}>
-										<Star size={16} fill="currentColor" />
+										<Star size={"1.6rem"} fill="currentColor" />
 
 										{tourQuery.data.rating}
 									</span>
@@ -206,31 +208,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
-								<Users size={20} className={s.infoIcon} />
-
-								<div>
-									<p className={s.infoLabel}>Количество гостей</p>
-
-									<p className={s.infoValue}>{currentBooking.partySize}</p>
-								</div>
-							</div>
-
-							{currentBooking.startDate && (
-								<div className={s.infoItem}>
-									<Calendar size={20} className={s.infoIcon} />
-
-									<div>
-										<p className={s.infoLabel}>Дата начала</p>
-
-										<p className={s.infoValue}>
-											{formatDate(currentBooking.startDate)}
-										</p>
-									</div>
-								</div>
-							)}
-
-							<div className={s.infoItem}>
-								<Calendar size={20} className={s.infoIcon} />
+								<Calendar size={"2rem"} className={s.infoIcon} />
 
 								<div>
 									<p className={s.infoLabel}>Дата создания</p>
@@ -243,7 +221,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 							{currentBooking.updatedAt && (
 								<div className={s.infoItem}>
-									<Calendar size={20} className={s.infoIcon} />
+									<Calendar size={"2rem"} className={s.infoIcon} />
 
 									<div>
 										<p className={s.infoLabel}>Последнее обновление</p>
@@ -257,7 +235,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 							{tourQuery.data && (
 								<div className={s.infoItem}>
-									<MapPin size={20} className={s.infoIcon} />
+									<MapPin size={"2rem"} className={s.infoIcon} />
 
 									<div>
 										<p className={s.infoLabel}>Направление</p>
@@ -266,6 +244,43 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 									</div>
 								</div>
 							)}
+						</div>
+
+						<div className={s.participants}>
+							<div className={s.participantsHeader}>
+								<h3>Участники</h3>
+
+								<span className={s.participantsCount}>
+									{currentBooking.participants?.length ?? 0}
+								</span>
+							</div>
+
+							<div className={s.participantsList}>
+								{currentBooking.participants?.map((participant, index) => (
+									<div key={index} className={s.participantCard}>
+										<div className={s.participantTop}>
+											<p className={s.participantName}>
+												{participant.fullName}
+											</p>
+
+											<span className={s.participantIndex}>#{index + 1}</span>
+										</div>
+
+										<div className={s.participantMeta}>
+											<span>
+												Дата рождения: {formatDate(participant.birthDate)}
+											</span>
+
+											<span>
+												Пол:{" "}
+												{participant.gender === "male" ? "Мужской" : "Женский"}
+											</span>
+
+											<span>Паспорт: {participant.passportNumber}</span>
+										</div>
+									</div>
+								))}
+							</div>
 						</div>
 
 						{currentBooking.notes && (

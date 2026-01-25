@@ -1,0 +1,257 @@
+.wrapper {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+	width: 100%;
+}
+
+.label {
+	font-size: 1.4rem;
+	font-weight: 500;
+	color: #0f172a;
+}
+
+.required {
+	color: #ef4444;
+	margin-left: 0.4rem;
+}
+
+.inputWrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.inputWrapper.open .input {
+	border-color: #0797a6;
+	box-shadow: 0 0 0 0.3rem rgba(7, 151, 166, 0.1);
+}
+
+.input {
+	background: #ffffff;
+	padding: 1.2rem 4.2rem 1.2rem 1.6rem;
+	border: 0.1rem solid #e2e8f0;
+	border-radius: 2rem;
+	font-size: 1.6rem;
+	color: #0f172a;
+	outline: none;
+	transition: all 0.2s ease;
+	appearance: none;
+	width: 100%;
+
+	&::placeholder {
+		color: #94a3b8;
+	}
+
+	&:hover:not(:disabled) {
+		background: #f8fafc;
+		border-color: #cbd5e1;
+	}
+
+	&:focus {
+		background: #ffffff;
+		border-color: #0797a6;
+		box-shadow: 0 0 0 0.3rem rgba(7, 151, 166, 0.1);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		background: #f1f5f9;
+	}
+
+	&.error {
+		border-color: #ef4444;
+
+		&:focus {
+			box-shadow: 0 0 0 0.3rem rgba(239, 68, 68, 0.1);
+		}
+	}
+}
+
+.nativeInput {
+	appearance: auto;
+	padding-right: 1.6rem;
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.calendarButton {
+	position: absolute;
+	right: 0.6rem;
+	top: 50%;
+	transform: translateY(-50%);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3.2rem;
+	height: 3.2rem;
+	border: none;
+	border-radius: 1.6rem;
+	background: rgba(7, 151, 166, 0.12);
+	color: #0797a6;
+	cursor: pointer;
+	transition:
+		background 0.2s ease,
+		color 0.2s ease;
+}
+
+.calendarButton:hover:not(:disabled) {
+	background: rgba(7, 151, 166, 0.2);
+}
+
+.calendarButton:disabled {
+	cursor: not-allowed;
+	background: rgba(148, 163, 184, 0.2);
+	color: #94a3b8;
+}
+
+.popover {
+	position: absolute;
+	top: calc(100% + 0.8rem);
+	left: 0;
+	z-index: 20;
+	width: 28rem;
+	border-radius: 1.6rem;
+	border: 0.1rem solid #e2e8f0;
+	background: #ffffff;
+	box-shadow:
+		0 1.2rem 2.4rem rgba(15, 23, 42, 0.12),
+		0 0 0 0.1rem rgba(148, 163, 184, 0.12);
+	padding: 1.2rem;
+}
+
+.calendarHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.selectGroup {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.select {
+	border: 0.1rem solid #e2e8f0;
+	border-radius: 1rem;
+	background: #ffffff;
+	padding: 0.6rem 1rem;
+	font-size: 1.3rem;
+	font-weight: 600;
+	color: #0f172a;
+	text-transform: capitalize;
+	cursor: pointer;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.select:focus {
+	outline: none;
+	border-color: #0797a6;
+	box-shadow: 0 0 0 0.2rem rgba(7, 151, 166, 0.16);
+}
+
+.navButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border: none;
+	border-radius: 1rem;
+	background: rgba(148, 163, 184, 0.12);
+	color: #0f172a;
+	cursor: pointer;
+	transition:
+		background 0.2s ease,
+		color 0.2s ease;
+}
+
+.navButton:hover:not(:disabled) {
+	background: rgba(7, 151, 166, 0.16);
+	color: #0797a6;
+}
+
+.navButton:disabled {
+	cursor: not-allowed;
+	opacity: 0.4;
+}
+
+.weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 0.4rem;
+	font-size: 1.1rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #64748b;
+	margin-bottom: 0.6rem;
+}
+
+.weekdays span {
+	text-align: center;
+}
+
+.daysGrid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 0.4rem;
+}
+
+.dayButton {
+	border: none;
+	border-radius: 1.2rem;
+	padding: 0.8rem 0;
+	font-size: 1.3rem;
+	font-weight: 600;
+	background: transparent;
+	color: #0f172a;
+	cursor: pointer;
+	transition:
+		background 0.2s ease,
+		color 0.2s ease,
+		transform 0.2s ease;
+}
+
+.dayButton:hover:not(:disabled) {
+	background: rgba(7, 151, 166, 0.12);
+	color: #0797a6;
+	transform: translateY(-0.1rem);
+}
+
+.dayButton:disabled {
+	cursor: not-allowed;
+	color: #cbd5e1;
+}
+
+.selected {
+	background: #0797a6;
+	color: #ffffff;
+}
+
+.selected:hover:not(:disabled) {
+	background: #0b6f7a;
+	color: #ffffff;
+	transform: none;
+}
+
+.today {
+	box-shadow: inset 0 0 0 0.1rem rgba(7, 151, 166, 0.4);
+}
+
+.emptyDay {
+	height: 3.4rem;
+}
+
+.helper {
+	font-size: 1.2rem;
+	color: #64748b;
+	margin-top: 0.4rem;
+}

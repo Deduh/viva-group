@@ -104,8 +104,7 @@ export default function ClientTourDetailPage() {
 
 				<div className={s.bookingSection}>
 					<BookingForm
-						tourId={tour.id}
-						tourName={tour.destination}
+						tourId={tour.publicId ?? tour.id}
 						onSuccess={handleBookingSuccess}
 						onPartySizeChange={setPartySize}
 						isAvailable={tour.available}

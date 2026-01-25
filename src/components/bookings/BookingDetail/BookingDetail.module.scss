@@ -52,15 +52,19 @@
 	line-height: 2rem;
 	letter-spacing: 0%;
 	border: 1px solid rgba(255, 255, 255, 0.6);
-	box-shadow: 0 0.8rem 2rem rgba(15, 23, 42, 0.12),
+	box-shadow:
+		0 0.8rem 2rem rgba(15, 23, 42, 0.12),
 		0 0 0 0.1rem rgba(255, 255, 255, 0.6) inset;
 	backdrop-filter: blur(1.2rem);
 	background: rgba(255, 255, 255, 0.7);
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 
 	&:hover {
 		transform: translateY(-1px);
-		box-shadow: 0 1.2rem 2.4rem rgba(15, 23, 42, 0.16),
+		box-shadow:
+			0 1.2rem 2.4rem rgba(15, 23, 42, 0.16),
 			0 0 0 0.1rem rgba(255, 255, 255, 0.7) inset;
 	}
 }
@@ -81,12 +85,15 @@
 	border: 1px solid rgba(255, 255, 255, 0.6);
 	border-radius: 1.6rem;
 	background: rgba(255, 255, 255, 1);
-	box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14),
+	box-shadow:
+		0 1.2rem 2.4rem rgba(15, 23, 42, 0.14),
 		0 0 0 0.1rem rgba(255, 255, 255, 0.6) inset;
 	opacity: 0;
-	transform: translateY(-6px);
+	transform: translateY(-0.6rem);
 	pointer-events: none;
-	transition: opacity 0.2s ease, transform 0.2s ease;
+	transition:
+		opacity 0.2s ease,
+		transform 0.2s ease;
 	padding: 0.8rem;
 	display: grid;
 	gap: 0.4rem;
@@ -231,6 +238,10 @@
 }
 
 .bookingInfo {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
 	padding: 3.2rem;
 	border: 1px solid rgba(186, 230, 253, 1);
 	border-radius: 1.6rem;
@@ -249,14 +260,12 @@
 	font-weight: 700;
 	line-height: 3.2rem;
 	letter-spacing: 0%;
-	margin: 0 0 2.4rem 0;
 }
 
 .infoGrid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
 	gap: 2rem;
-	margin-bottom: 2.4rem;
 }
 
 .infoItem {
@@ -290,9 +299,92 @@
 }
 
 .notes {
-	margin-top: 2.4rem;
-	padding-top: 2.4rem;
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
 	border-top: 1px solid rgba(186, 230, 253, 0.5);
+}
+
+.participants {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+	border-top: 1px solid rgba(186, 230, 253, 0.5);
+}
+
+.participantsHeader {
+	display: flex;
+	align-items: center;
+
+	gap: 1.2rem;
+}
+
+.participantsHeader h3 {
+	color: rgba(7, 151, 166, 1);
+	font-size: 1.8rem;
+	font-weight: 600;
+	line-height: 2.4rem;
+	letter-spacing: 0%;
+	margin: 0;
+}
+
+.participantsCount {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 3.2rem;
+	height: 3.2rem;
+	padding: 0 1rem;
+	border-radius: 999.9rem;
+	background: rgba(7, 151, 166, 0.12);
+	color: rgba(7, 151, 166, 1);
+	font-size: 1.4rem;
+	font-weight: 700;
+}
+
+.participantsList {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+	gap: 1.2rem;
+}
+
+.participantCard {
+	padding: 1.4rem 1.6rem;
+	border-radius: 1.2rem;
+	border: 1px solid rgba(186, 230, 253, 0.7);
+	background: rgba(255, 255, 255, 0.7);
+	box-shadow: 0 0.2rem 0.8rem rgba(15, 23, 42, 0.06);
+	display: grid;
+	gap: 0.8rem;
+}
+
+.participantTop {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.participantName {
+	font-size: 1.6rem;
+	font-weight: 700;
+	color: rgba(15, 23, 42, 1);
+	margin: 0;
+}
+
+.participantIndex {
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: rgba(148, 163, 184, 1);
+}
+
+.participantMeta {
+	display: grid;
+	gap: 0.4rem;
+	font-size: 1.3rem;
+	color: rgba(71, 85, 105, 1);
 }
 
 .notes h3 {
@@ -301,7 +393,6 @@
 	font-weight: 600;
 	line-height: 2.4rem;
 	letter-spacing: 0%;
-	margin: 0 0 1.2rem 0;
 }
 
 .notes p {
@@ -316,7 +407,6 @@
 .statusGrid {
 	display: grid;
 	gap: 1.2rem;
-	margin-top: 1.2rem;
 }
 
 .cancelButton {
@@ -444,13 +534,11 @@
 	.bookingInfo h2 {
 		font-size: 2rem;
 		line-height: 2.6rem;
-		margin-bottom: 1.6rem;
 	}
 
 	.infoGrid {
 		gap: 1.2rem;
 		grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-		margin-bottom: 1.6rem;
 	}
 
 	.infoLabel {
@@ -463,9 +551,25 @@
 		line-height: 2rem;
 	}
 
-	.notes {
-		margin-top: 1.6rem;
-		padding-top: 1.6rem;
+	.participantsHeader h3 {
+		font-size: 1.6rem;
+		line-height: 2.2rem;
+	}
+
+	.participantsList {
+		grid-template-columns: 1fr;
+	}
+
+	.participantCard {
+		padding: 1.2rem 1.4rem;
+	}
+
+	.participantName {
+		font-size: 1.5rem;
+	}
+
+	.participantMeta {
+		font-size: 1.2rem;
 	}
 
 	.notes h3 {
@@ -480,7 +584,6 @@
 
 	.statusGrid {
 		gap: 0.8rem;
-		margin-top: 1rem;
 	}
 
 	.cancelButton {

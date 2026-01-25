@@ -1,27 +1,18 @@
 import { BookingStatus } from "@/types/enums"
 import { z } from "zod"
 
+export const participantSchema = z.object({
+	fullName: z.string().min(1, "Укажите ФИО"),
+	birthDate: z.string().min(1, "Укажите дату рождения"),
+	gender: z.enum(["male", "female"], {
+		error: () => ({ message: "Выберите пол" }),
+	}),
+	passportNumber: z.string().min(1, "Укажите номер загранпаспорта"),
+})
+
 export const bookingSchema = z.object({
 	tourId: z.string().min(1, "Выберите тур"),
-	partySize: z
-		.number({ message: "Количество должно быть числом" })
-		.int("Количество должно быть целым числом")
-		.min(1, "Минимум 1 человек")
-		.max(20, "Максимум 20 человек"),
-	startDate: z
-		.string()
-		.min(1, "Укажите дату начала")
-		.refine(
-			date => {
-				const selectedDate = new Date(date)
-				const today = new Date()
-				today.setHours(0, 0, 0, 0)
-				return selectedDate >= today
-			},
-			{
-				message: "Дата должна быть сегодня или в будущем",
-			}
-		),
+	participants: z.array(participantSchema).min(1, "Минимум 1 участник"),
 	notes: z
 		.string()
 		.max(500, "Заметки не должны превышать 500 символов")
@@ -37,7 +28,7 @@ export const bookingStatusUpdateSchema = z.object({
 		Object.values(BookingStatus) as [BookingStatus, ...BookingStatus[]],
 		{
 			message: "Некорректный статус бронирования",
-		}
+		},
 	),
 })
 

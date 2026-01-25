@@ -36,7 +36,7 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 	const isEditMode = !!tour
 	const [tagsInput, setTagsInput] = useState(tour?.tags.join(", ") || "")
 	const [propertiesInput, setPropertiesInput] = useState(
-		tour?.properties.join(", ") || ""
+		tour?.properties.join(", ") || "",
 	)
 	const [isUploading, setIsUploading] = useState(false)
 	const [uploadError, setUploadError] = useState<string | null>(null)
@@ -65,7 +65,7 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					maxPartySize: tour.maxPartySize,
 					minPartySize: tour.minPartySize,
 					available: tour.available ?? true,
-			  } as TourUpdateInput)
+				} as TourUpdateInput)
 			: ({
 					destination: "",
 					shortDescription: "",
@@ -79,7 +79,7 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					maxPartySize: undefined,
 					minPartySize: undefined,
 					available: true,
-			  } as TourCreateInput),
+				} as TourCreateInput),
 	})
 	const imageField = register("image")
 
@@ -135,7 +135,7 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 			setValue("image", formatImageUrlForDisplay(url), { shouldDirty: true })
 		} catch (err) {
 			setUploadError(
-				err instanceof Error ? err.message : "Не удалось загрузить изображение"
+				err instanceof Error ? err.message : "Не удалось загрузить изображение",
 			)
 		} finally {
 			setIsUploading(false)
@@ -229,12 +229,12 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					>
 						{isUploading ? (
 							<>
-								<Loader2 size={18} className={s.spin} />
+								<Loader2 size={"1.8rem"} className={s.spin} />
 								Загружаем...
 							</>
 						) : (
 							<>
-								<ImageIcon size={18} />
+								<ImageIcon size={"1.8rem"} />
 								Загрузить изображение
 							</>
 						)}

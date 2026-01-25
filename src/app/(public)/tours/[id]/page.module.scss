@@ -5,19 +5,21 @@
 }
 
 .section {
-	max-width: 800px;
-	margin: 0 auto;
-	padding: 28px 20px 40px;
 	display: grid;
-	gap: 12px;
+
+	max-width: 80rem;
+	margin: 0 auto;
+	padding: 2.8rem 2rem 4rem;
+	gap: 1.2rem;
 }
 
 .imageWrapper {
 	position: relative;
+	overflow: hidden;
+
 	width: 100%;
 	aspect-ratio: 16 / 9;
 	border-radius: 1.2rem;
-	overflow: hidden;
 	margin-bottom: 2rem;
 	background: rgba(255, 255, 255, 0.05);
 }
@@ -32,17 +34,19 @@
 
 .tag {
 	display: inline-flex;
-	padding: 4px 8px;
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.06);
-	color: #94a3b8;
-	font-size: 12px;
+
 	width: fit-content;
+	padding: 0.4rem 0.8rem;
+	border-radius: 99.9rem;
+	background: rgba(255, 255, 255, 0.06);
+
+	color: #94a3b8;
+	font-size: 1.2rem;
 }
 
 .meta {
 	color: #94a3b8;
-	font-size: 14px;
+	font-size: 1.4rem;
 }
 
 .price {
@@ -55,13 +59,14 @@
 }
 
 .infoBox {
-	margin-top: 6px;
+	display: grid;
+
+	margin-top: 0.6rem;
 	border: 1px solid #1f2937;
 	background: #0f172a;
-	border-radius: 14px;
-	padding: 14px;
-	display: grid;
-	gap: 10px;
+	border-radius: 1.4rem;
+	padding: 1.4rem;
+	gap: 1rem;
 }
 
 .chatSection {
@@ -71,8 +76,8 @@
 }
 
 .primary {
-	padding: 10px 14px;
-	border-radius: 12px;
+	padding: 1rem 1.4rem;
+	border-radius: 1.2rem;
 	border: 1px solid #22c55e;
 	background: #22c55e;
 	color: #0c1610;

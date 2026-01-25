@@ -66,7 +66,7 @@ export const CargoContacts = memo(function CargoContacts() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=0.6"
+					"-=0.6",
 				)
 				.to(
 					"[data-contacts-card]",
@@ -78,7 +78,7 @@ export const CargoContacts = memo(function CargoContacts() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=0.4"
+					"-=0.4",
 				)
 
 			return () => {
@@ -89,7 +89,7 @@ export const CargoContacts = memo(function CargoContacts() {
 				tl.kill()
 			}
 		},
-		{ scope: container, dependencies: [] }
+		{ scope: container, dependencies: [] },
 	)
 
 	return (
@@ -123,7 +123,7 @@ export const CargoContacts = memo(function CargoContacts() {
 								data-contacts-card
 							>
 								<div className={s.icon}>
-									<Icon size={22} />
+									<Icon size={"2.2rem"} />
 								</div>
 
 								<div className={s.cardContent}>

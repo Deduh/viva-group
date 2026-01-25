@@ -9,6 +9,7 @@ const BookingStatusSchema = z.enum([
 	BookingStatus.IN_PROGRESS,
 	BookingStatus.COMPLETED,
 ])
+
 const MessageTypeSchema = z.enum([
 	MessageType.TEXT,
 	MessageType.IMAGE,
@@ -19,57 +20,81 @@ const MessageTypeSchema = z.enum([
 
 const MessageTypeInputSchema = z.preprocess(value => {
 	if (typeof value !== "string") return undefined
+
 	const normalized = value.toUpperCase()
+
 	return Object.values(MessageType).includes(normalized as MessageType)
 		? normalized
 		: undefined
 }, MessageTypeSchema.optional())
+
 const PaymentStatusSchema = z.enum([
 	PaymentStatus.PENDING,
 	PaymentStatus.PAID,
 	PaymentStatus.FAILED,
 	PaymentStatus.REFUNDED,
 ])
+
 const RoleSchema = z.enum(ROLES)
 
 const stringArraySchema = z.preprocess(value => {
 	if (Array.isArray(value)) return value
+
 	if (typeof value === "string") {
 		return value
 			.split(",")
 			.map(item => item.trim())
 			.filter(Boolean)
 	}
+
 	return []
 }, z.array(z.string()))
 
 const optionalPositiveNumberSchema = z.preprocess(value => {
 	if (value === "" || value === null || value === undefined) return undefined
+
 	if (typeof value === "number") {
 		return Number.isNaN(value) ? undefined : value
 	}
+
 	if (typeof value === "string") {
 		const trimmed = value.trim()
+
 		if (!trimmed) return undefined
+
 		const numeric = Number(trimmed)
+
 		return Number.isNaN(numeric) ? undefined : numeric
 	}
+
 	return value
 }, z.number().positive().optional())
 
 const PaymentStatusInputSchema = z.preprocess(value => {
 	if (value === null || value === undefined || value === "") return undefined
+
 	if (typeof value !== "string") return value
+
 	const normalized = value.trim().toUpperCase()
+
 	return Object.values(PaymentStatus).includes(normalized as PaymentStatus)
 		? normalized
 		: undefined
 }, PaymentStatusSchema.optional())
 
+const ParticipantSchema = z.object({
+	fullName: z.string(),
+	birthDate: z.string(),
+	gender: z.enum(["male", "female"]),
+	passportNumber: z.string(),
+})
+
 const attachmentsSchema = z.preprocess(
 	value => {
 		if (value === null || value === undefined) return []
+
 		if (Array.isArray(value)) return value
+
 		return [value]
 	},
 	z.array(z.union([z.string(), z.record(z.string(), z.any())])),
@@ -82,6 +107,7 @@ const nullableDateSchema = z.preprocess(
 
 export const TourSchema = z.object({
 	id: z.string().min(1, "ID тура обязателен"),
+	publicId: z.string().min(1, "Публичный ID тура обязателен").optional(),
 	destination: z.string().min(1, "Название направления обязательно"),
 	shortDescription: z.string().min(1, "Краткое описание обязательно"),
 	fullDescription: z.string().optional(),
@@ -119,17 +145,15 @@ const nullToUndefined = <T>(val: T | null | undefined): T | undefined => {
 
 export const BookingSchema = z.object({
 	id: z.string().min(1, "ID бронирования обязателен"),
+	publicId: z.string().min(1).optional(),
 	userId: z.string().min(1, "ID пользователя обязателен"),
 	tourId: z.string().min(1, "ID тура обязателен"),
+	tourPublicId: z.string().min(1).optional(),
 	status: BookingStatusSchema,
-	partySize: z.coerce
-		.number()
-		.int()
-		.positive("Количество участников должно быть положительным числом"),
+	participants: z.array(ParticipantSchema),
 	notes: z.string().nullable().optional().transform(nullToUndefined),
 	createdAt: z.iso.datetime("Некорректная дата создания"),
 	updatedAt: z.iso.datetime().nullable().optional().transform(nullToUndefined),
-	startDate: z.iso.datetime().nullable().optional().transform(nullToUndefined),
 	paymentStatus: PaymentStatusInputSchema.optional(),
 	totalAmount: optionalPositiveNumberSchema.optional(),
 })

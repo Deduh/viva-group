@@ -1,18 +1,19 @@
 "use client"
 
+import { DateInput } from "@/components/ui/Form/DateInput/DateInput"
 import { Input } from "@/components/ui/Form/Input/Input"
 import { TextArea } from "@/components/ui/Form/TextArea/TextArea"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { useBookings } from "@/hooks/useBookings"
 import { bookingSchema, type BookingInput } from "@/lib/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Plus, X } from "lucide-react"
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import s from "./BookingForm.module.scss"
 
 interface BookingFormProps {
 	tourId: string
-	tourName?: string
 	onSuccess?: () => void
 	onCancel?: () => void
 	onPartySizeChange?: (size: number) => void
@@ -21,7 +22,6 @@ interface BookingFormProps {
 
 export function BookingForm({
 	tourId,
-	tourName,
 	onSuccess,
 	onCancel,
 	onPartySizeChange,
@@ -32,26 +32,35 @@ export function BookingForm({
 
 	const {
 		register,
+		control,
 		handleSubmit,
-		watch,
 		formState: { errors, isSubmitting },
 	} = useForm<BookingInput>({
 		resolver: zodResolver(bookingSchema),
 		defaultValues: {
 			tourId,
-			partySize: 1,
-			startDate: "",
+			participants: [
+				{
+					fullName: "",
+					birthDate: "",
+					gender: "male",
+					passportNumber: "",
+				},
+			],
 			notes: "",
 		},
 	})
 
-	const partySize = watch("partySize")
+	const { fields, append, remove } = useFieldArray({
+		control,
+		name: "participants",
+	})
 
 	useEffect(() => {
-		if (onPartySizeChange && partySize) {
-			onPartySizeChange(partySize)
+		if (onPartySizeChange) {
+			onPartySizeChange(fields.length)
 		}
-	}, [partySize, onPartySizeChange])
+	}, [fields.length, onPartySizeChange])
 
 	const onSubmit = async (data: BookingInput) => {
 		if (!isTourAvailable) return
@@ -59,14 +68,12 @@ export function BookingForm({
 		try {
 			await createBooking({
 				tourId: data.tourId,
-				partySize: data.partySize,
-				startDate: data.startDate,
+				participants: data.participants,
 				notes: data.notes || undefined,
 			})
 
 			onSuccess?.()
 		} catch (error) {
-			// Ошибка уже обработана в useBookings
 			console.error(error)
 		}
 	}
@@ -75,27 +82,90 @@ export function BookingForm({
 		<form className={s.form} onSubmit={handleSubmit(onSubmit)}>
 			<div className={s.header}>
 				<h2 className={s.title}>Забронировать тур</h2>
-				{tourName && <p className={s.subtitle}>{tourName}</p>}
 			</div>
 
-			<Input
-				label="Количество человек"
-				type="number"
-				min={1}
-				max={20}
-				placeholder="1"
-				error={errors.partySize?.message}
-				disabled={isSubmitting || !isTourAvailable}
-				{...register("partySize", { valueAsNumber: true })}
-			/>
+			<div className={s.participants}>
+				<div className={s.participantsList}>
+					{fields.map((field, index) => (
+						<div key={field.id} className={s.participantCard}>
+							<div className={s.participantHeader}>
+								<span className={s.participantIndex}>Участник {index + 1}</span>
 
-			<Input
-				label="Дата начала тура"
-				type="date"
-				error={errors.startDate?.message}
-				disabled={isSubmitting || !isTourAvailable}
-				{...register("startDate")}
-			/>
+								{fields.length > 1 && (
+									<button
+										type="button"
+										className={s.removeButton}
+										onClick={() => remove(index)}
+										disabled={isSubmitting}
+										title="Удалить участника"
+										aria-label="Удалить участника"
+									>
+										<X className={s.removeButtonIcon} strokeWidth={4} />
+									</button>
+								)}
+							</div>
+
+							<div className={s.participantFields}>
+								<Input
+									label="ФИО"
+									placeholder="Иванов Иван Иванович"
+									error={errors.participants?.[index]?.fullName?.message}
+									disabled={isSubmitting || !isTourAvailable}
+									{...register(`participants.${index}.fullName`)}
+								/>
+
+								<div className={s.row}>
+									<DateInput
+										label="Дата рождения"
+										error={errors.participants?.[index]?.birthDate?.message}
+										disabled={isSubmitting || !isTourAvailable}
+										{...register(`participants.${index}.birthDate`)}
+									/>
+
+									<div className={s.selectWrapper}>
+										<label className={s.label}>Пол</label>
+
+										<select
+											className={s.select}
+											disabled={isSubmitting || !isTourAvailable}
+											{...register(`participants.${index}.gender`)}
+										>
+											<option value="male">Мужской</option>
+											<option value="female">Женский</option>
+										</select>
+									</div>
+								</div>
+
+								<Input
+									label="Номер загранпаспорта"
+									placeholder="12 3456789"
+									error={errors.participants?.[index]?.passportNumber?.message}
+									disabled={isSubmitting || !isTourAvailable}
+									{...register(`participants.${index}.passportNumber`)}
+								/>
+							</div>
+						</div>
+					))}
+				</div>
+
+				<button
+					type="button"
+					className={s.addButton}
+					onClick={() =>
+						append({
+							fullName: "",
+							birthDate: "",
+							gender: "male",
+							passportNumber: "",
+						})
+					}
+					disabled={isSubmitting || !isTourAvailable}
+				>
+					<Plus className={s.addButtonIcon} strokeWidth={4} />
+
+					<span>Добавить</span>
+				</button>
+			</div>
 
 			<TextArea
 				label="Заметки (опционально)"

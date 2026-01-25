@@ -37,14 +37,14 @@ export function ManagerCard({ manager, onEdit, onDelete }: ManagerCardProps) {
 
 			<div className={s.meta}>
 				<div className={s.metaItem}>
-					<User2 size={16} />
+					<User2 size={"1.6rem"} />
 
 					<span>{manager.role === "ADMIN" ? "Администратор" : "Менеджер"}</span>
 				</div>
 
 				{manager.phone && (
 					<div className={s.metaItem}>
-						<Smartphone size={16} />
+						<Smartphone size={"1.6rem"} />
 
 						<span>{manager.phone}</span>
 					</div>

@@ -2,6 +2,10 @@
 
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { useUpdateBookingStatus } from "@/hooks/useBookingMutations"
+import {
+	BOOKING_STATUS_COLOR,
+	BOOKING_STATUS_LABEL,
+} from "@/lib/booking-status"
 import type { Booking } from "@/types"
 import type { BookingStatus } from "@/types/enums"
 import { Check, ChevronDown } from "lucide-react"
@@ -12,22 +16,6 @@ interface BookingStatusSelectProps {
 	booking: Booking
 }
 
-const statusLabels: Record<BookingStatus, string> = {
-	PENDING: "Ожидает",
-	CONFIRMED: "Подтверждено",
-	CANCELLED: "Отменено",
-	IN_PROGRESS: "В процессе",
-	COMPLETED: "Завершено",
-}
-
-const statusColors: Record<BookingStatus, string> = {
-	PENDING: "#f59e0b",
-	CONFIRMED: "#10b981",
-	CANCELLED: "#ef4444",
-	IN_PROGRESS: "#0797a6",
-	COMPLETED: "#8b5cf6",
-}
-
 export function BookingStatusSelect({ booking }: BookingStatusSelectProps) {
 	const [isOpen, setIsOpen] = useState(false)
 	const updateStatusMutation = useUpdateBookingStatus()
@@ -35,6 +23,7 @@ export function BookingStatusSelect({ booking }: BookingStatusSelectProps) {
 	const handleStatusChange = async (newStatus: BookingStatus) => {
 		if (newStatus === booking.status) {
 			setIsOpen(false)
+
 			return
 		}
 
@@ -46,8 +35,8 @@ export function BookingStatusSelect({ booking }: BookingStatusSelectProps) {
 		setIsOpen(false)
 	}
 
-	const currentStatusLabel = statusLabels[booking.status]
-	const currentStatusColor = statusColors[booking.status]
+	const currentStatusLabel = BOOKING_STATUS_LABEL[booking.status]
+	const currentStatusColor = BOOKING_STATUS_COLOR[booking.status]
 	const isUpdating = updateStatusMutation.isPending
 
 	return (
@@ -63,22 +52,25 @@ export function BookingStatusSelect({ booking }: BookingStatusSelectProps) {
 					className={s.statusDot}
 					style={{ backgroundColor: currentStatusColor }}
 				/>
+
 				<span className={s.statusLabel}>{currentStatusLabel}</span>
+
 				{isUpdating ? (
 					<LoadingSpinner size="small" />
 				) : (
-					<ChevronDown size={16} className={s.chevron} />
+					<ChevronDown size={"1.6rem"} className={s.chevron} />
 				)}
 			</button>
 
 			{isOpen && (
 				<>
 					<div className={s.backdrop} onClick={() => setIsOpen(false)} />
+
 					<div className={s.dropdown}>
-						{Object.entries(statusLabels).map(([status, label]) => {
+						{Object.entries(BOOKING_STATUS_LABEL).map(([status, label]) => {
 							const statusValue = status as BookingStatus
 							const isSelected = booking.status === statusValue
-							const color = statusColors[statusValue]
+							const color = BOOKING_STATUS_COLOR[statusValue]
 
 							return (
 								<button
@@ -92,8 +84,12 @@ export function BookingStatusSelect({ booking }: BookingStatusSelectProps) {
 										className={s.optionDot}
 										style={{ backgroundColor: color }}
 									/>
+
 									<span>{label}</span>
-									{isSelected && <Check size={16} className={s.checkIcon} />}
+
+									{isSelected && (
+										<Check size={"1.6rem"} className={s.checkIcon} />
+									)}
 								</button>
 							)
 						})}

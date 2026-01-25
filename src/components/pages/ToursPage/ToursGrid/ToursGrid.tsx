@@ -71,7 +71,7 @@ export const ToursGrid = memo(
 			{
 				scope: gridRef,
 				dependencies: [tours],
-			}
+			},
 		)
 
 		if (isLoading) {
@@ -130,7 +130,7 @@ export const ToursGrid = memo(
 
 											{tour.rating && (
 												<div className={s.rating}>
-													<Star size={16} color="rgba(234, 179, 8, 1)" />
+													<Star size={"1.6rem"} color="rgba(234, 179, 8, 1)" />
 
 													<span className={s.ratingNum}>
 														{tour.rating.toFixed(1)}
@@ -179,7 +179,7 @@ export const ToursGrid = memo(
 		}
 
 		return prevProps.tours.every(
-			(tour, i) => tour.id === nextProps.tours[i]?.id
+			(tour, i) => tour.id === nextProps.tours[i]?.id,
 		)
-	}
+	},
 )

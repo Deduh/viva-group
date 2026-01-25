@@ -55,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		const tours = await api.getTours()
 
 		const tourRoutes = tours.items.map(tour => ({
-			url: `${baseUrl}/tours/${tour.id}`,
+			url: `${baseUrl}/tours/${tour.publicId ?? tour.id}`,
 			lastModified: tour.updatedAt
 				? new Date(tour.updatedAt)
 				: tour.createdAt

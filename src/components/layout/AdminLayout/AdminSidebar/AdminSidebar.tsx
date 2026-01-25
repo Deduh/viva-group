@@ -79,7 +79,7 @@ export function AdminSidebar() {
 	]
 
 	const filteredNavItems = navItems.filter(item =>
-		user?.role ? item.roles.includes(user.role) : false
+		user?.role ? item.roles.includes(user.role) : false,
 	)
 
 	const { setIsTransitionComplete } = usePageTransition()
@@ -125,7 +125,7 @@ export function AdminSidebar() {
 				},
 			})
 		},
-		[setIsTransitionComplete, router]
+		[setIsTransitionComplete, router],
 	)
 
 	const handleOpenMenu = () => {
@@ -201,7 +201,7 @@ export function AdminSidebar() {
 			if (!menuButtonRef.current) return
 
 			const lines = menuButtonRef.current.querySelectorAll<HTMLElement>(
-				`.${s.menuLine}`
+				`.${s.menuLine}`,
 			)
 
 			if (lines.length < 3) return
@@ -238,7 +238,7 @@ export function AdminSidebar() {
 				})
 			}
 		},
-		{ dependencies: [isMenuOpen], scope: menuButtonRef }
+		{ dependencies: [isMenuOpen], scope: menuButtonRef },
 	)
 
 	useGSAP(
@@ -261,10 +261,10 @@ export function AdminSidebar() {
 					autoAlpha: 1,
 					duration: 0.35,
 					ease: "back.out(1.4)",
-				}
+				},
 			)
 		},
-		{ dependencies: [isMenuOpen, isMenuVisible], scope: navRef }
+		{ dependencies: [isMenuOpen, isMenuVisible], scope: navRef },
 	)
 
 	return (
@@ -322,7 +322,7 @@ export function AdminSidebar() {
 						href="/"
 						className={`${s.navItem} ${s.publicSite} ${s.navItemMobile}`}
 					>
-						<Package size={20} />
+						<Package size={"2rem"} />
 
 						<span>Публичный сайт</span>
 					</TransitionLink>
@@ -341,7 +341,7 @@ export function AdminSidebar() {
 
 			<div className={s.footer}>
 				<TransitionLink href="/" className={`${s.navItem} ${s.publicSite}`}>
-					<Package size={20} />
+					<Package size={"2rem"} />
 
 					<span>Публичный сайт</span>
 				</TransitionLink>

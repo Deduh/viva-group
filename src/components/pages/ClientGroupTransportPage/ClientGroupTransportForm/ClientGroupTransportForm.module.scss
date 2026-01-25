@@ -216,7 +216,7 @@
 
 .formBottomNoteLabel {
 	color: rgba(71, 85, 105, 1);
-	font-size: 11.2px;
+	font-size: 1.12rem;
 	font-weight: 600;
 	line-height: 1.68rem;
 	letter-spacing: 0.056rem;
@@ -230,7 +230,8 @@
 	gap: 0.8rem;
 	padding: 1.2rem 3.2rem;
 	border-radius: 2.4rem;
-	box-shadow: 0 1rem 1.5rem -0.3rem rgba(7, 151, 166, 0.35),
+	box-shadow:
+		0 1rem 1.5rem -0.3rem rgba(7, 151, 166, 0.35),
 		0 0.4rem 0.6rem -0.4rem rgba(7, 151, 166, 0.25);
 	background: rgba(7, 151, 166, 1);
 
@@ -268,8 +269,9 @@
 	padding: 2.4rem;
 	border-radius: 2.4rem;
 	border: 1px solid transparent;
-	border-left-width: 4px;
-	box-shadow: 0 0.4rem 0.6rem -0.1rem rgba(0, 0, 0, 0.02),
+	border-left-width: 0.4rem;
+	box-shadow:
+		0 0.4rem 0.6rem -0.1rem rgba(0, 0, 0, 0.02),
 		0 0.2rem 0.4rem -0.1rem rgba(0, 0, 0, 0.02);
 	backdrop-filter: blur(2rem);
 	background: rgba(255, 255, 255, 0.5);

@@ -3,6 +3,7 @@ import type { BookingStatus, MessageType, PaymentStatus } from "./enums"
 
 export type Tour = {
 	id: string
+	publicId?: string // Публичный ID тура
 	destination: string // Название направления (город, страна)
 	shortDescription: string // Краткое описание тура
 	fullDescription?: string // Полное описание тура (опционально)
@@ -19,16 +20,24 @@ export type Tour = {
 	updatedAt?: string // Дата последнего обновления
 }
 
+export type Participant = {
+	fullName: string
+	birthDate: string
+	gender: "male" | "female"
+	passportNumber: string
+}
+
 export type Booking = {
 	id: string
+	publicId?: string // Публичный ID бронирования
 	userId: string // ID пользователя, создавшего бронь
 	tourId: string // ID забронированного тура
+	tourPublicId?: string // Публичный ID тура (если отдается бэкендом)
 	status: BookingStatus // Статус бронирования
-	partySize: number // Количество участников
+	participants: Participant[] // Список участников
 	notes?: string // Заметки от клиента
 	createdAt: string // Дата создания бронирования
 	updatedAt?: string // Дата обновления бронирования
-	startDate?: string // Желаемая дата начала тура
 	paymentStatus?: PaymentStatus // Статус оплаты
 	totalAmount?: number // Сумма к оплате
 }
@@ -94,15 +103,14 @@ export type TourFilters = {
 
 export type CreateBookingInput = {
 	tourId: string
-	partySize: number // Количество участников
-	startDate?: string // Желаемая дата начала
+	participants: Participant[] // Список участников
 	notes?: string // Заметки
 	userId?: string // Для MANAGER/ADMIN
 }
 
 export type UpdateBookingInput = {
 	status?: BookingStatus // Статус
-	partySize?: number // Количество участников
+	participants?: Participant[] // Список участников
 	notes?: string // Заметки
 	paymentStatus?: PaymentStatus // Статус оплаты
 }

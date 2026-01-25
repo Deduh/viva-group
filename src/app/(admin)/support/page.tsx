@@ -61,7 +61,7 @@ export default function SupportPage() {
 				<div className={s.card}>
 					<div className={s.cardHeader}>
 						<div className={s.title}>
-							<Send size={18} /> Telegram
+							<Send size={"1.8rem"} /> Telegram
 						</div>
 					</div>
 
@@ -88,7 +88,7 @@ export default function SupportPage() {
 				<div className={s.card}>
 					<div className={s.cardHeader}>
 						<div className={s.title}>
-							<MessageCircle size={18} /> WhatsApp
+							<MessageCircle size={"1.8rem"} /> WhatsApp
 						</div>
 					</div>
 

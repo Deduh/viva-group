@@ -20,6 +20,7 @@ export function MessageInput({
 
 	const adjustTextareaHeight = () => {
 		const textarea = textareaRef.current
+
 		if (!textarea) return
 
 		textarea.style.height = "auto"
@@ -72,7 +73,7 @@ export function MessageInput({
 					className={s.sendButton}
 					aria-label="Отправить сообщение"
 				>
-					<Send size={20} />
+					<Send size={"2rem"} />
 				</button>
 			</div>
 

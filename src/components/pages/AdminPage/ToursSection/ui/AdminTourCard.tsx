@@ -50,7 +50,7 @@ export function AdminTourCard({
 
 						{tour.rating !== undefined && (
 							<div className={s.rating}>
-								<Star size={16} color="rgba(234, 179, 8, 1)" />
+								<Star size={"1.6rem"} color="rgba(234, 179, 8, 1)" />
 								<span className={s.ratingNum}>{tour.rating.toFixed(1)}</span>
 							</div>
 						)}

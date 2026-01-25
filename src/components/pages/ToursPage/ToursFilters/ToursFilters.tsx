@@ -57,7 +57,7 @@ export function ToursFilters({
 	return (
 		<div ref={filtersRef} className={s.filters} data-tours-filters>
 			<div className={s.search}>
-				<Search className={s.searchIcon} size={20} />
+				<Search className={s.searchIcon} size={"2rem"} />
 
 				<div className={s.searchInputWrapper}>
 					<Input

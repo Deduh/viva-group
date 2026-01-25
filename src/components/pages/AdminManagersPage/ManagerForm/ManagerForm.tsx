@@ -138,7 +138,7 @@ export function ManagerForm({
 						disabled={isSubmitting}
 						aria-label="Сгенерировать пароль"
 					>
-						<Sparkles size={18} />
+						<Sparkles size={"1.8rem"} />
 					</button>
 				</div>
 			</div>

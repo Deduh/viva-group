@@ -12,7 +12,7 @@ interface BackButtonProps {
 export function BackButton({ href, label }: BackButtonProps) {
 	return (
 		<Link href={href} className={s.back}>
-			<ArrowLeft size={20} />
+			<ArrowLeft size={"2rem"} />
 
 			<span>{label}</span>
 		</Link>

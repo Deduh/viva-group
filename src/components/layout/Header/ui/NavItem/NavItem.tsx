@@ -40,12 +40,12 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 	const isActive = item.href
 		? pathname === item.href || pathname.startsWith(item.href + "/")
 		: hasSubLinks
-		? item.subLinks!.some(
-				sub =>
-					sub.href.startsWith("/") &&
-					(pathname === sub.href || pathname.startsWith(sub.href + "/"))
-		  )
-		: false
+			? item.subLinks!.some(
+					sub =>
+						sub.href.startsWith("/") &&
+						(pathname === sub.href || pathname.startsWith(sub.href + "/")),
+				)
+			: false
 
 	useEffect(() => {
 		if (!isMenuOpen) {
@@ -72,12 +72,12 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 						duration: 0.3,
 						ease: "power2.out",
 					},
-					"<"
+					"<",
 				)
 
 			gsap.set(dropdownRef.current, { y: 10 })
 		},
-		{ scope: container }
+		{ scope: container },
 	)
 
 	return (
@@ -95,7 +95,7 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 				>
 					{Icon && (
 						<span className={s.linkIcon}>
-							<Icon size={18} />
+							<Icon size={"1.8rem"} />
 						</span>
 					)}
 
@@ -103,7 +103,7 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 
 					{hasSubLinks && (
 						<div ref={chevronRef} className={s.chevron}>
-							<ChevronDown size={18} />
+							<ChevronDown size={"1.8rem"} />
 						</div>
 					)}
 				</button>
@@ -149,7 +149,7 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 							>
 								{sub.label}
 							</TransitionLink>
-						)
+						),
 					)}
 				</div>
 			)}
