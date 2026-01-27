@@ -6,12 +6,15 @@
 	box-sizing: border-box;
 }
 
-// TODO: Сделать размер под большие мониторы
 html {
 	font-size: calc(100vw / 1920 * 10);
 	line-height: 1;
 	background-color: #ffffff;
 	overscroll-behavior: none;
+
+	@media (min-width: 1921px) {
+		font-size: clamp(8.8px, calc(10px - (100vw - 1920px) / 640 * 0.8), 10px);
+	}
 
 	@media (max-width: 768px) {
 		font-size: calc(100vw / 390 * 10);
