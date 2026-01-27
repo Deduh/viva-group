@@ -1,6 +1,6 @@
 "use client"
 
-import { formatCurrency } from "@/lib/format"
+import { formatCurrency, formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getImageSizes,
@@ -8,7 +8,7 @@ import {
 	shouldUsePriority,
 } from "@/lib/image-utils"
 import type { Tour } from "@/types"
-import { Star } from "lucide-react"
+import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
 import s from "./AdminTourCard.module.scss"
 
@@ -30,7 +30,7 @@ export function AdminTourCard({
 			<div className={s.cardImage}>
 				<Image
 					src={tour.image}
-					alt={getTourImageAlt(tour.destination)}
+					alt={getTourImageAlt(tour.title)}
 					fill
 					sizes={getImageSizes({
 						mobile: "100vw",
@@ -46,26 +46,53 @@ export function AdminTourCard({
 			<div className={s.cardContent}>
 				<div className={s.top}>
 					<div className={s.descriptionWrapper}>
-						<h3 className={s.cardTitle}>{tour.destination}</h3>
-
-						{tour.rating !== undefined && (
-							<div className={s.rating}>
-								<Star size={"1.6rem"} color="rgba(234, 179, 8, 1)" />
-								<span className={s.ratingNum}>{tour.rating.toFixed(1)}</span>
-							</div>
-						)}
+						<h3 className={s.cardTitle}>{tour.title}</h3>
 					</div>
 
 					<p className={s.text}>{tour.shortDescription}</p>
 				</div>
 
-				{tour.properties.length > 0 && (
+				{(tour.tags.length > 0 ||
+					(tour.dateFrom && tour.dateTo) ||
+					tour.durationDays ||
+					tour.durationNights) && (
 					<ul className={s.list}>
-						{tour.properties.map((property, propertyIndex) => (
-							<li key={`${property}-${propertyIndex}`} className={s.listItem}>
-								{property}
+						{tour.tags.map((tag, tagIndex) => (
+							<li key={`${tag}-${tagIndex}`} className={s.listItem}>
+								{tag}
 							</li>
 						))}
+
+						{tour.dateFrom && tour.dateTo && (
+							<li className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}>
+								<CalendarDays size={"1.6rem"} />
+
+								<span>
+									{formatDate(tour.dateFrom)} — {formatDate(tour.dateTo)}
+								</span>
+							</li>
+						)}
+
+						{(tour.durationDays || tour.durationNights) && (
+							<li
+								className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDuration}`}
+							>
+								<span className={s.metaIconGroup}>
+									<Sun size={"1.4rem"} />
+
+									<Moon size={"1.4rem"} />
+								</span>
+
+								<span>
+									{[
+										tour.durationDays ? `${tour.durationDays} дн.` : null,
+										tour.durationNights ? `${tour.durationNights} ноч.` : null,
+									]
+										.filter(Boolean)
+										.join(" / ")}
+								</span>
+							</li>
+						)}
 					</ul>
 				)}
 

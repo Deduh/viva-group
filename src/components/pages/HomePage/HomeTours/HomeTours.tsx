@@ -17,19 +17,20 @@ const OPTIONS: EmblaOptionsType = { slidesToScroll: "auto" }
 export function HomeTours() {
 	const container = useRef(null)
 
-	const { tours, availableTags } = useTours()
+	const { tours, availableCategories } = useTours()
 
-	const allTags = useMemo(() => {
-		return ["Все направления", ...availableTags]
-	}, [availableTags])
+	const allCategories = useMemo(() => {
+		return ["Все направления", ...availableCategories]
+	}, [availableCategories])
 
-	const [activeTag, setActiveTag] = useState<string>("Все направления")
+	const [activeCategory, setActiveCategory] =
+		useState<string>("Все направления")
 
 	const filteredTours = useMemo(() => {
-		if (activeTag === "Все направления") return tours
+		if (activeCategory === "Все направления") return tours
 
-		return tours.filter(tour => tour.tags?.includes(activeTag))
-	}, [activeTag, tours])
+		return tours.filter(tour => tour.categories?.includes(activeCategory))
+	}, [activeCategory, tours])
 
 	useGSAP(
 		() => {
@@ -123,9 +124,9 @@ export function HomeTours() {
 
 			<div className={s.carousel} data-tours-carousel>
 				<FilterCarousel
-					categories={allTags}
-					active={activeTag}
-					onSelect={setActiveTag}
+					categories={allCategories}
+					active={activeCategory}
+					onSelect={setActiveCategory}
 				/>
 
 				<EmblaCarousel slides={filteredTours} options={OPTIONS} />

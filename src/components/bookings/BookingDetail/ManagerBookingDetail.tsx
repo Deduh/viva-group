@@ -17,7 +17,14 @@ import { BookingStatus } from "@/types/enums"
 import { useGSAP } from "@gsap/react"
 import { useQuery } from "@tanstack/react-query"
 import gsap from "gsap"
-import { Calendar, ChevronDown, MapPin, Star } from "lucide-react"
+import {
+	Calendar,
+	CalendarDays,
+	ChevronDown,
+	MapPin,
+	Moon,
+	Sun,
+} from "lucide-react"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import s from "./BookingDetail.module.scss"
@@ -79,13 +86,16 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 	const handleStatusChange = async (status: BookingStatus) => {
 		if (status === currentBooking.status) return
+
 		const updated = await updateStatus.mutateAsync({
 			id: currentBooking.id,
 			status,
 		})
+
 		if (updated) {
 			setCurrentBooking(updated)
 		}
+
 		setIsStatusOpen(false)
 	}
 
@@ -103,10 +113,10 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 			</div>
 
 			<div className={s.header}>
-				<div>
+				<div className={s.headerContent}>
 					<p className={s.bookingId}>Бронирование #{displayBookingId}</p>
 
-					<h1>Детали бронирования</h1>
+					<h1 className={s.headerTitle}>Детали бронирования</h1>
 				</div>
 
 				<div className={s.statusDropdown} ref={dropdownRef}>
@@ -146,6 +156,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 									className={s.statusDot}
 									style={{ backgroundColor: BOOKING_STATUS_COLOR[status] }}
 								/>
+
 								{BOOKING_STATUS_LABEL[status]}
 							</button>
 						))}
@@ -172,7 +183,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 							<div className={s.tourImage}>
 								<Image
 									src={tourQuery.data.image}
-									alt={tourQuery.data.destination}
+									alt={tourQuery.data.title}
 									fill
 									className={s.image}
 									sizes="(max-width: 768px) 100vw, 400px"
@@ -180,21 +191,60 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 							</div>
 
 							<div className={s.tourInfo}>
-								<p className={s.tourDestination}>
-									{tourQuery.data.destination}
-								</p>
+								<p className={s.tourDestination}>{tourQuery.data.title}</p>
 
 								<p className={s.tourDescription}>
 									{tourQuery.data.shortDescription}
 								</p>
 
+								{tourQuery.data.tags.length > 0 && (
+									<ul className={s.tagsList}>
+										{tourQuery.data.tags.map((tag, index) => (
+											<li key={`${tag}-${index}`} className={s.tagBadge}>
+												{tag}
+											</li>
+										))}
+									</ul>
+								)}
+
+								<div className={s.metaBadges}>
+									{tourQuery.data.dateFrom && tourQuery.data.dateTo && (
+										<div className={`${s.metaBadge} ${s.metaBadgeDate}`}>
+											<CalendarDays size={"1.8rem"} />
+
+											<span>
+												{formatDate(tourQuery.data.dateFrom)} —{" "}
+												{formatDate(tourQuery.data.dateTo)}
+											</span>
+										</div>
+									)}
+
+									{(tourQuery.data.durationDays ||
+										tourQuery.data.durationNights) && (
+										<div className={`${s.metaBadge} ${s.metaBadgeDuration}`}>
+											<div className={s.metaIconGroup}>
+												<Sun size={"1.6rem"} />
+
+												<Moon size={"1.6rem"} />
+											</div>
+
+											<span>
+												{[
+													tourQuery.data.durationDays
+														? `${tourQuery.data.durationDays} дн.`
+														: null,
+													tourQuery.data.durationNights
+														? `${tourQuery.data.durationNights} ноч.`
+														: null,
+												]
+													.filter(Boolean)
+													.join(" / ")}
+											</span>
+										</div>
+									)}
+								</div>
+
 								<div className={s.tourMeta}>
-									<span className={s.tourRating}>
-										<Star size={"1.6rem"} fill="currentColor" />
-
-										{tourQuery.data.rating}
-									</span>
-
 									<span className={s.tourPrice}>
 										{formatCurrency(tourQuery.data.price)}
 									</span>
@@ -204,13 +254,13 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 					)}
 
 					<div className={s.bookingInfo}>
-						<h2>Информация о бронировании</h2>
+						<h2 className={s.bookingInfoTitle}>Информация о бронировании</h2>
 
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
 								<Calendar size={"2rem"} className={s.infoIcon} />
 
-								<div>
+								<div className={s.infoItemWrapper}>
 									<p className={s.infoLabel}>Дата создания</p>
 
 									<p className={s.infoValue}>
@@ -223,7 +273,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 								<div className={s.infoItem}>
 									<Calendar size={"2rem"} className={s.infoIcon} />
 
-									<div>
+									<div className={s.infoItemWrapper}>
 										<p className={s.infoLabel}>Последнее обновление</p>
 
 										<p className={s.infoValue}>
@@ -237,10 +287,10 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 								<div className={s.infoItem}>
 									<MapPin size={"2rem"} className={s.infoIcon} />
 
-									<div>
-										<p className={s.infoLabel}>Направление</p>
+									<div className={s.infoItemWrapper}>
+										<p className={s.infoLabel}>Тур</p>
 
-										<p className={s.infoValue}>{tourQuery.data.destination}</p>
+										<p className={s.infoValue}>{tourQuery.data.title}</p>
 									</div>
 								</div>
 							)}
@@ -248,7 +298,7 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 						<div className={s.participants}>
 							<div className={s.participantsHeader}>
-								<h3>Участники</h3>
+								<h3 className={s.participantsTitle}>Участники</h3>
 
 								<span className={s.participantsCount}>
 									{currentBooking.participants?.length ?? 0}
@@ -285,9 +335,9 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 						{currentBooking.notes && (
 							<div className={s.notes}>
-								<h3>Заметки</h3>
+								<h3 className={s.notesTitle}>Заметки</h3>
 
-								<p>{currentBooking.notes}</p>
+								<p className={s.notesText}>{currentBooking.notes}</p>
 							</div>
 						)}
 					</div>

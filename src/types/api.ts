@@ -1,20 +1,25 @@
 import type { Role } from "@/lib/roles"
 import type { BookingStatus, MessageType, PaymentStatus } from "./enums"
 
+export type FullDescriptionBlock = {
+	title: string
+	items: string[]
+}
+
 export type Tour = {
 	id: string
 	publicId?: string // Публичный ID тура
-	destination: string // Название направления (город, страна)
+	title: string // Название тура
 	shortDescription: string // Краткое описание тура
-	fullDescription?: string // Полное описание тура (опционально)
-	properties: string[] // Перечисление услуг и удобств тура
+	fullDescriptionBlocks: FullDescriptionBlock[] // Полное описание тура (блоки)
 	price: number // Цена тура в рублях
 	image: string // URL изображения тура
-	tags: string[] // Теги/категории тура
-	rating: number // Рейтинг тура (от 0 до 5)
-	duration?: number // Длительность в днях
-	maxPartySize?: number // Максимальное количество участников
-	minPartySize?: number // Минимальное количество участников
+	tags: string[] // Визуальные теги тура
+	categories: string[] // Категории для фильтрации
+	dateFrom?: string // Дата начала тура
+	dateTo?: string // Дата окончания тура
+	durationDays?: number // Длительность в днях
+	durationNights?: number // Длительность в ночах
 	available?: boolean // Доступность тура
 	createdAt?: string // Дата создания
 	updatedAt?: string // Дата последнего обновления
@@ -91,11 +96,10 @@ export type UpdateManagerInput = {
 
 export type TourFilters = {
 	search?: string // Поиск по тексту
-	tags?: string[] // Фильтр по тегам
+	categories?: string[] // Фильтр по категориям
 	minPrice?: number // Минимальная цена
 	maxPrice?: number // Максимальная цена
-	minRating?: number // Минимальный рейтинг
-	sortBy?: "price" | "rating" | "createdAt" // Сортировка
+	sortBy?: "price" | "createdAt" | "title" // Сортировка
 	sortOrder?: "asc" | "desc" // Направление сортировки
 	page?: number // Номер страницы для пагинации
 	limit?: number // Количество элементов на странице

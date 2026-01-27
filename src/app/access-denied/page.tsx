@@ -2,34 +2,38 @@
 
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { useAuth } from "@/hooks/useAuth"
-import { useRouter } from "next/navigation"
-import styles from "./page.module.scss"
+import s from "./page.module.scss"
 
 export default function AccessDeniedPage() {
-	const router = useRouter()
 	const { user, isAuthenticated } = useAuth()
 
 	return (
-		<div className={styles.container}>
-			<div className={styles.content}>
-				<div className={styles.icon}>🔒</div>
+		<div className={s.container}>
+			<div className={s.background} aria-hidden="true">
+				<span className={s.orb} />
+				<span className={s.orbSecondary} />
+				<span className={s.grid} />
+			</div>
 
-				<h1 className={styles.title}>Доступ запрещен</h1>
+			<div className={s.content}>
+				<div className={s.icon}>🔒</div>
 
-				<p className={styles.message}>
+				<h1 className={s.title}>Доступ запрещен</h1>
+
+				<p className={s.message}>
 					У вас недостаточно прав для просмотра этой страницы.
 				</p>
 
 				{isAuthenticated && user && (
-					<p className={styles.role}>
+					<p className={s.role}>
 						Ваша роль: <strong>{user.role}</strong>
 					</p>
 				)}
 
-				<div className={styles.actions}>
-					<button onClick={() => router.back()} className={styles.backButton}>
-						← Назад
-					</button>
+				<div className={s.actions}>
+					<TransitionLink href="/" className={s.backButton}>
+						← На главную
+					</TransitionLink>
 
 					{isAuthenticated && user && (
 						<TransitionLink
@@ -37,10 +41,10 @@ export default function AccessDeniedPage() {
 								user.role === "ADMIN"
 									? "/manager/tours"
 									: user.role === "MANAGER"
-									? "/manager/tours"
-									: "/client/tours"
+										? "/manager/tours"
+										: "/client/tours"
 							}
-							className={styles.dashboardButton}
+							className={s.dashboardButton}
 						>
 							Личный кабинет
 						</TransitionLink>

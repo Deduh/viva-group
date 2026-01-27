@@ -28,11 +28,8 @@ export function getLoadingStrategy(
 	return index < threshold ? "eager" : "lazy"
 }
 
-export function getTourImageAlt(
-	destination: string,
-	additionalInfo?: string
-): string {
-	const base = `Тур в ${destination}`
+export function getTourImageAlt(title: string, additionalInfo?: string): string {
+	const base = title
 
 	return additionalInfo ? `${base} - ${additionalInfo}` : base
 }

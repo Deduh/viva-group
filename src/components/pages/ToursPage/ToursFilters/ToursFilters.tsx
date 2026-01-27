@@ -13,7 +13,7 @@ interface ToursFiltersProps {
 	onSearchChange: (query: string) => void
 	filters: Partial<TourFilters>
 	onFiltersChange: (filters: Partial<TourFilters>) => void
-	availableTags: string[]
+	availableCategories: string[]
 }
 
 export function ToursFilters({
@@ -21,7 +21,7 @@ export function ToursFilters({
 	onSearchChange,
 	filters,
 	onFiltersChange,
-	availableTags,
+	availableCategories,
 }: ToursFiltersProps) {
 	const filtersRef = useRef<HTMLDivElement>(null)
 	const [localSearch, setLocalSearch] = useState(searchQuery)
@@ -45,13 +45,13 @@ export function ToursFilters({
 		onSearchChange(debouncedSearch)
 	}, [debouncedSearch, onSearchChange])
 
-	const handleTagToggle = (tag: string) => {
-		const currentTags = filters.tags || []
-		const newTags = currentTags.includes(tag)
-			? currentTags.filter(t => t !== tag)
-			: [...currentTags, tag]
+	const handleCategoryToggle = (category: string) => {
+		const currentCategories = filters.categories || []
+		const newCategories = currentCategories.includes(category)
+			? currentCategories.filter(item => item !== category)
+			: [...currentCategories, category]
 
-		onFiltersChange({ ...filters, tags: newTags })
+		onFiltersChange({ ...filters, categories: newCategories })
 	}
 
 	return (
@@ -69,17 +69,17 @@ export function ToursFilters({
 				</div>
 			</div>
 
-			{availableTags.length > 0 && (
+			{availableCategories.length > 0 && (
 				<div className={s.tagsList}>
-					{availableTags.map(tag => (
+					{availableCategories.map(category => (
 						<button
-							key={tag}
-							onClick={() => handleTagToggle(tag)}
+							key={category}
+							onClick={() => handleCategoryToggle(category)}
 							className={`${s.tag} ${
-								filters.tags?.includes(tag) ? s.active : ""
+								filters.categories?.includes(category) ? s.active : ""
 							}`}
 						>
-							{tag}
+							{category}
 						</button>
 					))}
 				</div>

@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next"
 
-import { api } from "@/lib/api"
 import { getSiteUrl } from "@/lib/seo"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -51,22 +50,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		},
 	]
 
-	try {
-		const tours = await api.getTours()
-
-		const tourRoutes = tours.items.map(tour => ({
-			url: `${baseUrl}/tours/${tour.publicId ?? tour.id}`,
-			lastModified: tour.updatedAt
-				? new Date(tour.updatedAt)
-				: tour.createdAt
-				? new Date(tour.createdAt)
-				: new Date(),
-			changeFrequency: "weekly" as const,
-			priority: 0.8,
-		}))
-
-		return [...staticRoutes, ...tourRoutes]
-	} catch {
-		return staticRoutes
-	}
+	return staticRoutes
 }

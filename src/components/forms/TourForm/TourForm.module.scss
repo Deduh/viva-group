@@ -1,12 +1,14 @@
 .form {
 	display: flex;
 	flex-direction: column;
+
 	gap: 2.4rem;
 }
 
 .section {
 	display: flex;
 	flex-direction: column;
+
 	gap: 1.6rem;
 	padding: 2.4rem;
 	background: #ffffff;
@@ -16,14 +18,16 @@
 }
 
 .sectionTitle {
+	margin-bottom: 0.4rem;
+
 	font-size: 1.8rem;
 	font-weight: 600;
 	color: #0f172a;
-	margin-bottom: 0.4rem;
 }
 
 .row {
 	display: grid;
+
 	grid-template-columns: 1fr 1fr;
 	gap: 1.6rem;
 
@@ -127,6 +131,253 @@
 	color: #ef4444;
 	font-size: 1.3rem;
 	margin: 0;
+}
+
+.blocksLabel {
+	margin: 0.2rem 0 0.4rem;
+
+	font-size: 1.4rem;
+	font-weight: 500;
+	color: #0f172a;
+}
+
+.required {
+	margin-left: 0.4rem;
+
+	color: #ef4444;
+}
+
+.blocksContainer {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+	padding: 1.6rem;
+	border-radius: 1.2rem;
+	border: 1px dashed rgba(203, 213, 225, 1);
+	background: rgba(248, 250, 252, 0.6);
+}
+
+.blocksActions {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.blocksHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.blocksTitle {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #0f172a;
+}
+
+.removeBlockButton,
+.removeItemButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 3.2rem;
+	aspect-ratio: 1/1;
+	border-radius: 0.8rem;
+	border: 1px solid transparent;
+
+	transition: all 0.2s ease-in-out;
+
+	&:hover:not(:disabled) {
+		border-color: rgba(254, 202, 202, 1);
+		background-color: rgba(236, 250, 251, 1);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+.removeBlockButtonIcon,
+.removeItemButtonIcon {
+	height: 1.6rem;
+
+	color: rgba(248, 113, 113, 1);
+}
+
+.blocksEmpty {
+	padding: 1.2rem 1.4rem;
+	border-radius: 1rem;
+	border: 1px solid rgba(226, 232, 240, 1);
+	background: #ffffff;
+
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+}
+
+.blocksList {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+}
+
+.blockCard {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+	padding: 1.4rem;
+	border-radius: 1.2rem;
+	border: 1px solid rgba(226, 232, 240, 1);
+	background: #ffffff;
+	box-shadow: 0 1.2rem 2.4rem -1.8rem rgba(15, 23, 42, 0.25);
+}
+
+.blockDragging {
+	opacity: 0.7;
+	border-color: rgba(7, 151, 166, 0.45);
+}
+
+.blockDropTarget {
+	border-color: rgba(7, 151, 166, 0.6);
+	box-shadow: 0 0 0 0.2rem rgba(7, 151, 166, 0.12);
+}
+
+.blockHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	gap: 1rem;
+}
+
+.blockTitleGroup {
+	display: flex;
+	align-items: center;
+
+	gap: 0.6rem;
+}
+
+.blockTitle {
+	font-size: 1.4rem;
+	font-weight: 800;
+	color: rgba(7, 151, 166, 1);
+}
+
+.dragHandle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3.2rem;
+	height: 3.2rem;
+	border-radius: 0.8rem;
+	border: 1px solid rgba(226, 232, 240, 1);
+	background: rgba(248, 250, 252, 0.9);
+	color: rgba(100, 116, 139, 1);
+	cursor: grab;
+	touch-action: none;
+	user-select: none;
+	transition:
+		filter 0.2s ease,
+		border-color 0.2s ease,
+		color 0.2s ease;
+
+	&:hover {
+		filter: brightness(0.98);
+		border-color: rgba(7, 151, 166, 0.4);
+		color: rgba(7, 151, 166, 1);
+	}
+
+	&:active {
+		cursor: grabbing;
+	}
+}
+
+.itemsSection {
+	display: flex;
+	flex-direction: column;
+
+	gap: 0.8rem;
+}
+
+.itemsTitle {
+	font-size: 1.4rem;
+	font-weight: 500;
+	color: #0f172a;
+}
+
+.itemsEmpty {
+	font-size: 1.3rem;
+	color: rgba(100, 116, 139, 1);
+}
+
+.itemsList {
+	display: flex;
+	flex-direction: column;
+
+	gap: 0.8rem;
+}
+
+.itemsActions {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.itemRow {
+	display: flex;
+	align-items: center;
+
+	gap: 0.8rem;
+}
+
+.itemDragging {
+	opacity: 0.75;
+}
+
+.itemDropTarget {
+	border-radius: 1.2rem;
+	box-shadow: 0 0 0 0.2rem rgba(7, 151, 166, 0.12);
+}
+
+.itemInputWrap {
+	display: flex;
+	align-items: center;
+
+	gap: 0.6rem;
+	width: 100%;
+}
+
+.addBlockButton,
+.addItemButton {
+	cursor: pointer;
+
+	padding: 1.2rem 1.6rem;
+	border-radius: 1.2rem;
+	border: 1px solid rgba(7, 151, 166, 0.28);
+	background-color: rgba(7, 151, 166, 0.12);
+
+	color: rgba(7, 82, 92, 1);
+	font-size: 1.4rem;
+	font-weight: 700;
+
+	transition: all 0.2s ease;
+
+	&:hover:not(:disabled) {
+		filter: brightness(90%);
+	}
+
+	&:active:not(:disabled) {
+		filter: brightness(80%);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 }
 
 .actions {
@@ -235,6 +486,40 @@
 
 	.actions {
 		margin-top: 0.4rem;
+	}
+
+	.blocksContainer {
+		padding: 1.2rem;
+	}
+
+	.blockCard {
+		gap: 1rem;
+		padding: 1.2rem;
+		border-radius: 1.1rem;
+	}
+
+	.blockHeader {
+		align-items: flex-start;
+	}
+
+	.blockTitleGroup {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.dragHandle {
+		width: 2.8rem;
+		height: 2.8rem;
+	}
+
+	.removeItemButton {
+		justify-self: flex-end;
+	}
+
+	.addBlockButton,
+	.addItemButton {
+		width: 100%;
+		justify-content: center;
 	}
 
 	.cancelButton,

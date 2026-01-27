@@ -45,16 +45,20 @@ export default function AdminToursPage() {
 
 	const handleUpdateSubmit = async (data: TourUpdateInput) => {
 		if (!editingTour) return
+
 		await updateTourMutation.mutateAsync({
 			id: editingTour.id,
 			data,
 		})
+
 		setEditingTour(null)
 	}
 
 	const handleDeleteConfirm = async () => {
 		if (!deletingTour) return
+
 		await deleteTourMutation.mutateAsync(deletingTour.id)
+
 		setDeletingTour(null)
 	}
 

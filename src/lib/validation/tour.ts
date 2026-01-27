@@ -1,20 +1,22 @@
 import { z } from "zod"
 
 export const tourCreateInputSchema = z.object({
-	destination: z
+	title: z
 		.string()
-		.min(1, "Название направления обязательно")
-		.max(200, "Название слишком длинное"),
+		.min(1, "Название тура обязательно")
+		.max(200, "Слишком длинно"),
 	shortDescription: z
 		.string()
 		.min(1, "Краткое описание обязательно")
 		.max(500, "Краткое описание слишком длинное"),
-	fullDescription: z
-		.string()
-		.max(5000, "Полное описание слишком длинное")
-		.optional()
-		.or(z.literal("")),
-	properties: z.array(z.string()).default([]),
+	fullDescriptionBlocks: z
+		.array(
+			z.object({
+				title: z.string().min(1, "Заголовок блока обязателен"),
+				items: z.array(z.string()).default([]),
+			}),
+		)
+		.default([]),
 	price: z
 		.number()
 		.positive("Цена должна быть положительным числом")
@@ -27,52 +29,42 @@ export const tourCreateInputSchema = z.object({
 				val.startsWith("/") ||
 				val.startsWith("http://") ||
 				val.startsWith("https://"),
-			"URL изображения должен быть относительным путем или полным URL"
+			"URL изображения должен быть относительным путем или полным URL",
 		),
 	tags: z.array(z.string()).default([]),
-	rating: z
+	categories: z.array(z.string()).default([]),
+	dateFrom: z.string().optional().or(z.literal("")),
+	dateTo: z.string().optional().or(z.literal("")),
+	durationDays: z
 		.number()
-		.min(0, "Рейтинг не может быть отрицательным")
-		.max(5, "Рейтинг должен быть от 0 до 5")
-		.default(0),
-	duration: z
-		.number()
-		.int("Длительность должна быть целым числом")
-		.positive("Длительность должна быть положительным числом")
+		.int("Длительность (дни) должна быть целым числом")
+		.positive("Длительность (дни) должна быть положительной")
 		.optional()
 		.or(z.literal("")),
-	maxPartySize: z
+	durationNights: z
 		.number()
-		.int("Максимальное количество участников должно быть целым числом")
-		.positive("Максимальное количество участников должно быть положительным")
-		.optional()
-		.or(z.literal("")),
-	minPartySize: z
-		.number()
-		.int("Минимальное количество участников должно быть целым числом")
-		.positive("Минимальное количество участников должно быть положительным")
+		.int("Длительность (ночи) должна быть целым числом")
+		.positive("Длительность (ночи) должна быть положительной")
 		.optional()
 		.or(z.literal("")),
 	available: z.boolean().default(true),
 })
 
 export const tourUpdateInputSchema = z.object({
-	destination: z
-		.string()
-		.min(1, "Название направления обязательно")
-		.max(200, "Название слишком длинное")
-		.optional(),
+	title: z.string().min(1, "Название тура обязательно").max(200).optional(),
 	shortDescription: z
 		.string()
 		.min(1, "Краткое описание обязательно")
 		.max(500, "Краткое описание слишком длинное")
 		.optional(),
-	fullDescription: z
-		.string()
-		.max(5000, "Полное описание слишком длинное")
-		.optional()
-		.or(z.literal("")),
-	properties: z.array(z.string()).optional(),
+	fullDescriptionBlocks: z
+		.array(
+			z.object({
+				title: z.string().min(1, "Заголовок блока обязателен"),
+				items: z.array(z.string()).default([]),
+			}),
+		)
+		.optional(),
 	price: z
 		.number()
 		.positive("Цена должна быть положительным числом")
@@ -86,31 +78,23 @@ export const tourUpdateInputSchema = z.object({
 				val.startsWith("/") ||
 				val.startsWith("http://") ||
 				val.startsWith("https://"),
-			"URL изображения должен быть относительным путем или полным URL"
+			"URL изображения должен быть относительным путем или полным URL",
 		)
 		.optional(),
 	tags: z.array(z.string()).optional(),
-	rating: z
+	categories: z.array(z.string()).optional(),
+	dateFrom: z.string().optional().or(z.literal("")),
+	dateTo: z.string().optional().or(z.literal("")),
+	durationDays: z
 		.number()
-		.min(0, "Рейтинг не может быть отрицательным")
-		.max(5, "Рейтинг должен быть от 0 до 5")
-		.optional(),
-	duration: z
-		.number()
-		.int("Длительность должна быть целым числом")
-		.positive("Длительность должна быть положительным числом")
+		.int("Длительность (дни) должна быть целым числом")
+		.positive("Длительность (дни) должна быть положительной")
 		.optional()
 		.or(z.literal("")),
-	maxPartySize: z
+	durationNights: z
 		.number()
-		.int("Максимальное количество участников должно быть целым числом")
-		.positive("Максимальное количество участников должно быть положительным")
-		.optional()
-		.or(z.literal("")),
-	minPartySize: z
-		.number()
-		.int("Минимальное количество участников должно быть целым числом")
-		.positive("Минимальное количество участников должно быть положительным")
+		.int("Длительность (ночи) должна быть целым числом")
+		.positive("Длительность (ночи) должна быть положительной")
 		.optional()
 		.or(z.literal("")),
 	available: z.boolean().optional(),

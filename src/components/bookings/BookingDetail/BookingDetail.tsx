@@ -15,7 +15,7 @@ import { formatCurrency, formatDate } from "@/lib/format"
 import type { Booking } from "@/types"
 import { BookingStatus } from "@/types/enums"
 import { useQuery } from "@tanstack/react-query"
-import { Calendar, MapPin, Star, Users, X } from "lucide-react"
+import { Calendar, CalendarDays, MapPin, Moon, Sun, X } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -41,10 +41,11 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 		return "/client/tours"
 	}
 
+	const tourLookupId = booking.tourPublicId ?? booking.tourId
 	const tourQuery = useQuery({
-		queryKey: ["tours", booking.tourId],
-		queryFn: () => api.getTour(booking.tourId),
-		enabled: !!booking.tourId,
+		queryKey: ["tours", tourLookupId],
+		queryFn: () => api.getTour(tourLookupId),
+		enabled: !!tourLookupId,
 	})
 
 	const canCancel =
@@ -53,6 +54,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 	const handleCancel = async () => {
 		await cancelBookingMutation.mutateAsync(booking.id)
+
 		setShowCancelModal(false)
 
 		setTimeout(() => {
@@ -83,10 +85,10 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 			</div>
 
 			<div className={s.header}>
-				<div>
+				<div className={s.headerContent}>
 					<p className={s.bookingId}>Бронирование #{displayBookingId}</p>
 
-					<h1>Детали бронирования</h1>
+					<h1 className={s.headerTitle}>Детали бронирования</h1>
 				</div>
 
 				<div
@@ -97,6 +99,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 						className={s.statusDot}
 						style={{ backgroundColor: statusColor }}
 					/>
+
 					{statusLabel}
 				</div>
 			</div>
@@ -120,7 +123,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 							<div className={s.tourImage}>
 								<Image
 									src={tourQuery.data.image}
-									alt={tourQuery.data.destination}
+									alt={tourQuery.data.title}
 									fill
 									className={s.image}
 									sizes="(max-width: 768px) 100vw, 400px"
@@ -128,21 +131,60 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 							</div>
 
 							<div className={s.tourInfo}>
-								<p className={s.tourDestination}>
-									{tourQuery.data.destination}
-								</p>
+								<p className={s.tourDestination}>{tourQuery.data.title}</p>
 
 								<p className={s.tourDescription}>
 									{tourQuery.data.shortDescription}
 								</p>
 
+								{tourQuery.data.tags.length > 0 && (
+									<ul className={s.tagsList}>
+										{tourQuery.data.tags.map((tag, index) => (
+											<li key={`${tag}-${index}`} className={s.tagBadge}>
+												{tag}
+											</li>
+										))}
+									</ul>
+								)}
+
+								<div className={s.metaBadges}>
+									{tourQuery.data.dateFrom && tourQuery.data.dateTo && (
+										<div className={`${s.metaBadge} ${s.metaBadgeDate}`}>
+											<CalendarDays size={"1.8rem"} />
+
+											<span>
+												{formatDate(tourQuery.data.dateFrom)} —{" "}
+												{formatDate(tourQuery.data.dateTo)}
+											</span>
+										</div>
+									)}
+
+									{(tourQuery.data.durationDays ||
+										tourQuery.data.durationNights) && (
+										<div className={`${s.metaBadge} ${s.metaBadgeDuration}`}>
+											<div className={s.metaIconGroup}>
+												<Sun size={"1.6rem"} />
+
+												<Moon size={"1.6rem"} />
+											</div>
+
+											<span>
+												{[
+													tourQuery.data.durationDays
+														? `${tourQuery.data.durationDays} дн.`
+														: null,
+													tourQuery.data.durationNights
+														? `${tourQuery.data.durationNights} ноч.`
+														: null,
+												]
+													.filter(Boolean)
+													.join(" / ")}
+											</span>
+										</div>
+									)}
+								</div>
+
 								<div className={s.tourMeta}>
-									<span className={s.tourRating}>
-										<Star size={"1.6rem"} fill="currentColor" />
-
-										{tourQuery.data.rating}
-									</span>
-
 									<span className={s.tourPrice}>
 										{formatCurrency(tourQuery.data.price)}
 									</span>
@@ -152,23 +194,13 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 					)}
 
 					<div className={s.bookingInfo}>
-						<h2>Информация о бронировании</h2>
+						<h2 className={s.bookingInfoTitle}>Информация о бронировании</h2>
 
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
-								<Users size={"2rem"} className={s.infoIcon} />
-
-								<div>
-									<p className={s.infoLabel}>Количество гостей</p>
-
-									<p className={s.infoValue}>{booking.participants.length}</p>
-								</div>
-							</div>
-
-							<div className={s.infoItem}>
 								<Calendar size={"2rem"} className={s.infoIcon} />
 
-								<div>
+								<div className={s.infoItemWrapper}>
 									<p className={s.infoLabel}>Дата создания</p>
 
 									<p className={s.infoValue}>{formatDate(booking.createdAt)}</p>
@@ -179,7 +211,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 								<div className={s.infoItem}>
 									<Calendar size={"2rem"} className={s.infoIcon} />
 
-									<div>
+									<div className={s.infoItemWrapper}>
 										<p className={s.infoLabel}>Последнее обновление</p>
 
 										<p className={s.infoValue}>
@@ -193,10 +225,10 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 								<div className={s.infoItem}>
 									<MapPin size={"2rem"} className={s.infoIcon} />
 
-									<div>
-										<p className={s.infoLabel}>Направление</p>
+									<div className={s.infoItemWrapper}>
+										<p className={s.infoLabel}>Тур</p>
 
-										<p className={s.infoValue}>{tourQuery.data.destination}</p>
+										<p className={s.infoValue}>{tourQuery.data.title}</p>
 									</div>
 								</div>
 							)}
@@ -204,7 +236,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 						<div className={s.participants}>
 							<div className={s.participantsHeader}>
-								<h3>Участники</h3>
+								<h3 className={s.participantsTitle}>Участники</h3>
 
 								<span className={s.participantsCount}>
 									{booking.participants.length}
@@ -241,9 +273,9 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 						{booking.notes && (
 							<div className={s.notes}>
-								<h3>Заметки</h3>
+								<h3 className={s.notesTitle}>Заметки</h3>
 
-								<p>{booking.notes}</p>
+								<p className={s.notesText}>{booking.notes}</p>
 							</div>
 						)}
 					</div>

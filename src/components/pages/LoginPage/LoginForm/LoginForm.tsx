@@ -7,19 +7,22 @@ import { useToast } from "@/hooks/useToast"
 import { loginSchema, type LoginInput } from "@/lib/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import gsap from "gsap"
-import { signIn } from "next-auth/react"
+import { Eye, EyeOff } from "lucide-react"
+import { getSession, signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useLayoutEffect, useRef } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import s from "./LoginForm.module.scss"
 
 export function LoginForm() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
-	const callbackUrl = searchParams.get("callbackUrl") || "/client/tours"
+	const callbackUrlParam = searchParams.get("callbackUrl")
+	const hasCallbackUrl = !!callbackUrlParam
 	const { showError, showSuccess } = useToast()
 	const { setIsTransitionComplete } = usePageTransition()
 	const cardRef = useRef<HTMLDivElement>(null)
+	const [showPassword, setShowPassword] = useState(false)
 
 	useLayoutEffect(() => {
 		const card = cardRef.current
@@ -67,14 +70,18 @@ export function LoginForm() {
 
 	const onSubmit = async (data: LoginInput) => {
 		const resolvedCallbackUrl = (() => {
+			if (!callbackUrlParam) return null
+
 			try {
-				const resolved = new URL(callbackUrl, window.location.origin)
+				const resolved = new URL(callbackUrlParam, window.location.origin)
+
 				if (resolved.origin !== window.location.origin) {
-					return "/client/tours"
+					return null
 				}
+
 				return `${resolved.pathname}${resolved.search}${resolved.hash}`
 			} catch {
-				return "/client/tours"
+				return null
 			}
 		})()
 
@@ -83,7 +90,7 @@ export function LoginForm() {
 				email: data.email,
 				password: data.password,
 				redirect: false,
-				callbackUrl: resolvedCallbackUrl,
+				callbackUrl: resolvedCallbackUrl ?? undefined,
 			})
 
 			if (!res) {
@@ -100,7 +107,35 @@ export function LoginForm() {
 
 			showSuccess("Успешный вход!")
 
-			const targetUrl = res.url || resolvedCallbackUrl
+			const session = await getSession()
+			const role = session?.user?.role
+
+			const roleFallback =
+				role === "ADMIN"
+					? "/manager/tours"
+					: role === "MANAGER"
+						? "/manager/tours"
+						: "/client/tours"
+
+			const callbackPath = res.url || resolvedCallbackUrl
+
+			const callbackAllowed = (() => {
+				if (!callbackPath || !role) return false
+
+				if (callbackPath.startsWith("/admin")) return role === "ADMIN"
+
+				if (callbackPath.startsWith("/manager"))
+					return role === "ADMIN" || role === "MANAGER"
+
+				if (callbackPath.startsWith("/client")) return role === "CLIENT"
+
+				return true
+			})()
+
+			const targetUrl =
+				hasCallbackUrl && callbackAllowed && callbackPath
+					? callbackPath
+					: roleFallback
 
 			const container = document.getElementById("page-transition-container")
 
@@ -161,10 +196,25 @@ export function LoginForm() {
 
 					<Input
 						label="Пароль"
-						type="password"
+						type={showPassword ? "text" : "password"}
 						placeholder="••••••••"
 						error={errors.password?.message}
 						disabled={isSubmitting}
+						rightElement={
+							<button
+								type="button"
+								className={s.passwordToggle}
+								onClick={() => setShowPassword(prev => !prev)}
+								aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+								disabled={isSubmitting}
+							>
+								{showPassword ? (
+									<EyeOff size={"1.8rem"} />
+								) : (
+									<Eye size={"1.8rem"} />
+								)}
+							</button>
+						}
 						{...register("password")}
 					/>
 				</div>

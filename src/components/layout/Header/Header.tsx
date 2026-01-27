@@ -51,12 +51,18 @@ export function Header() {
 
 	const { isLoaded } = usePreloader()
 	const { isTransitionComplete } = usePageTransition()
-	const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
+	const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth()
 
-	const dashboardHref =
-		!isAuthLoading && !isAuthenticated
-			? "/login?callbackUrl=/client/tours"
-			: "/client/tours"
+	const dashboardHref = (() => {
+		if (!isAuthLoading && !isAuthenticated) {
+			return "/login"
+		}
+
+		if (user?.role === "ADMIN" || user?.role === "MANAGER")
+			return "/manager/tours"
+
+		return "/client/tours"
+	})()
 
 	useGSAP(() => {
 		if (!headerRef.current) return
@@ -112,7 +118,7 @@ export function Header() {
 				scrollAnimation.kill()
 			}
 		},
-		{ scope: headerRef, dependencies: [] }
+		{ scope: headerRef, dependencies: [] },
 	)
 
 	useGSAP(
@@ -120,10 +126,10 @@ export function Header() {
 			if (!buttonRef.current) return
 
 			const arrowMain = buttonRef.current.querySelector(
-				`[data-header-arrow-main]`
+				`[data-header-arrow-main]`,
 			) as HTMLElement
 			const arrowSecondary = buttonRef.current.querySelector(
-				`[data-header-arrow-secondary]`
+				`[data-header-arrow-secondary]`,
 			) as HTMLElement
 
 			if (!arrowMain || !arrowSecondary) return
@@ -144,7 +150,7 @@ export function Header() {
 						duration: 0.3,
 						ease: "power2.inOut",
 					},
-					"<"
+					"<",
 				)
 
 			return () => {
@@ -154,7 +160,7 @@ export function Header() {
 				}
 			}
 		},
-		{ scope: buttonRef }
+		{ scope: buttonRef },
 	)
 
 	const handleMouseEnter = () => tl.current?.play()
@@ -231,7 +237,7 @@ export function Header() {
 			if (!menuButtonRef.current) return
 
 			const lines = menuButtonRef.current.querySelectorAll<HTMLElement>(
-				`.${s.menuLine}`
+				`.${s.menuLine}`,
 			)
 
 			if (lines.length < 3) return
@@ -268,7 +274,7 @@ export function Header() {
 				})
 			}
 		},
-		{ dependencies: [isMenuOpen], scope: menuButtonRef }
+		{ dependencies: [isMenuOpen], scope: menuButtonRef },
 	)
 
 	useGSAP(
@@ -291,10 +297,10 @@ export function Header() {
 					autoAlpha: 1,
 					duration: 0.35,
 					ease: "back.out(1.4)",
-				}
+				},
 			)
 		},
-		{ dependencies: [isMenuOpen, isMenuVisible], scope: navRef }
+		{ dependencies: [isMenuOpen, isMenuVisible], scope: navRef },
 	)
 
 	return (

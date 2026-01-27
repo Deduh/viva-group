@@ -2,19 +2,19 @@
 
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { useAuth } from "@/hooks/useAuth"
+import { formatCurrency, formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getImageSizes,
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
-import { formatCurrency } from "@/lib/format"
 import type { Tour } from "@/types"
 import { useGSAP } from "@gsap/react"
 import { EmblaOptionsType } from "embla-carousel"
 import useEmblaCarousel from "embla-carousel-react"
 import gsap from "gsap"
-import { Star } from "lucide-react"
+import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
 import { useRef } from "react"
 import s from "./EmblaCarousel.module.scss"
@@ -32,11 +32,16 @@ interface EmblaCarouselProps {
 
 export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 	const [emblaRef, emblaApi] = useEmblaCarousel(options)
-	const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
-	const dashboardHref =
-		!isAuthLoading && !isAuthenticated
-			? "/login?callbackUrl=/client/tours"
-			: "/client/tours"
+	const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth()
+
+	const dashboardHref = (() => {
+		if (!isAuthLoading && !isAuthenticated) return "/login"
+
+		if (user?.role === "ADMIN" || user?.role === "MANAGER")
+			return "/manager/tours"
+
+		return "/client/tours"
+	})()
 
 	const containerRef = useRef(null)
 
@@ -78,7 +83,7 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 		{
 			scope: containerRef,
 			dependencies: [slides],
-		}
+		},
 	)
 
 	return (
@@ -95,7 +100,7 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 								<div className={s.image}>
 									<Image
 										src={item.image}
-										alt={getTourImageAlt(item.destination)}
+										alt={getTourImageAlt(item.title)}
 										fill
 										sizes={getImageSizes({
 											mobile: "100vw",
@@ -112,24 +117,56 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 									<div className={s.top}>
 										<div className={s.description}>
 											<div className={s.descriptionWrapper}>
-												<h3 className={s.title}>{item.destination}</h3>
-
-												<div className={s.rating}>
-													<Star size={"1.6rem"} color="rgba(234, 179, 8, 1)" />
-
-													<span className={s.ratingNum}>{item.rating}</span>
-												</div>
+												<h3 className={s.title}>{item.title}</h3>
 											</div>
 
 											<p className={s.text}>{item.shortDescription}</p>
 										</div>
 
 										<ul className={s.list}>
-											{item.properties.map((property, index) => (
-												<li key={index} className={s.listItem}>
-													{property}
+											{item.tags.map((tag, index) => (
+												<li key={`${tag}-${index}`} className={s.listItem}>
+													{tag}
 												</li>
 											))}
+
+											{item.dateFrom && item.dateTo && (
+												<li
+													className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}
+												>
+													<CalendarDays size={"1.4rem"} />
+
+													<span>
+														{formatDate(item.dateFrom)} —{" "}
+														{formatDate(item.dateTo)}
+													</span>
+												</li>
+											)}
+
+											{(item.durationDays || item.durationNights) && (
+												<li
+													className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDuration}`}
+												>
+													<span className={s.metaIconGroup}>
+														<Sun size={"1.2rem"} />
+
+														<Moon size={"1.2rem"} />
+													</span>
+
+													<span>
+														{[
+															item.durationDays
+																? `${item.durationDays} дн.`
+																: null,
+															item.durationNights
+																? `${item.durationNights} ноч.`
+																: null,
+														]
+															.filter(Boolean)
+															.join(" / ")}
+													</span>
+												</li>
+											)}
 										</ul>
 									</div>
 

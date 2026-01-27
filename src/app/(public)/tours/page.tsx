@@ -46,7 +46,7 @@ export default function AllToursPage() {
 		prevPage: originalPrevPage,
 		goToPage: originalGoToPage,
 		stats,
-		availableTags,
+		availableCategories,
 	} = useTours()
 
 	const handleNextPage = () => {
@@ -96,7 +96,7 @@ export default function AllToursPage() {
 				tl.kill()
 			}
 		},
-		{ scope: containerRef, dependencies: [isTransitionComplete] }
+		{ scope: containerRef, dependencies: [isTransitionComplete] },
 	)
 
 	return (
@@ -118,7 +118,7 @@ export default function AllToursPage() {
 							onSearchChange={setSearchQuery}
 							filters={filters}
 							onFiltersChange={setFilters}
-							availableTags={availableTags}
+							availableCategories={availableCategories}
 						/>
 					</ErrorBoundary>
 

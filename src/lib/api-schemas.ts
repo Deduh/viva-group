@@ -100,18 +100,25 @@ const attachmentsSchema = z.preprocess(
 	z.array(z.union([z.string(), z.record(z.string(), z.any())])),
 )
 
-const nullableDateSchema = z.preprocess(
-	value => (value === null ? undefined : value),
-	z.union([z.string(), z.date(), z.number()]),
-)
+const nullableDateSchema = z.preprocess(value => {
+	if (value === null || value === undefined) return undefined
+	if (value instanceof Date) return value.toISOString()
+	if (typeof value === "number") return new Date(value).toISOString()
+
+	return value
+}, z.string().optional())
+
+const fullDescriptionBlockSchema = z.object({
+	title: z.string().min(1, "Заголовок блока обязателен"),
+	items: z.array(z.string()).default([]),
+})
 
 export const TourSchema = z.object({
 	id: z.string().min(1, "ID тура обязателен"),
 	publicId: z.string().min(1, "Публичный ID тура обязателен").optional(),
-	destination: z.string().min(1, "Название направления обязательно"),
+	title: z.string().min(1, "Название тура обязательно"),
 	shortDescription: z.string().min(1, "Краткое описание обязательно"),
-	fullDescription: z.string().optional(),
-	properties: stringArraySchema.default([]),
+	fullDescriptionBlocks: z.array(fullDescriptionBlockSchema).default([]),
 	price: z.coerce.number().positive("Цена должна быть положительным числом"),
 	image: z
 		.string()
@@ -124,16 +131,11 @@ export const TourSchema = z.object({
 			"URL изображения должен быть относительным путем или полным URL",
 		),
 	tags: stringArraySchema.default([]),
-	rating: z
-		.preprocess(
-			value =>
-				value === null || value === undefined || value === "" ? 0 : value,
-			z.coerce.number().min(0).max(5, "Рейтинг должен быть от 0 до 5"),
-		)
-		.default(0),
-	duration: optionalPositiveNumberSchema.optional(),
-	maxPartySize: optionalPositiveNumberSchema.optional(),
-	minPartySize: optionalPositiveNumberSchema.optional(),
+	categories: stringArraySchema.default([]),
+	dateFrom: nullableDateSchema.optional(),
+	dateTo: nullableDateSchema.optional(),
+	durationDays: optionalPositiveNumberSchema.optional(),
+	durationNights: optionalPositiveNumberSchema.optional(),
 	available: z.coerce.boolean().optional(),
 	createdAt: z.iso.datetime().optional(),
 	updatedAt: z.iso.datetime().optional(),

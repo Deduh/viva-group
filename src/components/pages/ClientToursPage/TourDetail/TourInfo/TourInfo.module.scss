@@ -9,10 +9,11 @@
 
 .imageWrapper {
 	position: relative;
+	overflow: hidden;
+
 	width: 100%;
 	aspect-ratio: 16 / 9;
 	border-radius: 1.2rem;
-	overflow: hidden;
 	background-color: rgba(243, 244, 246, 1);
 	border: 1px solid rgba(226, 232, 240, 1);
 	box-shadow: 0 0.1rem 0.3rem rgba(15, 23, 42, 0.05);
@@ -29,14 +30,6 @@
 	gap: 2rem;
 }
 
-.header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-
-	gap: 1.6rem;
-}
-
 .title {
 	color: rgba(17, 24, 39, 1);
 	font-size: 3.2rem;
@@ -45,57 +38,75 @@
 	letter-spacing: 0%;
 }
 
-.rating {
+.tagsList {
+	display: flex;
+	flex-wrap: wrap;
+	list-style: none;
+
+	gap: 0.8rem;
+	padding: 0;
+	margin: 0;
+}
+
+.tagBadge {
 	display: flex;
 	align-items: center;
 
-	gap: 0.4rem;
-}
+	padding: 0.5rem 1.2rem;
+	border-radius: 99.9rem;
+	border: 1px solid rgba(7, 151, 166, 0.28);
+	background-color: rgba(7, 151, 166, 0.12);
 
-.ratingNum {
-	color: rgba(234, 179, 8, 1);
-	font-size: 1.8rem;
+	color: rgba(7, 82, 92, 1);
+	font-size: 1.3rem;
 	font-weight: 600;
-	line-height: 2.4rem;
-	letter-spacing: 0%;
+	line-height: 1.8rem;
+	letter-spacing: 0.01em;
 }
 
-.description {
-	color: rgba(107, 114, 128, 1);
-	font-size: 1.6rem;
-	font-weight: 400;
-	line-height: 2.4rem;
-	letter-spacing: 0%;
+.metaBadges {
+	display: flex;
+	flex-wrap: wrap;
+
+	gap: 1rem;
 }
 
-.fullDescription {
-	color: rgba(75, 85, 99, 1);
-	font-size: 1.6rem;
-	font-weight: 400;
-	line-height: 2.4rem;
-	letter-spacing: 0%;
-}
-
-.priceInfo {
+.metaBadge {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-}
 
-.priceLabel {
-	color: rgba(107, 114, 128, 1);
+	gap: 0.8rem;
+	padding: 0.7rem 1.4rem;
+	border-radius: 99.9rem;
+	box-shadow: 0 0.6rem 1.6rem -1rem rgba(15, 23, 42, 0.25);
+
 	font-size: 1.4rem;
-	font-weight: 500;
+	font-weight: 600;
 	line-height: 2rem;
-	letter-spacing: 0%;
+	letter-spacing: 0.01em;
+
+	svg {
+		flex-shrink: 0;
+	}
 }
 
-.priceValue {
-	color: rgba(17, 24, 39, 1);
-	font-size: 2.4rem;
-	font-weight: 700;
-	line-height: 3.2rem;
-	letter-spacing: 0%;
+.metaBadgeDate {
+	border: 1px solid rgba(56, 189, 248, 0.4);
+	background: rgba(56, 189, 248, 0.12);
+	color: rgba(14, 116, 144, 1);
+}
+
+.metaBadgeDuration {
+	border: 1px solid rgba(168, 85, 247, 0.35);
+	background: rgba(168, 85, 247, 0.12);
+	color: rgba(88, 28, 135, 1);
+}
+
+.metaIconGroup {
+	display: flex;
+	align-items: center;
+
+	gap: 0.2rem;
 }
 
 .properties {
@@ -103,6 +114,18 @@
 	flex-direction: column;
 
 	gap: 1.2rem;
+}
+
+.propertyBlock {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.2rem;
+	padding: 1.4rem 1.6rem;
+	border-radius: 1.6rem;
+	border: 1px solid rgba(7, 151, 166, 0.18);
+	background: rgba(7, 151, 166, 0.08);
+	box-shadow: 0 1rem 2.4rem -1.8rem rgba(15, 23, 42, 0.35);
 }
 
 .propertiesTitle {
@@ -116,9 +139,9 @@
 .propertiesList {
 	display: flex;
 	flex-direction: column;
+	list-style: none;
 
 	gap: 0.8rem;
-	list-style: none;
 	padding: 0;
 	margin: 0;
 }
@@ -132,45 +155,18 @@
 	line-height: 2rem;
 	letter-spacing: 0%;
 
-	padding-left: 1.6rem;
+	padding-left: 1.2rem;
 
 	&::before {
-		content: "✓";
+		content: "";
 		position: absolute;
-		top: 50%;
+		top: 0.7rem;
 		left: 0;
-		transform: translateY(-50%);
-		color: rgba(16, 185, 129, 1);
-		font-size: 1.6rem;
-		font-weight: 600;
+		width: 0.6rem;
+		height: 0.6rem;
+		border-radius: 50%;
+		background-color: rgba(7, 151, 166, 1);
 	}
-}
-
-.meta {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-
-	padding: 1.2rem 1.6rem;
-	border: 1px solid rgba(226, 232, 240, 1);
-	border-radius: 0.8rem;
-	box-shadow: 0 0.1rem 0.2rem rgba(15, 23, 42, 0.03);
-}
-
-.metaLabel {
-	color: rgba(107, 114, 128, 1);
-	font-size: 1.4rem;
-	font-weight: 500;
-	line-height: 2rem;
-	letter-spacing: 0%;
-}
-
-.metaValue {
-	color: rgba(17, 24, 39, 1);
-	font-size: 1.6rem;
-	font-weight: 600;
-	line-height: 2.4rem;
-	letter-spacing: 0%;
 }
 
 @media (max-width: 768px) {
@@ -197,26 +193,15 @@
 		line-height: 2.8rem;
 	}
 
-	.ratingNum {
-		font-size: 1.4rem;
-		line-height: 2rem;
+	.tagBadge {
+		font-size: 1.2rem;
+		line-height: 1.6rem;
 	}
 
-	.description,
-	.fullDescription {
-		font-size: 1.4rem;
-		line-height: 2.2rem;
-	}
-
-	.priceInfo {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.4rem;
-	}
-
-	.priceValue {
-		font-size: 2rem;
-		line-height: 2.6rem;
+	.metaBadge {
+		font-size: 1.2rem;
+		line-height: 1.6rem;
+		padding: 0.6rem 1.2rem;
 	}
 
 	.propertiesTitle {
@@ -230,23 +215,6 @@
 	}
 
 	.propertyItem::before {
-		font-size: 1.4rem;
-	}
-
-	.meta {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.4rem;
-		padding: 1rem 1.2rem;
-	}
-
-	.metaLabel {
-		font-size: 1.2rem;
-		line-height: 1.6rem;
-	}
-
-	.metaValue {
-		font-size: 1.4rem;
-		line-height: 2rem;
+		top: 0.8rem;
 	}
 }

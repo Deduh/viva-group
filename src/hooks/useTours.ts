@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import { useDebounce } from "./useDebounce"
 
-type SortOption = "price" | "rating" | "destination"
+type SortOption = "price" | "createdAt" | "title"
 type SortOrder = "asc" | "desc"
 
 export type UseToursOptions = {
@@ -25,7 +25,7 @@ export function useTours(options: UseToursOptions = {}) {
 
 	const [searchQuery, setSearchQuery] = useState("")
 	const [filters, setFilters] = useState<Partial<TourFilters>>(initialFilters)
-	const [sortBy, setSortBy] = useState<SortOption>("rating")
+	const [sortBy, setSortBy] = useState<SortOption>("createdAt")
 	const [sortOrder, setSortOrder] = useState<SortOrder>("desc")
 	const [currentPage, setCurrentPage] = useState(1)
 	const itemsPerPage = 9
@@ -42,15 +42,16 @@ export function useTours(options: UseToursOptions = {}) {
 
 			result = result.filter(
 				tour =>
-					tour.destination.toLowerCase().includes(query) ||
-					tour.shortDescription.toLowerCase().includes(query) ||
-					tour.tags.some(tag => tag.toLowerCase().includes(query))
+					tour.title.toLowerCase().includes(query) ||
+					tour.shortDescription.toLowerCase().includes(query),
 			)
 		}
 
-		if (filters.tags && filters.tags.length > 0) {
+		if (filters.categories && filters.categories.length > 0) {
 			result = result.filter(tour =>
-				filters.tags!.some(tag => tour.tags.includes(tag))
+				filters.categories!.some(category =>
+					tour.categories.includes(category),
+				),
 			)
 		}
 
@@ -62,17 +63,13 @@ export function useTours(options: UseToursOptions = {}) {
 			result = result.filter(tour => tour.price <= filters.maxPrice!)
 		}
 
-		if (filters.minRating !== undefined) {
-			result = result.filter(tour => tour.rating >= filters.minRating!)
-		}
-
 		if (filters.search) {
 			const searchLower = filters.search.toLowerCase()
 
 			result = result.filter(
 				tour =>
-					tour.destination.toLowerCase().includes(searchLower) ||
-					tour.shortDescription.toLowerCase().includes(searchLower)
+					tour.title.toLowerCase().includes(searchLower) ||
+					tour.shortDescription.toLowerCase().includes(searchLower),
 			)
 		}
 
@@ -83,12 +80,15 @@ export function useTours(options: UseToursOptions = {}) {
 				case "price":
 					compareValue = a.price - b.price
 					break
-				case "rating":
-					compareValue = a.rating - b.rating
+				case "title":
+					compareValue = a.title.localeCompare(b.title)
 					break
-				case "destination":
-					compareValue = a.destination.localeCompare(b.destination)
+				case "createdAt": {
+					const aTime = a.createdAt ? Date.parse(a.createdAt) : 0
+					const bTime = b.createdAt ? Date.parse(b.createdAt) : 0
+					compareValue = aTime - bTime
 					break
+				}
 			}
 
 			return sortOrder === "asc" ? compareValue : -compareValue
@@ -143,17 +143,17 @@ export function useTours(options: UseToursOptions = {}) {
 			hasNextPage: currentPage < totalPages,
 			hasPrevPage: currentPage > 1,
 		}),
-		[tours.length, filteredAndSortedTours.length, currentPage, totalPages]
+		[tours.length, filteredAndSortedTours.length, currentPage, totalPages],
 	)
 
-	const availableTags = useMemo(() => {
-		const tags = new Set<string>()
+	const availableCategories = useMemo(() => {
+		const categories = new Set<string>()
 
 		tours.forEach(tour => {
-			tour.tags.forEach(tag => tags.add(tag))
+			tour.categories.forEach(category => categories.add(category))
 		})
 
-		return Array.from(tags).sort()
+		return Array.from(categories).sort()
 	}, [tours])
 
 	const priceRange = useMemo(() => {
@@ -184,7 +184,7 @@ export function useTours(options: UseToursOptions = {}) {
 		filters,
 		setFilters,
 		resetFilters,
-		availableTags,
+		availableCategories,
 		priceRange,
 
 		// Сортировка

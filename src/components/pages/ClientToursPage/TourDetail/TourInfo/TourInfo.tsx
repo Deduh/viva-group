@@ -1,13 +1,13 @@
 "use client"
 
-import { formatCurrency } from "@/lib/format"
+import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getDetailPageImageSizes,
 	getTourImageAlt,
 } from "@/lib/image-utils"
 import type { Tour } from "@/types"
-import { Star } from "lucide-react"
+import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
 import s from "./TourInfo.module.scss"
 
@@ -21,7 +21,7 @@ export function TourInfo({ tour }: TourInfoProps) {
 			<div className={s.imageWrapper}>
 				<Image
 					src={tour.image}
-					alt={getTourImageAlt(tour.destination, tour.shortDescription)}
+					alt={getTourImageAlt(tour.title, tour.shortDescription)}
 					fill
 					sizes={getDetailPageImageSizes()}
 					priority
@@ -32,49 +32,64 @@ export function TourInfo({ tour }: TourInfoProps) {
 			</div>
 
 			<div className={s.tourDetails}>
-				<div className={s.header}>
-					<h1 className={s.title}>{tour.destination}</h1>
+				<h1 className={s.title}>{tour.title}</h1>
 
-					{tour.rating && (
-						<div className={s.rating}>
-							<Star size={"2rem"} color="rgba(234, 179, 8, 1)" />
+				{tour.tags.length > 0 && (
+					<ul className={s.tagsList}>
+						{tour.tags.map((tag, index) => (
+							<li key={`${tag}-${index}`} className={s.tagBadge}>
+								{tag}
+							</li>
+						))}
+					</ul>
+				)}
 
-							<span className={s.ratingNum}>{tour.rating.toFixed(1)}</span>
+				<div className={s.metaBadges}>
+					{tour.dateFrom && tour.dateTo && (
+						<div className={`${s.metaBadge} ${s.metaBadgeDate}`}>
+							<CalendarDays size={"1.8rem"} />
+
+							<span>
+								{formatDate(tour.dateFrom)} — {formatDate(tour.dateTo)}
+							</span>
+						</div>
+					)}
+
+					{(tour.durationDays || tour.durationNights) && (
+						<div className={`${s.metaBadge} ${s.metaBadgeDuration}`}>
+							<div className={s.metaIconGroup}>
+								<Sun size={"1.6rem"} />
+
+								<Moon size={"1.6rem"} />
+							</div>
+
+							<span>
+								{[
+									tour.durationDays ? `${tour.durationDays} дн.` : null,
+									tour.durationNights ? `${tour.durationNights} ноч.` : null,
+								]
+									.filter(Boolean)
+									.join(" / ")}
+							</span>
 						</div>
 					)}
 				</div>
 
-				<p className={s.description}>{tour.shortDescription}</p>
-
-				{tour.fullDescription && (
-					<p className={s.fullDescription}>{tour.fullDescription}</p>
-				)}
-
-				<div className={s.priceInfo}>
-					<span className={s.priceLabel}>Цена за человека:</span>
-
-					<span className={s.priceValue}>{formatCurrency(tour.price)}</span>
-				</div>
-
-				{tour.properties && tour.properties.length > 0 && (
+				{tour.fullDescriptionBlocks.length > 0 && (
 					<div className={s.properties}>
-						<h3 className={s.propertiesTitle}>Что включено:</h3>
+						{tour.fullDescriptionBlocks.map((block, index) => (
+							<div key={`${block.title}-${index}`} className={s.propertyBlock}>
+								<h3 className={s.propertiesTitle}>{block.title}</h3>
 
-						<ul className={s.propertiesList}>
-							{tour.properties.map((property, index) => (
-								<li key={index} className={s.propertyItem}>
-									{property}
-								</li>
-							))}
-						</ul>
-					</div>
-				)}
-
-				{tour.duration && (
-					<div className={s.meta}>
-						<span className={s.metaLabel}>Длительность:</span>
-
-						<span className={s.metaValue}>{tour.duration} дней</span>
+								<ul className={s.propertiesList}>
+									{block.items.map((item, itemIndex) => (
+										<li key={`${item}-${itemIndex}`} className={s.propertyItem}>
+											{item}
+										</li>
+									))}
+								</ul>
+							</div>
+						))}
 					</div>
 				)}
 			</div>

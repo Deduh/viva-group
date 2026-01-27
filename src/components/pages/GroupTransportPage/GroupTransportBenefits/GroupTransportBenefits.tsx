@@ -13,12 +13,16 @@ gsap.registerPlugin(ScrollTrigger)
 
 export const GroupTransportBenefits = memo(function GroupTransportBenefits() {
 	const container = useRef<HTMLElement>(null)
-	const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
+	const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth()
 
-	const dashboardHref =
-		!isAuthLoading && !isAuthenticated
-			? "/login?callbackUrl=/client/tours"
-			: "/client/tours"
+	const dashboardHref = (() => {
+		if (!isAuthLoading && !isAuthenticated) return "/login"
+
+		if (user?.role === "ADMIN" || user?.role === "MANAGER")
+			return "/manager/tours"
+
+		return "/client/tours"
+	})()
 
 	useGSAP(
 		() => {
@@ -56,7 +60,7 @@ export const GroupTransportBenefits = memo(function GroupTransportBenefits() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=0.6"
+					"-=0.6",
 				)
 				.to(
 					"[data-group-benefits-text]",
@@ -67,7 +71,7 @@ export const GroupTransportBenefits = memo(function GroupTransportBenefits() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=0.4"
+					"-=0.4",
 				)
 				.to(
 					"[data-group-benefits-item]",
@@ -79,7 +83,7 @@ export const GroupTransportBenefits = memo(function GroupTransportBenefits() {
 						ease: "power2.out",
 						clearProps: "y",
 					},
-					"-=0.4"
+					"-=0.4",
 				)
 				.to(
 					"[data-group-benefits-icon]",
@@ -91,7 +95,7 @@ export const GroupTransportBenefits = memo(function GroupTransportBenefits() {
 						ease: "back.out(1.7)",
 						clearProps: "all",
 					},
-					"<+=0.2"
+					"<+=0.2",
 				)
 				.to(
 					"[data-group-benefits-button]",
@@ -102,7 +106,7 @@ export const GroupTransportBenefits = memo(function GroupTransportBenefits() {
 						ease: "power2.out",
 						clearProps: "y",
 					},
-					"-=0.2"
+					"-=0.2",
 				)
 				.to(
 					"[data-group-benefits-card]",
@@ -115,7 +119,7 @@ export const GroupTransportBenefits = memo(function GroupTransportBenefits() {
 						ease: "power3.out",
 						clearProps: "all",
 					},
-					"-=0.6"
+					"-=0.6",
 				)
 
 			return () => {
@@ -126,7 +130,7 @@ export const GroupTransportBenefits = memo(function GroupTransportBenefits() {
 				tl.kill()
 			}
 		},
-		{ scope: container, dependencies: [] }
+		{ scope: container, dependencies: [] },
 	)
 
 	return (

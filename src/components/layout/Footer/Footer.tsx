@@ -45,10 +45,7 @@ export function Footer() {
 									Контакты
 								</TransitionLink>
 
-								<TransitionLink
-									href="/login?callbackUrl=/client/tours"
-									className={s.link}
-								>
+								<TransitionLink href="/login" className={s.link}>
 									Личный кабинет
 								</TransitionLink>
 							</div>

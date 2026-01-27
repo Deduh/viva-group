@@ -1,5 +1,6 @@
 "use client"
 
+import { DateInput } from "@/components/ui/Form/DateInput/DateInput"
 import { Input } from "@/components/ui/Form/Input/Input"
 import { TextArea } from "@/components/ui/Form/TextArea/TextArea"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
@@ -12,10 +13,14 @@ import {
 	type TourUpdateInput,
 } from "@/lib/validation"
 import type { Tour } from "@/types"
+import { TourFormValues } from "@/types/forms"
+import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core"
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Image as ImageIcon, Loader2 } from "lucide-react"
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
+import { DescriptionBlockFields } from "./DescriptionBlockFields/DescriptionBlockFields"
 import s from "./TourForm.module.scss"
 
 interface TourFormPropsCreate {
@@ -35,8 +40,8 @@ type TourFormProps = TourFormPropsCreate | TourFormPropsUpdate
 export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 	const isEditMode = !!tour
 	const [tagsInput, setTagsInput] = useState(tour?.tags.join(", ") || "")
-	const [propertiesInput, setPropertiesInput] = useState(
-		tour?.properties.join(", ") || "",
+	const [categoriesInput, setCategoriesInput] = useState(
+		tour?.categories.join(", ") || "",
 	)
 	const [isUploading, setIsUploading] = useState(false)
 	const [uploadError, setUploadError] = useState<string | null>(null)
@@ -49,76 +54,117 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 		handleSubmit,
 		formState: { errors, isSubmitting },
 		setValue,
-	} = useForm<TourCreateInput | TourUpdateInput>({
-		resolver: zodResolver(schema),
+		control,
+	} = useForm<TourFormValues>({
+		resolver: zodResolver(schema) as never,
 		defaultValues: tour
 			? ({
-					destination: tour.destination,
+					title: tour.title,
 					shortDescription: tour.shortDescription,
-					fullDescription: tour.fullDescription || "",
-					properties: tour.properties,
+					fullDescriptionBlocks:
+						tour.fullDescriptionBlocks.length > 0
+							? tour.fullDescriptionBlocks
+							: [{ title: "", items: [""] }],
 					price: tour.price,
 					image: formatImageUrlForDisplay(tour.image),
 					tags: tour.tags,
-					rating: tour.rating,
-					duration: tour.duration,
-					maxPartySize: tour.maxPartySize,
-					minPartySize: tour.minPartySize,
+					categories: tour.categories,
+					dateFrom: tour.dateFrom || "",
+					dateTo: tour.dateTo || "",
+					durationDays: tour.durationDays,
+					durationNights: tour.durationNights,
 					available: tour.available ?? true,
 				} as TourUpdateInput)
 			: ({
-					destination: "",
+					title: "",
 					shortDescription: "",
-					fullDescription: "",
-					properties: [],
+					fullDescriptionBlocks: [{ title: "", items: [""] }],
 					price: 0,
 					image: "",
 					tags: [],
-					rating: 0,
-					duration: undefined,
-					maxPartySize: undefined,
-					minPartySize: undefined,
+					categories: [],
+					dateFrom: "",
+					dateTo: "",
+					durationDays: undefined,
+					durationNights: undefined,
 					available: true,
 				} as TourCreateInput),
 	})
+
 	const imageField = register("image")
+
+	const blocksFieldArray = useFieldArray({
+		control,
+		name: "fullDescriptionBlocks",
+	})
+	const {
+		fields: blockFields,
+		append: appendBlock,
+		remove: removeBlock,
+		move: moveBlock,
+	} = blocksFieldArray
+	const blockSortableIds = blockFields.map(field => field.id)
+
+	const handleBlocksDragEnd = (event: DragEndEvent) => {
+		const { active, over } = event
+
+		if (!over || active.id === over.id) return
+
+		const activeIndex = blockFields.findIndex(field => field.id === active.id)
+		const overIndex = blockFields.findIndex(field => field.id === over.id)
+
+		if (activeIndex < 0 || overIndex < 0) return
+
+		moveBlock(activeIndex, overIndex)
+	}
+
+	useEffect(() => {
+		if (blockFields.length === 0) {
+			appendBlock({ title: "", items: [""] })
+		}
+	}, [blockFields.length, appendBlock])
 
 	useEffect(() => {
 		const tags = tagsInput
 			.split(",")
 			.map(t => t.trim())
 			.filter(t => t.length > 0)
+
 		setValue("tags", tags)
 	}, [tagsInput, setValue])
 
 	useEffect(() => {
-		const properties = propertiesInput
+		const categories = categoriesInput
 			.split(",")
-			.map(p => p.trim())
-			.filter(p => p.length > 0)
-		setValue("properties", properties)
-	}, [propertiesInput, setValue])
+			.map(item => item.trim())
+			.filter(item => item.length > 0)
 
-	const handleFormSubmit = async (data: TourCreateInput | TourUpdateInput) => {
+		setValue("categories", categories)
+	}, [categoriesInput, setValue])
+
+	const handleFormSubmit = async (data: TourFormValues) => {
+		const cleanedBlocks = (data.fullDescriptionBlocks ?? []).map(block => ({
+			title: block.title?.trim?.() ?? "",
+			items: (block.items ?? [])
+				.map(item => item?.trim?.() ?? "")
+				.filter(item => item.length > 0),
+		}))
+
 		const cleanedData = {
 			...data,
-			fullDescription:
-				data.fullDescription === "" ? undefined : data.fullDescription,
-			duration:
-				data.duration === "" || data.duration === undefined
+			fullDescriptionBlocks: cleanedBlocks,
+			dateFrom: data.dateFrom === "" ? undefined : data.dateFrom,
+			dateTo: data.dateTo === "" ? undefined : data.dateTo,
+			durationDays:
+				data.durationDays === "" || data.durationDays === undefined
 					? undefined
-					: Number(data.duration),
-			maxPartySize:
-				data.maxPartySize === "" || data.maxPartySize === undefined
+					: Number(data.durationDays),
+			durationNights:
+				data.durationNights === "" || data.durationNights === undefined
 					? undefined
-					: Number(data.maxPartySize),
-			minPartySize:
-				data.minPartySize === "" || data.minPartySize === undefined
-					? undefined
-					: Number(data.minPartySize),
+					: Number(data.durationNights),
 		}
 
-		// @ts-expect-error - TypeScript не может проверить union type, но в рантайме все корректно
 		await onSubmit(cleanedData)
 	}
 
@@ -132,6 +178,7 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 
 		try {
 			const { url } = await api.uploadTourImage(file)
+
 			setValue("image", formatImageUrlForDisplay(url), { shouldDirty: true })
 		} catch (err) {
 			setUploadError(
@@ -148,13 +195,13 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 				<h3 className={s.sectionTitle}>Основная информация</h3>
 
 				<Input
-					label="Название направления"
+					label="Название тура"
 					type="text"
 					placeholder="Например: Санторини, Греция"
-					error={errors.destination?.message}
+					error={errors.title?.message}
 					disabled={isSubmitting}
 					required
-					{...register("destination")}
+					{...register("title")}
 				/>
 
 				<TextArea
@@ -169,16 +216,60 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					{...register("shortDescription")}
 				/>
 
-				<TextArea
-					label="Полное описание (опционально)"
-					placeholder="Подробное описание тура (до 5000 символов)"
-					rows={6}
-					maxLength={5000}
-					showCharCount
-					error={errors.fullDescription?.message}
-					disabled={isSubmitting}
-					{...register("fullDescription")}
-				/>
+				<p className={s.blocksLabel}>
+					Полное описание (блоки)
+					<span className={s.required}>*</span>
+				</p>
+
+				<div className={s.blocksContainer}>
+					{blockFields.length === 0 ? (
+						<div className={s.blocksEmpty}>
+							Пока нет блоков. Добавьте первый блок описания.
+						</div>
+					) : (
+						<DndContext
+							collisionDetection={closestCenter}
+							onDragEnd={handleBlocksDragEnd}
+						>
+							<SortableContext
+								items={blockSortableIds}
+								strategy={verticalListSortingStrategy}
+							>
+								<div className={s.blocksList}>
+									{blockFields.map((field, index) => (
+										<DescriptionBlockFields
+											key={field.id}
+											blockId={field.id}
+											index={index}
+											control={control}
+											register={register}
+											setValue={setValue}
+											errors={errors}
+											disabled={isSubmitting}
+											canRemoveBlock={blockFields.length > 1}
+											onRemoveBlock={() => removeBlock(index)}
+										/>
+									))}
+								</div>
+							</SortableContext>
+						</DndContext>
+					)}
+
+					<button
+						type="button"
+						className={s.addBlockButton}
+						onClick={() => appendBlock({ title: "", items: [""] })}
+						disabled={isSubmitting}
+					>
+						Добавить блок
+					</button>
+
+					{errors.fullDescriptionBlocks?.message && (
+						<p className={s.errorText}>
+							{errors.fullDescriptionBlocks.message as string}
+						</p>
+					)}
+				</div>
 			</div>
 
 			<div className={s.section}>
@@ -245,53 +336,45 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 			</div>
 
 			<div className={s.section}>
-				<h3 className={s.sectionTitle}>Характеристики</h3>
+				<h3 className={s.sectionTitle}>Даты и длительность</h3>
 
-				<Input
-					label="Рейтинг (0-5)"
-					type="number"
-					step="0.1"
-					min="0"
-					max="5"
-					placeholder="0"
-					error={errors.rating?.message}
-					disabled={isSubmitting}
-					{...register("rating", { valueAsNumber: true })}
-				/>
+				<div className={s.row}>
+					<DateInput
+						label="Дата начала"
+						error={errors.dateFrom?.message}
+						disabled={isSubmitting}
+						{...register("dateFrom")}
+					/>
 
-				<Input
-					label="Длительность (дни, опционально)"
-					type="number"
-					min="1"
-					placeholder="Например: 7"
-					error={errors.duration?.message}
-					disabled={isSubmitting}
-					{...register("duration", {
-						setValueAs: v => (v === "" ? undefined : Number(v)),
-					})}
-				/>
+					<DateInput
+						label="Дата окончания"
+						error={errors.dateTo?.message}
+						disabled={isSubmitting}
+						{...register("dateTo")}
+					/>
+				</div>
 
 				<div className={s.row}>
 					<Input
-						label="Минимум участников (опционально)"
+						label="Длительность (дни)"
 						type="number"
 						min="1"
-						placeholder="Например: 2"
-						error={errors.minPartySize?.message}
+						placeholder="Например: 7"
+						error={errors.durationDays?.message}
 						disabled={isSubmitting}
-						{...register("minPartySize", {
+						{...register("durationDays", {
 							setValueAs: v => (v === "" ? undefined : Number(v)),
 						})}
 					/>
 
 					<Input
-						label="Максимум участников (опционально)"
+						label="Длительность (ночи)"
 						type="number"
 						min="1"
-						placeholder="Например: 10"
-						error={errors.maxPartySize?.message}
+						placeholder="Например: 6"
+						error={errors.durationNights?.message}
 						disabled={isSubmitting}
-						{...register("maxPartySize", {
+						{...register("durationNights", {
 							setValueAs: v => (v === "" ? undefined : Number(v)),
 						})}
 					/>
@@ -299,7 +382,7 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 			</div>
 
 			<div className={s.section}>
-				<h3 className={s.sectionTitle}>Теги и свойства</h3>
+				<h3 className={s.sectionTitle}>Теги</h3>
 
 				<Input
 					label="Теги (через запятую)"
@@ -310,15 +393,19 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					disabled={isSubmitting}
 					helperText="Введите теги через запятую"
 				/>
+			</div>
+
+			<div className={s.section}>
+				<h3 className={s.sectionTitle}>Категории</h3>
 
 				<Input
-					label="Свойства (через запятую)"
+					label="Категории (для фильтрации)"
 					type="text"
-					placeholder="7 дней и 6 ночей, Бутик-отель, Винные дегустации"
-					value={propertiesInput}
-					onChange={e => setPropertiesInput(e.target.value)}
+					placeholder="Европа, Азия"
+					value={categoriesInput}
+					onChange={e => setCategoriesInput(e.target.value)}
 					disabled={isSubmitting}
-					helperText="Введите свойства через запятую"
+					helperText="Введите категории через запятую"
 				/>
 			</div>
 

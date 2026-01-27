@@ -3,7 +3,7 @@
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { useAuth } from "@/hooks/useAuth"
-import { formatCurrency } from "@/lib/format"
+import { formatCurrency, formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getImageSizes,
@@ -14,7 +14,7 @@ import type { Tour } from "@/types"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { Star } from "lucide-react"
+import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
 import { memo, useRef } from "react"
 import s from "./ToursGrid.module.scss"
@@ -29,11 +29,16 @@ interface ToursGridProps {
 export const ToursGrid = memo(
 	function ToursGrid({ tours, isLoading = false }: ToursGridProps) {
 		const gridRef = useRef<HTMLDivElement>(null)
-		const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
-		const dashboardHref =
-			!isAuthLoading && !isAuthenticated
-				? "/login?callbackUrl=/client/tours"
-				: "/client/tours"
+		const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth()
+
+		const dashboardHref = (() => {
+			if (!isAuthLoading && !isAuthenticated) return "/login"
+
+			if (user?.role === "ADMIN" || user?.role === "MANAGER")
+				return "/manager/tours"
+
+			return "/client/tours"
+		})()
 
 		useGSAP(
 			() => {
@@ -109,7 +114,7 @@ export const ToursGrid = memo(
 							<div className={s.cardImage}>
 								<Image
 									src={tour.image}
-									alt={getTourImageAlt(tour.destination)}
+									alt={getTourImageAlt(tour.title)}
 									fill
 									sizes={getImageSizes({
 										mobile: "100vw",
@@ -126,28 +131,56 @@ export const ToursGrid = memo(
 								<div className={s.top}>
 									<div className={s.description}>
 										<div className={s.descriptionWrapper}>
-											<h3 className={s.cardTitle}>{tour.destination}</h3>
-
-											{tour.rating && (
-												<div className={s.rating}>
-													<Star size={"1.6rem"} color="rgba(234, 179, 8, 1)" />
-
-													<span className={s.ratingNum}>
-														{tour.rating.toFixed(1)}
-													</span>
-												</div>
-											)}
+											<h3 className={s.cardTitle}>{tour.title}</h3>
 										</div>
 
 										<p className={s.text}>{tour.shortDescription}</p>
 									</div>
 
 									<ul className={s.list}>
-										{tour.properties.map((property, index) => (
+										{tour.tags.map((tag, index) => (
 											<li key={index} className={s.listItem}>
-												{property}
+												{tag}
 											</li>
 										))}
+
+										{tour.dateFrom && tour.dateTo && (
+											<li
+												className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}
+											>
+												<CalendarDays size={"1.4rem"} />
+
+												<span>
+													{formatDate(tour.dateFrom)} —{" "}
+													{formatDate(tour.dateTo)}
+												</span>
+											</li>
+										)}
+
+										{(tour.durationDays || tour.durationNights) && (
+											<li
+												className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDuration}`}
+											>
+												<span className={s.metaIconGroup}>
+													<Sun size={"1.2rem"} />
+
+													<Moon size={"1.2rem"} />
+												</span>
+
+												<span>
+													{[
+														tour.durationDays
+															? `${tour.durationDays} дн.`
+															: null,
+														tour.durationNights
+															? `${tour.durationNights} ноч.`
+															: null,
+													]
+														.filter(Boolean)
+														.join(" / ")}
+												</span>
+											</li>
+										)}
 									</ul>
 								</div>
 

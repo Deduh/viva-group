@@ -34,10 +34,11 @@ export function TourDeleteConfirm({
 		>
 			<div className={s.deleteBody}>
 				<p className={s.deleteText}>
-					Вы уверены, что хотите удалить тур <strong>{tour.destination}</strong>
-					?
+					Вы уверены, что хотите удалить тур <strong>{tour.title}</strong>?
 				</p>
+
 				<p className={s.deleteHint}>Это действие нельзя отменить.</p>
+
 				<div className={s.deleteActions}>
 					<button
 						type="button"
@@ -47,6 +48,7 @@ export function TourDeleteConfirm({
 					>
 						Отмена
 					</button>
+
 					<button
 						type="button"
 						onClick={handleConfirm}

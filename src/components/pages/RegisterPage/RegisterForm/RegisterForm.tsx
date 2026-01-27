@@ -8,9 +8,10 @@ import { api } from "@/lib/api"
 import { registerSchema, type RegisterInput } from "@/lib/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import gsap from "gsap"
+import { Eye, EyeOff } from "lucide-react"
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useLayoutEffect, useRef } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import s from "./RegisterForm.module.scss"
 
@@ -21,6 +22,8 @@ export function RegisterForm() {
 	const { showError, showSuccess } = useToast()
 	const { setIsTransitionComplete } = usePageTransition()
 	const cardRef = useRef<HTMLDivElement>(null)
+	const [showPassword, setShowPassword] = useState(false)
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
 	useLayoutEffect(() => {
 		const card = cardRef.current
@@ -160,20 +163,52 @@ export function RegisterForm() {
 
 					<Input
 						label="Пароль"
-						type="password"
+						type={showPassword ? "text" : "password"}
 						placeholder="Минимум 8 символов"
 						helperText="Должен содержать заглавную букву, строчную и цифру"
 						error={errors.password?.message}
 						disabled={isSubmitting}
+						rightElement={
+							<button
+								type="button"
+								className={s.passwordToggle}
+								onClick={() => setShowPassword(prev => !prev)}
+								aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+								disabled={isSubmitting}
+							>
+								{showPassword ? (
+									<EyeOff size={"1.8rem"} />
+								) : (
+									<Eye size={"1.8rem"} />
+								)}
+							</button>
+						}
 						{...register("password")}
 					/>
 
 					<Input
 						label="Подтвердите пароль"
-						type="password"
+						type={showConfirmPassword ? "text" : "password"}
 						placeholder="Повторите пароль"
 						error={errors.confirmPassword?.message}
 						disabled={isSubmitting}
+						rightElement={
+							<button
+								type="button"
+								className={s.passwordToggle}
+								onClick={() => setShowConfirmPassword(prev => !prev)}
+								aria-label={
+									showConfirmPassword ? "Скрыть пароль" : "Показать пароль"
+								}
+								disabled={isSubmitting}
+							>
+								{showConfirmPassword ? (
+									<EyeOff size={"1.8rem"} />
+								) : (
+									<Eye size={"1.8rem"} />
+								)}
+							</button>
+						}
 						{...register("confirmPassword")}
 					/>
 				</div>
