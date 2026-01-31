@@ -32,22 +32,22 @@ import {
 	TourSchema,
 	UserSchema,
 } from "./api-schemas"
-import { env } from "./env"
+import { env as publicEnv } from "./env/client"
 import { ApiError, NetworkError, ValidationError } from "./errors"
 import { normalizeImageUrl } from "./url"
 
 const apiBaseUrl =
 	typeof window === "undefined"
-		? env.NEXT_PUBLIC_API_URL ||
-		  env.APP_URL ||
-		  env.NEXTAUTH_URL ||
-		  "http://localhost:3000"
+		? publicEnv.NEXT_PUBLIC_API_URL ||
+			process.env.APP_URL ||
+			process.env.NEXTAUTH_URL ||
+			"http://localhost:3000"
 		: process.env.NEXT_PUBLIC_API_URL || ""
 
 const REQUEST_TIMEOUT = 30000 // 30 секунд
 
 async function parseErrorResponse(
-	response: Response
+	response: Response,
 ): Promise<{ message: string; code?: string; details?: unknown }> {
 	try {
 		const contentType = response.headers.get("content-type")
@@ -72,7 +72,7 @@ async function parseErrorResponse(
 
 async function fetchJson<T>(
 	input: RequestInfo | URL,
-	init?: RequestInit
+	init?: RequestInit,
 ): Promise<T> {
 	const url =
 		typeof input === "string" && input.startsWith("/")
@@ -87,7 +87,7 @@ async function fetchJson<T>(
 					const session = await getSession()
 					const accessToken = (session as { accessToken?: string })?.accessToken
 					return accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
-			  })()
+				})()
 
 	const headers = new Headers(init?.headers)
 	Object.entries(authHeaders).forEach(([key, value]) => {
@@ -113,7 +113,7 @@ async function fetchJson<T>(
 			if (res.status === 422) {
 				throw new ValidationError(
 					errorData.message,
-					errorData.details as Record<string, string[]> | undefined
+					errorData.details as Record<string, string[]> | undefined,
 				)
 			}
 
@@ -121,7 +121,7 @@ async function fetchJson<T>(
 				errorData.message,
 				res.status,
 				errorData.code,
-				errorData.details
+				errorData.details,
 			)
 		}
 
@@ -135,7 +135,7 @@ async function fetchJson<T>(
 
 		if (error instanceof Error && error.name === "AbortError") {
 			throw new NetworkError(
-				`Запрос превысил время ожидания (${REQUEST_TIMEOUT / 1000} секунд)`
+				`Запрос превысил время ожидания (${REQUEST_TIMEOUT / 1000} секунд)`,
 			)
 		}
 
@@ -153,11 +153,11 @@ async function fetchJson<T>(
 
 async function fetchAndValidate<
 	TType,
-	TSchema extends z.ZodType<TType> = z.ZodType<TType>
+	TSchema extends z.ZodType<TType> = z.ZodType<TType>,
 >(
 	input: RequestInfo | URL,
 	schema: TSchema,
-	init?: RequestInit
+	init?: RequestInit,
 ): Promise<TType> {
 	const rawData = await fetchJson<unknown>(input, init)
 
@@ -172,7 +172,7 @@ async function fetchAndValidate<
 					acc[path].push(err.message)
 					return acc
 				},
-				{} as Record<string, string[]>
+				{} as Record<string, string[]>,
 			)
 
 			console.error("[API Validation Error]", {
@@ -188,7 +188,7 @@ async function fetchAndValidate<
 
 			throw new ValidationError(
 				"Данные от сервера не соответствуют ожидаемой структуре",
-				errorDetails
+				errorDetails,
 			)
 		}
 
@@ -214,7 +214,7 @@ type AuthResponse = {
 }
 
 const normalizeGroupTransportSegment = (
-	segment: RawGroupTransportSegment
+	segment: RawGroupTransportSegment,
 ): GroupTransportSegment => {
 	const directionValue = String(segment.direction)
 	const direction: GroupTransportSegment["direction"] =
@@ -233,7 +233,7 @@ const normalizeGroupTransportSegment = (
 					youthBusiness: Number(segment.youthBusiness || 0),
 					childrenBusiness: Number(segment.childrenBusiness || 0),
 					infantsBusiness: Number(segment.infantsBusiness || 0),
-			  }
+				}
 
 	return {
 		direction,
@@ -257,7 +257,7 @@ const normalizeGroupTransportSegment = (
 }
 
 const normalizeGroupTransportBooking = (
-	booking: Record<string, unknown>
+	booking: Record<string, unknown>,
 ): GroupTransportBooking => {
 	const segments = Array.isArray(booking.segments) ? booking.segments : []
 
@@ -268,13 +268,13 @@ const normalizeGroupTransportBooking = (
 		createdAt: String(booking.createdAt),
 		note: booking.note ? String(booking.note) : undefined,
 		segments: segments.map(segment =>
-			normalizeGroupTransportSegment(segment as RawGroupTransportSegment)
+			normalizeGroupTransportSegment(segment as RawGroupTransportSegment),
 		),
 	}
 }
 
 const parseMessagesResponse = async (
-	url: string
+	url: string,
 ): Promise<ApiCollection<Message>> => {
 	const raw = await fetchJson<unknown>(url)
 
@@ -329,7 +329,7 @@ const parseMessagesResponse = async (
 		}
 
 		errorDetails[`items.${index}`] = parsed.error.issues.map(
-			issue => issue.message
+			issue => issue.message,
 		)
 	})
 
@@ -343,7 +343,7 @@ const parseMessagesResponse = async (
 		if (parsedItems.length === 0 && items.length > 0) {
 			throw new ValidationError(
 				"Данные от сервера не соответствуют ожидаемой структуре",
-				errorDetails
+				errorDetails,
 			)
 		}
 	}
@@ -364,7 +364,7 @@ const toIsoDate = (value: string) => {
 }
 
 const serializeGroupTransportSegment = (
-	segment: GroupTransportSegmentInput
+	segment: GroupTransportSegmentInput,
 ): Record<string, unknown> => {
 	const passengers = segment.passengers || {
 		seniorsEco: 0,
@@ -435,14 +435,14 @@ export const api = {
 	getTours: () =>
 		fetchAndValidate<ApiCollection<Tour>>(
 			"/api/tours",
-			ApiCollectionSchema(TourSchema)
+			ApiCollectionSchema(TourSchema),
 		),
 	getTour: (id: string) =>
 		fetchAndValidate<Tour>(`/api/tours/${id}`, TourSchema),
 	getManagers: async (): Promise<ApiCollection<User>> => {
 		return fetchAndValidate<ApiCollection<User>>(
 			"/api/admin/managers",
-			ApiCollectionSchema(UserSchema)
+			ApiCollectionSchema(UserSchema),
 		)
 	},
 	uploadTourImage: async (file: File): Promise<{ url: string }> => {
@@ -463,7 +463,7 @@ export const api = {
 	},
 	updateManager: async (
 		id: string,
-		data: UpdateManagerInput
+		data: UpdateManagerInput,
 	): Promise<User> => {
 		return fetchJson<User>(`/api/admin/managers/${id}`, {
 			method: "PATCH",
@@ -479,13 +479,13 @@ export const api = {
 	getBookings: () =>
 		fetchAndValidate<ApiCollection<Booking>>(
 			"/api/bookings",
-			ApiCollectionSchema(BookingSchema)
+			ApiCollectionSchema(BookingSchema),
 		),
 	getGroupTransportBookings: async (): Promise<
 		ApiCollection<GroupTransportBooking>
 	> => {
 		const response = await fetchJson<ApiCollection<Record<string, unknown>>>(
-			"/api/group-transport/bookings"
+			"/api/group-transport/bookings",
 		)
 
 		return {
@@ -494,16 +494,16 @@ export const api = {
 		}
 	},
 	getGroupTransportBooking: async (
-		id: string
+		id: string,
 	): Promise<GroupTransportBooking> => {
 		const raw = await fetchJson<Record<string, unknown>>(
-			`/api/group-transport/bookings/${id}`
+			`/api/group-transport/bookings/${id}`,
 		)
 
 		return normalizeGroupTransportBooking(raw)
 	},
 	createGroupTransportBooking: async (
-		data: CreateGroupTransportBookingInput
+		data: CreateGroupTransportBookingInput,
 	): Promise<GroupTransportBooking> => {
 		const payload = {
 			...data,
@@ -517,14 +517,14 @@ export const api = {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
-			}
+			},
 		)
 
 		return normalizeGroupTransportBooking(raw)
 	},
 	updateGroupTransportBookingStatus: async (
 		id: string,
-		status: GroupTransportBooking["status"]
+		status: GroupTransportBooking["status"],
 	): Promise<GroupTransportBooking> => {
 		const raw = await fetchJson<Record<string, unknown>>(
 			`/api/group-transport/bookings/${id}/status`,
@@ -532,7 +532,7 @@ export const api = {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ status }),
-			}
+			},
 		)
 
 		return normalizeGroupTransportBooking(raw)
@@ -543,10 +543,10 @@ export const api = {
 		return parseMessagesResponse(`/api/bookings/${bookingId}/messages`)
 	},
 	getGroupTransportMessages: async (
-		bookingId: string
+		bookingId: string,
 	): Promise<ApiCollection<Message>> => {
 		return parseMessagesResponse(
-			`/api/group-transport/bookings/${bookingId}/messages`
+			`/api/group-transport/bookings/${bookingId}/messages`,
 		)
 	},
 
@@ -593,7 +593,7 @@ export const api = {
 
 	updateBookingStatus: async (
 		id: string,
-		status: BookingStatusUpdateInput["status"]
+		status: BookingStatusUpdateInput["status"],
 	): Promise<Booking> => {
 		const validatedData = bookingStatusUpdateSchema.parse({ id, status })
 
@@ -614,7 +614,7 @@ export const api = {
 		bookingId: string,
 		text: string,
 		type: MessageType = MessageType.TEXT,
-		attachments?: Array<string | Record<string, unknown>>
+		attachments?: Array<string | Record<string, unknown>>,
 	): Promise<Message> => {
 		return fetchJson<Message>(`/api/bookings/${bookingId}/messages`, {
 			method: "POST",
@@ -630,7 +630,7 @@ export const api = {
 		bookingId: string,
 		text: string,
 		type: MessageType = MessageType.TEXT,
-		attachments?: Array<string | Record<string, unknown>>
+		attachments?: Array<string | Record<string, unknown>>,
 	): Promise<Message> => {
 		return fetchJson<Message>(
 			`/api/group-transport/bookings/${bookingId}/messages`,
@@ -642,26 +642,26 @@ export const api = {
 					type,
 					attachments,
 				}),
-			}
+			},
 		)
 	},
 
 	deleteMessage: async (
 		bookingId: string,
-		messageId: string
+		messageId: string,
 	): Promise<{ success: boolean }> => {
 		return fetchJson<{ success: boolean }>(
 			`/api/bookings/${bookingId}/messages/${messageId}`,
-			{ method: "DELETE" }
+			{ method: "DELETE" },
 		)
 	},
 	deleteGroupTransportMessage: async (
 		bookingId: string,
-		messageId: string
+		messageId: string,
 	): Promise<{ success: boolean }> => {
 		return fetchJson<{ success: boolean }>(
 			`/api/group-transport/bookings/${bookingId}/messages/${messageId}`,
-			{ method: "DELETE" }
+			{ method: "DELETE" },
 		)
 	},
 	createBooking: async (data: CreateBookingInput) => {
@@ -690,13 +690,13 @@ export const api = {
 	},
 	markGroupTransportMessageRead: async (
 		bookingId: string,
-		messageId: string
+		messageId: string,
 	) => {
 		return fetchJson(
 			`/api/group-transport/bookings/${bookingId}/messages/${messageId}/read`,
 			{
 				method: "PATCH",
-			}
+			},
 		)
 	},
 	markAllMessagesRead: async (bookingId: string) => {
@@ -709,7 +709,7 @@ export const api = {
 			`/api/group-transport/bookings/${bookingId}/messages/read-all`,
 			{
 				method: "PATCH",
-			}
+			},
 		)
 	},
 }

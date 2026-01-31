@@ -1,6 +1,7 @@
+import "server-only"
 import { z } from "zod"
 
-const envSchema = z
+const serverEnvSchema = z
 	.object({
 		NODE_ENV: z
 			.enum(["development", "production", "test"])
@@ -14,6 +15,7 @@ const envSchema = z
 		AUTH_API_URL: z.url().optional(),
 	})
 	.superRefine((value, ctx) => {
+		if (process.env.NEXT_RUNTIME === "edge") return
 		if (value.NODE_ENV !== "production") return
 
 		if (!value.NEXTAUTH_URL) {
@@ -65,10 +67,10 @@ function getEnv(): EnvInput {
 	}
 }
 
-let env: z.infer<typeof envSchema>
+let env: z.infer<typeof serverEnvSchema>
 
 try {
-	env = envSchema.parse(getEnv())
+	env = serverEnvSchema.parse(getEnv())
 } catch (error) {
 	if (error instanceof z.ZodError) {
 		const missingVars = error.issues

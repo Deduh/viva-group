@@ -1,4 +1,4 @@
-import { env } from "./env"
+import { env } from "./env/client"
 
 export const normalizeImageUrl = (value: string): string => {
 	if (!value) return value

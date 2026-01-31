@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 
 import { getToken } from "next-auth/jwt"
 
-import { authSecret } from "@/lib/auth"
 import type { Role } from "@/lib/roles"
 
 type TokenWithRole = {
@@ -42,6 +41,7 @@ const WRITE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"])
 const PROTECTED_PREFIXES = ["/admin", "/manager", "/client", "/support"]
 const ADMIN_API_PREFIXES = ["/api/admin"]
 const MANAGER_API_PREFIXES = ["/api/manager"]
+const authSecret = process.env.NEXTAUTH_SECRET
 
 const SECURITY_HEADERS = {
 	"X-Content-Type-Options": "nosniff",
@@ -57,7 +57,7 @@ const createNonce = () => {
 	return btoa(String.fromCharCode(...array))
 }
 
-const buildCsp = (nonce: string, isDev: boolean) => {
+const buildCsp = (nonce: string, isDev: boolean, isLocalhost: boolean) => {
 	const scriptSrc = [
 		"'self'",
 		`'nonce-${nonce}'`,
@@ -72,6 +72,10 @@ const buildCsp = (nonce: string, isDev: boolean) => {
 		"wss:",
 		isDev ? "http:" : "",
 		isDev ? "ws:" : "",
+		isLocalhost ? "http://localhost:*" : "",
+		isLocalhost ? "http://127.0.0.1:*" : "",
+		isLocalhost ? "ws://localhost:*" : "",
+		isLocalhost ? "ws://127.0.0.1:*" : "",
 	].filter(Boolean)
 
 	const imgSrc = [
@@ -97,7 +101,7 @@ const buildCsp = (nonce: string, isDev: boolean) => {
 		`connect-src ${connectSrc.join(" ")}`,
 	]
 
-	if (!isDev) {
+	if (!isDev && !isLocalhost) {
 		directives.push("upgrade-insecure-requests")
 	}
 
@@ -107,6 +111,11 @@ const buildCsp = (nonce: string, isDev: boolean) => {
 export default async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
 	const isDev = process.env.NODE_ENV === "development"
+	const host = request.headers.get("host") ?? ""
+	const isLocalhost =
+		host.startsWith("localhost") ||
+		host.startsWith("127.0.0.1") ||
+		host.startsWith("0.0.0.0")
 	const isApiRoute = pathname.startsWith("/api/")
 	const isPageRequest =
 		!isApiRoute && request.headers.get("accept")?.includes("text/html")
@@ -121,7 +130,7 @@ export default async function middleware(request: NextRequest) {
 	const applySecurityHeaders = (response: NextResponse) => {
 		if (!nonce) return response
 
-		const csp = buildCsp(nonce, isDev)
+		const csp = buildCsp(nonce, isDev, isLocalhost)
 		response.headers.set("Content-Security-Policy", csp)
 
 		Object.entries(SECURITY_HEADERS).forEach(([key, value]) => {

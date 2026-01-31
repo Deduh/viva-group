@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
-import { env } from "./env"
+import { env } from "./env/server"
 import type { Role } from "./roles"
 
 export const authSecret = env.NEXTAUTH_SECRET
