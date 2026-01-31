@@ -1,17 +1,45 @@
 import { z } from "zod"
 
-const envSchema = z.object({
-	NODE_ENV: z
-		.enum(["development", "production", "test"])
-		.default("development"),
-	NEXTAUTH_URL: z.url().optional(),
-	NEXTAUTH_SECRET: z.string().min(1).optional(),
-	APP_URL: z.url().optional(),
-	NEXT_PUBLIC_API_URL: z.url().optional(),
-	NEXT_PUBLIC_WS_URL: z.url().optional(),
-	DATABASE_URL: z.string().url().optional(),
-	AUTH_API_URL: z.string().url().optional(),
-})
+const envSchema = z
+	.object({
+		NODE_ENV: z
+			.enum(["development", "production", "test"])
+			.default("development"),
+		NEXTAUTH_URL: z.url().optional(),
+		NEXTAUTH_SECRET: z.string().min(1).optional(),
+		APP_URL: z.url().optional(),
+		NEXT_PUBLIC_API_URL: z.url().optional(),
+		NEXT_PUBLIC_WS_URL: z.url().optional(),
+		DATABASE_URL: z.url().optional(),
+		AUTH_API_URL: z.url().optional(),
+	})
+	.superRefine((value, ctx) => {
+		if (value.NODE_ENV !== "production") return
+
+		if (!value.NEXTAUTH_URL) {
+			ctx.addIssue({
+				code: "custom",
+				path: ["NEXTAUTH_URL"],
+				message: "Required in production",
+			})
+		}
+
+		if (!value.NEXTAUTH_SECRET) {
+			ctx.addIssue({
+				code: "custom",
+				path: ["NEXTAUTH_SECRET"],
+				message: "Required in production",
+			})
+		}
+
+		if (!value.NEXT_PUBLIC_API_URL) {
+			ctx.addIssue({
+				code: "custom",
+				path: ["NEXT_PUBLIC_API_URL"],
+				message: "Required in production",
+			})
+		}
+	})
 
 type EnvInput = {
 	NODE_ENV?: string
@@ -49,7 +77,7 @@ try {
 
 		throw new Error(
 			`❌ Invalid environment variables:\n${missingVars}\n\n` +
-				`Please check your .env file and ensure all required variables are set.`
+				`Please check your .env file and ensure all required variables are set.`,
 		)
 	}
 

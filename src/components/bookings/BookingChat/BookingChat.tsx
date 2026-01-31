@@ -20,11 +20,21 @@ export function BookingChat({ bookingId, scope = "tours" }: BookingChatProps) {
 		error,
 		sendTextMessage,
 		isSending,
+		connectionStatus,
 	} = useMessages(bookingId, {
 		scope,
 		refetchInterval: 3000, // Polling каждые 3 секунды
 		showToasts: false,
 	})
+
+	const statusLabel =
+		connectionStatus === "live"
+			? "Онлайн"
+			: connectionStatus === "connecting"
+				? "Подключение..."
+				: connectionStatus === "reconnecting"
+					? "Переподключение..."
+					: "Оффлайн"
 
 	if (isLoading) {
 		return (
@@ -53,7 +63,15 @@ export function BookingChat({ bookingId, scope = "tours" }: BookingChatProps) {
 	return (
 		<div className={s.container}>
 			<div className={s.header}>
-				<h3>Чат по бронированию</h3>
+				<div className={s.headerRow}>
+					<h3>Чат по бронированию</h3>
+
+					<div className={s.status} data-status={connectionStatus}>
+						<span className={s.statusDot} />
+
+						<span className={s.statusText}>{statusLabel}</span>
+					</div>
+				</div>
 			</div>
 
 			<MessageList messages={messages} groupedByDate={groupedByDate} />

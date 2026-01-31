@@ -3,10 +3,12 @@
 import { useAuth } from "@/hooks/useAuth"
 import { useToast } from "@/hooks/useToast"
 import { api } from "@/lib/api"
-import type { CreateMessageInput, Message } from "@/types"
+import type { ApiCollection, CreateMessageInput, Message } from "@/types"
 import { MessageType } from "@/types"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useMemo } from "react"
+import { getSession } from "next-auth/react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { io, type Socket } from "socket.io-client"
 
 export type UseMessagesOptions = {
 	enableAutoFetch?: boolean
@@ -17,7 +19,7 @@ export type UseMessagesOptions = {
 
 export function useMessages(
 	bookingId: string,
-	options: UseMessagesOptions = {}
+	options: UseMessagesOptions = {},
 ) {
 	const {
 		enableAutoFetch = true,
@@ -26,10 +28,20 @@ export function useMessages(
 		scope = "tours",
 	} = options
 
-	const { user } = useAuth()
+	const { user, accessToken } = useAuth()
 	const { showSuccess, showError } = useToast()
 	const queryClient = useQueryClient()
 	const isGroupTransport = scope === "group-transport"
+	const wsUrl = process.env.NEXT_PUBLIC_WS_URL
+	const socketRef = useRef<Socket | null>(null)
+	const [isSocketActive, setIsSocketActive] = useState(false)
+	const [connectionStatus, setConnectionStatus] = useState<
+		"offline" | "connecting" | "reconnecting" | "live"
+	>("offline")
+	const refreshInFlightRef = useRef(false)
+	const lastRefreshAtRef = useRef(0)
+
+	const effectiveRefetchInterval = isSocketActive ? false : refetchInterval
 
 	const { data, isLoading, error, refetch } = useQuery({
 		queryKey: [scope, "messages", bookingId],
@@ -38,7 +50,7 @@ export function useMessages(
 				? api.getGroupTransportMessages(bookingId)
 				: api.getMessages(bookingId),
 		enabled: enableAutoFetch && !!bookingId,
-		refetchInterval,
+		refetchInterval: effectiveRefetchInterval,
 	})
 
 	const messages = useMemo(() => data?.items || [], [data])
@@ -89,14 +101,14 @@ export function useMessages(
 						bookingId,
 						input.text,
 						input.type,
-						input.attachments
-				  )
+						input.attachments,
+					)
 				: api.createMessage(
 						bookingId,
 						input.text,
 						input.type,
-						input.attachments
-				  )
+						input.attachments,
+					)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -112,7 +124,7 @@ export function useMessages(
 				showError(
 					error instanceof Error
 						? error.message
-						: "Ошибка при отправке сообщения"
+						: "Ошибка при отправке сообщения",
 				)
 			}
 		},
@@ -138,7 +150,7 @@ export function useMessages(
 				showError(
 					error instanceof Error
 						? error.message
-						: "Ошибка при удалении сообщения"
+						: "Ошибка при удалении сообщения",
 				)
 			}
 		},
@@ -175,6 +187,126 @@ export function useMessages(
 			console.error("Ошибка при отметке сообщений:", error)
 		},
 	})
+
+	useEffect(() => {
+		if (!wsUrl || !accessToken || !bookingId) {
+			setConnectionStatus("offline")
+			setIsSocketActive(false)
+
+			return
+		}
+
+		setConnectionStatus("connecting")
+
+		const socket = io(wsUrl, {
+			auth: { token: accessToken },
+		})
+
+		socketRef.current = socket
+
+		const joinEvent = isGroupTransport ? "group-transport:join" : "booking:join"
+		const leaveEvent = isGroupTransport
+			? "group-transport:leave"
+			: "booking:leave"
+		const messageEvent = isGroupTransport
+			? "group-transport:message"
+			: "booking:message"
+		const statusEvent = isGroupTransport
+			? "group-transport:status"
+			: "booking:status"
+
+		const handleConnect = () => {
+			setIsSocketActive(true)
+			setConnectionStatus("live")
+			socket.emit(joinEvent, { bookingId })
+		}
+
+		const handleDisconnect = () => {
+			setIsSocketActive(false)
+			setConnectionStatus("offline")
+		}
+
+		const handleConnectError = (error?: Error) => {
+			setIsSocketActive(false)
+			setConnectionStatus("offline")
+
+			if (process.env.NODE_ENV === "development" && error) {
+				console.warn("[WS] connect_error", error.message)
+			}
+
+			if (refreshInFlightRef.current) return
+
+			const now = Date.now()
+
+			if (now - lastRefreshAtRef.current < 5000) return
+
+			lastRefreshAtRef.current = now
+			refreshInFlightRef.current = true
+
+			getSession()
+				.then(session => {
+					const newToken = (session as { accessToken?: string })?.accessToken
+					if (!newToken || !socketRef.current) return
+
+					socketRef.current.auth = { token: newToken }
+					setConnectionStatus("reconnecting")
+					socketRef.current.connect()
+				})
+				.finally(() => {
+					refreshInFlightRef.current = false
+				})
+		}
+
+		const handleMessage = (incoming: Message) => {
+			queryClient.setQueryData<ApiCollection<Message>>(
+				[scope, "messages", bookingId],
+				old => {
+					if (!old) {
+						return { items: [incoming], total: 1 }
+					}
+
+					const exists = old.items.some(item => item.id === incoming.id)
+					const items = exists
+						? old.items.map(item => (item.id === incoming.id ? incoming : item))
+						: [...old.items, incoming]
+
+					return {
+						...old,
+						items,
+						total:
+							typeof old.total === "number"
+								? old.total + (exists ? 0 : 1)
+								: old.total,
+					}
+				},
+			)
+		}
+
+		const handleStatus = () => {
+			queryClient.invalidateQueries({
+				queryKey: [isGroupTransport ? "groupTransportBookings" : "bookings"],
+			})
+		}
+
+		socket.on("connect", handleConnect)
+		socket.on("disconnect", handleDisconnect)
+		socket.on("connect_error", handleConnectError)
+		socket.on(messageEvent, handleMessage)
+		socket.on(statusEvent, handleStatus)
+
+		return () => {
+			socket.emit(leaveEvent, { bookingId })
+			socket.off("connect", handleConnect)
+			socket.off("disconnect", handleDisconnect)
+			socket.off("connect_error", handleConnectError)
+			socket.off(messageEvent, handleMessage)
+			socket.off(statusEvent, handleStatus)
+			socket.disconnect()
+			socketRef.current = null
+			setIsSocketActive(false)
+			setConnectionStatus("offline")
+		}
+	}, [wsUrl, accessToken, bookingId, isGroupTransport, scope, queryClient])
 
 	const sendTextMessage = async (text: string) => {
 		return sendMessageMutation.mutateAsync({
@@ -224,5 +356,6 @@ export function useMessages(
 		isOwnMessage,
 		filterByType,
 		refetch,
+		connectionStatus,
 	}
 }

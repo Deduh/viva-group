@@ -43,22 +43,117 @@ const PROTECTED_PREFIXES = ["/admin", "/manager", "/client", "/support"]
 const ADMIN_API_PREFIXES = ["/api/admin"]
 const MANAGER_API_PREFIXES = ["/api/manager"]
 
+const SECURITY_HEADERS = {
+	"X-Content-Type-Options": "nosniff",
+	"Referrer-Policy": "strict-origin-when-cross-origin",
+	"Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+	"X-Frame-Options": "DENY",
+} as const
+
+const createNonce = () => {
+	const array = new Uint8Array(16)
+	crypto.getRandomValues(array)
+
+	return btoa(String.fromCharCode(...array))
+}
+
+const buildCsp = (nonce: string, isDev: boolean) => {
+	const scriptSrc = [
+		"'self'",
+		`'nonce-${nonce}'`,
+		isDev ? "'unsafe-eval'" : "",
+	].filter(Boolean)
+
+	const styleSrc = ["'self'", "'unsafe-inline'", "https:"].filter(Boolean)
+
+	const connectSrc = [
+		"'self'",
+		"https:",
+		"wss:",
+		isDev ? "http:" : "",
+		isDev ? "ws:" : "",
+	].filter(Boolean)
+
+	const imgSrc = [
+		"'self'",
+		"data:",
+		"blob:",
+		"https:",
+		isDev ? "http:" : "",
+	].filter(Boolean)
+
+	const fontSrc = ["'self'", "data:", "https:"].filter(Boolean)
+
+	const directives = [
+		`default-src 'self'`,
+		`base-uri 'self'`,
+		`object-src 'none'`,
+		`frame-ancestors 'none'`,
+		`form-action 'self'`,
+		`script-src ${scriptSrc.join(" ")}`,
+		`style-src ${styleSrc.join(" ")}`,
+		`img-src ${imgSrc.join(" ")}`,
+		`font-src ${fontSrc.join(" ")}`,
+		`connect-src ${connectSrc.join(" ")}`,
+	]
+
+	if (!isDev) {
+		directives.push("upgrade-insecure-requests")
+	}
+
+	return directives.join("; ")
+}
+
 export default async function middleware(request: NextRequest) {
 	const { pathname } = request.nextUrl
+	const isDev = process.env.NODE_ENV === "development"
+	const isApiRoute = pathname.startsWith("/api/")
+	const isPageRequest =
+		!isApiRoute && request.headers.get("accept")?.includes("text/html")
+
+	const nonce = isPageRequest ? createNonce() : null
+	const requestHeaders = new Headers(request.headers)
+
+	if (nonce) {
+		requestHeaders.set("x-nonce", nonce)
+	}
+
+	const applySecurityHeaders = (response: NextResponse) => {
+		if (!nonce) return response
+
+		const csp = buildCsp(nonce, isDev)
+		response.headers.set("Content-Security-Policy", csp)
+
+		Object.entries(SECURITY_HEADERS).forEach(([key, value]) => {
+			response.headers.set(key, value)
+		})
+
+		return response
+	}
+
+	const nextWithHeaders = () =>
+		applySecurityHeaders(
+			NextResponse.next({
+				request: {
+					headers: requestHeaders,
+				},
+			}),
+		)
+
 	const isPublic =
 		PUBLIC_ROUTES.has(pathname) ||
 		PUBLIC_PREFIXES.some(prefix => pathname.startsWith(prefix))
 
 	if (pathname.startsWith("/api/")) {
 		if (PUBLIC_API_PREFIXES.some(prefix => pathname.startsWith(prefix))) {
-			return NextResponse.next()
+			return nextWithHeaders()
 		}
 
 		if (
 			pathname.startsWith("/api/tours") &&
 			PUBLIC_API_METHODS.has(request.method)
 		) {
-			return NextResponse.next()
+			return nextWithHeaders()
 		}
 
 		const token = (await getToken({
@@ -67,7 +162,9 @@ export default async function middleware(request: NextRequest) {
 		})) as TokenWithRole | null
 
 		if (!token) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+			return applySecurityHeaders(
+				NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+			)
 		}
 
 		if (
@@ -76,7 +173,9 @@ export default async function middleware(request: NextRequest) {
 			token.role !== "ADMIN" &&
 			token.role !== "MANAGER"
 		) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+			return applySecurityHeaders(
+				NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+			)
 		}
 
 		if (
@@ -84,14 +183,18 @@ export default async function middleware(request: NextRequest) {
 			token.role !== "ADMIN" &&
 			token.role !== "MANAGER"
 		) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+			return applySecurityHeaders(
+				NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+			)
 		}
 
 		if (
 			ADMIN_API_PREFIXES.some(prefix => pathname.startsWith(prefix)) &&
 			token.role !== "ADMIN"
 		) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+			return applySecurityHeaders(
+				NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+			)
 		}
 
 		if (
@@ -99,10 +202,12 @@ export default async function middleware(request: NextRequest) {
 			token.role !== "ADMIN" &&
 			token.role !== "MANAGER"
 		) {
-			return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+			return applySecurityHeaders(
+				NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+			)
 		}
 
-		return NextResponse.next()
+		return nextWithHeaders()
 	}
 
 	if (pathname === "/login" || pathname === "/register") {
@@ -112,7 +217,7 @@ export default async function middleware(request: NextRequest) {
 		})) as TokenWithRole | null
 
 		if (!token) {
-			return NextResponse.next()
+			return nextWithHeaders()
 		}
 
 		const role = token.role
@@ -124,10 +229,12 @@ export default async function middleware(request: NextRequest) {
 			redirectPath = "/manager/tours"
 		}
 
-		return NextResponse.redirect(new URL(redirectPath, request.url))
+		return applySecurityHeaders(
+			NextResponse.redirect(new URL(redirectPath, request.url)),
+		)
 	}
 
-	if (isPublic) return NextResponse.next()
+	if (isPublic) return nextWithHeaders()
 
 	const token = (await getToken({
 		req: request,
@@ -143,23 +250,29 @@ export default async function middleware(request: NextRequest) {
 			const loginUrl = new URL("/login", request.url)
 			loginUrl.searchParams.set("callbackUrl", request.nextUrl.href)
 
-			return NextResponse.redirect(loginUrl)
+			return applySecurityHeaders(NextResponse.redirect(loginUrl))
 		}
 
 		const role = token.role
 
 		if (pathname.startsWith("/admin") && role !== "ADMIN") {
-			return NextResponse.redirect(new URL("/access-denied", request.url))
+			return applySecurityHeaders(
+				NextResponse.redirect(new URL("/access-denied", request.url)),
+			)
 		}
 
 		if (pathname.startsWith("/manager")) {
 			if (role !== "ADMIN" && role !== "MANAGER") {
-				return NextResponse.redirect(new URL("/access-denied", request.url))
+				return applySecurityHeaders(
+					NextResponse.redirect(new URL("/access-denied", request.url)),
+				)
 			}
 		}
 
 		if (pathname.startsWith("/client") && role !== "CLIENT") {
-			return NextResponse.redirect(new URL("/access-denied", request.url))
+			return applySecurityHeaders(
+				NextResponse.redirect(new URL("/access-denied", request.url)),
+			)
 		}
 	}
 
@@ -169,7 +282,7 @@ export default async function middleware(request: NextRequest) {
 		)
 	}
 
-	return NextResponse.next()
+	return nextWithHeaders()
 }
 
 export const config = {

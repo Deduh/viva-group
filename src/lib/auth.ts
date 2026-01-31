@@ -4,7 +4,7 @@ import Credentials from "next-auth/providers/credentials"
 import { env } from "./env"
 import type { Role } from "./roles"
 
-export const authSecret = env.NEXTAUTH_SECRET || "dev-nextauth-secret"
+export const authSecret = env.NEXTAUTH_SECRET
 
 type AuthResponse = {
 	user: {
@@ -147,10 +147,10 @@ export const authOptions: NextAuthOptions = {
 				token.refreshToken = (user as { refreshToken?: string }).refreshToken
 
 				const accessExpiresIn = parseExpiresIn(
-					(user as { accessExpiresIn?: string | number }).accessExpiresIn
+					(user as { accessExpiresIn?: string | number }).accessExpiresIn,
 				)
 				const refreshExpiresIn = parseExpiresIn(
-					(user as { refreshExpiresIn?: string | number }).refreshExpiresIn
+					(user as { refreshExpiresIn?: string | number }).refreshExpiresIn,
 				)
 
 				token.accessTokenExpires = Date.now() + accessExpiresIn
@@ -173,7 +173,6 @@ export const authOptions: NextAuthOptions = {
 			}
 
 			session.accessToken = token.accessToken
-			session.refreshToken = token.refreshToken
 			session.accessTokenExpires = token.accessTokenExpires
 			session.error = token.error as string | undefined
 

@@ -1,6 +1,7 @@
 import "@/styles/index.scss"
 import type { Metadata } from "next"
 import { Inter, Oswald } from "next/font/google"
+import { headers } from "next/headers"
 import Image from "next/image"
 import { Providers } from "./providers"
 
@@ -22,17 +23,20 @@ const oswald = Oswald({
 	display: "swap",
 })
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode
 }>) {
+	const nonce = (await headers()).get("x-nonce") ?? undefined
+
 	return (
 		<html lang="ru">
 			<head>
 				<meta name="apple-mobile-web-app-title" content="VivaTour" />
 
 				<style
+					suppressHydrationWarning
 					dangerouslySetInnerHTML={{
 						__html: `
 					#__preloader {
@@ -81,6 +85,8 @@ export default function RootLayout({
 				</div>
 
 				<script
+					nonce={nonce}
+					suppressHydrationWarning
 					dangerouslySetInnerHTML={{
 						__html: `
 					(function() {
