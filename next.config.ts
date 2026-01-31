@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
 				hostname: "images.unsplash.com",
 			},
 			{
+				protocol: "https",
+				hostname: "api.viva-tour.ru",
+			},
+			{
 				protocol: "http",
 				hostname: "localhost",
 			},
