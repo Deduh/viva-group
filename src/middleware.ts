@@ -57,6 +57,24 @@ const createNonce = () => {
 	return btoa(String.fromCharCode(...array))
 }
 
+const getPublicOrigin = (request: NextRequest) => {
+	const forwardedProto = request.headers.get("x-forwarded-proto")
+	const forwardedHost = request.headers.get("x-forwarded-host")
+	const host = forwardedHost ?? request.headers.get("host")
+
+	if (host) {
+		const proto =
+			forwardedProto ??
+			(host.startsWith("localhost") || host.startsWith("127.0.0.1")
+				? "http"
+				: "https")
+
+		return `${proto}://${host}`
+	}
+
+	return request.nextUrl.origin
+}
+
 const buildCsp = (nonce: string, isDev: boolean, isLocalhost: boolean) => {
 	const scriptSrc = [
 		"'self'",
@@ -116,6 +134,7 @@ export default async function middleware(request: NextRequest) {
 		host.startsWith("localhost") ||
 		host.startsWith("127.0.0.1") ||
 		host.startsWith("0.0.0.0")
+	const origin = getPublicOrigin(request)
 	const isApiRoute = pathname.startsWith("/api/")
 	const isPageRequest =
 		!isApiRoute && request.headers.get("accept")?.includes("text/html")
@@ -239,7 +258,7 @@ export default async function middleware(request: NextRequest) {
 		}
 
 		return applySecurityHeaders(
-			NextResponse.redirect(new URL(redirectPath, request.url)),
+			NextResponse.redirect(new URL(redirectPath, origin)),
 		)
 	}
 
@@ -256,8 +275,12 @@ export default async function middleware(request: NextRequest) {
 
 	if (isProtected) {
 		if (!token) {
-			const loginUrl = new URL("/login", request.url)
-			loginUrl.searchParams.set("callbackUrl", request.nextUrl.href)
+			const loginUrl = new URL("/login", origin)
+			const callbackUrl = new URL(
+				request.nextUrl.pathname + request.nextUrl.search,
+				origin,
+			)
+			loginUrl.searchParams.set("callbackUrl", callbackUrl.toString())
 
 			return applySecurityHeaders(NextResponse.redirect(loginUrl))
 		}
@@ -266,21 +289,21 @@ export default async function middleware(request: NextRequest) {
 
 		if (pathname.startsWith("/admin") && role !== "ADMIN") {
 			return applySecurityHeaders(
-				NextResponse.redirect(new URL("/access-denied", request.url)),
+				NextResponse.redirect(new URL("/access-denied", origin)),
 			)
 		}
 
 		if (pathname.startsWith("/manager")) {
 			if (role !== "ADMIN" && role !== "MANAGER") {
 				return applySecurityHeaders(
-					NextResponse.redirect(new URL("/access-denied", request.url)),
+					NextResponse.redirect(new URL("/access-denied", origin)),
 				)
 			}
 		}
 
 		if (pathname.startsWith("/client") && role !== "CLIENT") {
 			return applySecurityHeaders(
-				NextResponse.redirect(new URL("/access-denied", request.url)),
+				NextResponse.redirect(new URL("/access-denied", origin)),
 			)
 		}
 	}
