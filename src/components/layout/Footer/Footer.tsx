@@ -56,6 +56,14 @@ export function Footer() {
 
 							<div className={s.links}>
 								<Link
+									href="/docs/agency-contract-viva-group.docx"
+									className={s.link}
+									download
+								>
+									Агентский договор
+								</Link>
+
+								<Link
 									href="https://t.me/SKusatov"
 									className={s.link}
 									target="_blank"
