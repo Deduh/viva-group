@@ -12,7 +12,7 @@
 - Админ-панель: управление турами, менеджерами и доступностью.
 - Интеграция с боевым API (Auth/Туры/Бронирования/Чаты).
 
-## Коммерческие сценарии (как это работает)
+## Коммерческие сценарии
 
 ### Клиент
 
@@ -44,7 +44,7 @@
 - Почти каждый блок "оживает" при входе в зону видимости.
 - Чаты показывают статус соединения (онлайн/подключение/оффлайн).
 
-## Реализация и оптимизации (по коду)
+## Реализация и оптимизации
 
 - Анимации: GSAP + ScrollTrigger (`src/components/pages/*`, `src/hooks/useScrollFadeAnimation.ts`).
 - Preloader с таймаутами и ожиданием критических ресурсов (`src/components/ui/Preloader/Preloader.tsx`).
@@ -57,7 +57,7 @@
 - Чаты: WebSocket (socket.io) с fallback на polling, плюс статус соединения (`src/hooks/useMessages.ts`).
 - Админ-форма тура с DnD блоков описания (`src/components/forms/TourForm/TourForm.tsx`).
 
-## Технологии (по package.json)
+## Технологии
 
 - Next.js 15 (App Router), React 19
 - NextAuth (Credentials)
