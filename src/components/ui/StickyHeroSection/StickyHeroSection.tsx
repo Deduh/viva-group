@@ -3,7 +3,7 @@
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { usePreloader } from "@/context/PreloaderContext"
 import { useScrollFadeAnimation } from "@/hooks/useScrollFadeAnimation"
-import { ReactNode, useRef } from "react"
+import { ReactNode, useEffect, useRef, useState } from "react"
 import s from "./StickyHeroSection.module.scss"
 
 interface StickyHeroSectionProps {
@@ -23,6 +23,7 @@ export function StickyHeroSection({
 }: StickyHeroSectionProps) {
 	const containerRef = useRef<HTMLElement>(null)
 	const wrapperRef = useRef<HTMLDivElement>(null)
+	const [isMobile, setIsMobile] = useState(false)
 
 	const { isLoaded } = usePreloader()
 	const { isTransitionComplete } = usePageTransition()
@@ -30,10 +31,26 @@ export function StickyHeroSection({
 	const shouldEnable =
 		enabled !== undefined ? enabled : isLoaded && isTransitionComplete
 
+	useEffect(() => {
+		const media =
+			typeof window !== "undefined"
+				? window.matchMedia("(pointer: coarse), (max-width: 768px)")
+				: null
+
+		if (!media) return
+
+		const update = () => setIsMobile(media.matches)
+
+		update()
+
+		media.addEventListener("change", update)
+		return () => media.removeEventListener("change", update)
+	}, [])
+
 	useScrollFadeAnimation({
 		containerRef,
 		wrapperRef,
-		enabled: shouldEnable,
+		enabled: shouldEnable && !isMobile,
 	})
 
 	return (
@@ -46,7 +63,7 @@ export function StickyHeroSection({
 					backgroundImage
 						? {
 								backgroundImage: `url(${backgroundImage})`,
-						  }
+							}
 						: undefined
 				}
 			>

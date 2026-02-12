@@ -89,6 +89,17 @@ export function Preloader() {
 	useEffect(() => {
 		if (!shouldShowPreloader) return
 
+		const prevOverflow = document.body.style.overflow
+		document.body.style.overflow = "hidden"
+
+		return () => {
+			document.body.style.overflow = prevOverflow
+		}
+	}, [shouldShowPreloader])
+
+	useEffect(() => {
+		if (!shouldShowPreloader) return
+
 		const checkResources = async () => {
 			try {
 				if (document.readyState !== "complete") {
@@ -197,7 +208,7 @@ export function Preloader() {
 
 	useGSAP(
 		() => {
-			if (!lenis || !resourcesLoaded || !shouldShowPreloader) return
+			if (!resourcesLoaded || !shouldShowPreloader) return
 			if (startTimeRef.current === null) return
 			if (animationStarted) return
 
@@ -206,8 +217,11 @@ export function Preloader() {
 
 			setAnimationStarted(true)
 
-			lenis.scrollTo(0, { immediate: true })
-			lenis.stop()
+			window.scrollTo({ top: 0, left: 0, behavior: "auto" })
+			if (lenis) {
+				lenis.scrollTo(0, { immediate: true })
+				lenis.stop()
+			}
 
 			if (!container.current || !logoRef.current) return
 
@@ -220,7 +234,7 @@ export function Preloader() {
 					skipInitialAnimation: true,
 					onComplete: () => {
 						setIsLoaded(true)
-						lenis.start()
+						if (lenis) lenis.start()
 
 						if (container.current) {
 							gsap.to(container.current, {
@@ -249,42 +263,6 @@ export function Preloader() {
 			],
 		},
 	)
-
-	useEffect(() => {
-		if (!shouldShowPreloader) return
-
-		const timeout = setTimeout(() => {
-			if (!lenis && !animationStarted && resourcesLoaded) {
-				console.warn("Lenis не загрузился, продолжаем без него")
-
-				if (container.current && logoRef.current) {
-					createPreloaderAnimation(
-						{
-							container: container.current,
-							logo: logoRef.current,
-						},
-						{
-							skipInitialAnimation: true,
-							onComplete: () => {
-								setIsLoaded(true)
-								if (container.current) {
-									container.current.style.pointerEvents = "none"
-								}
-							},
-						},
-					)
-				}
-			}
-		}, TIMINGS.LENIS_TIMEOUT)
-
-		return () => clearTimeout(timeout)
-	}, [
-		lenis,
-		animationStarted,
-		resourcesLoaded,
-		shouldShowPreloader,
-		setIsLoaded,
-	])
 
 	useEffect(() => {
 		if (!shouldShowPreloader) return

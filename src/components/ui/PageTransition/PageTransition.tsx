@@ -19,7 +19,7 @@ export function PageTransition() {
 		if (!containerRef.current) return
 
 		const columns = containerRef.current.querySelectorAll(
-			`[data-transition-column]`
+			`[data-transition-column]`,
 		)
 
 		if (columns.length === 0) return
@@ -36,7 +36,7 @@ export function PageTransition() {
 			if (!containerRef.current) return
 
 			const columns = containerRef.current.querySelectorAll(
-				`[data-transition-column]`
+				`[data-transition-column]`,
 			)
 
 			if (columns.length === 0) return
@@ -65,6 +65,8 @@ export function PageTransition() {
 
 				if (lenis) {
 					lenis.scrollTo(0, { immediate: true })
+				} else {
+					window.scrollTo({ top: 0, left: 0, behavior: "auto" })
 				}
 
 				setIsTransitionComplete(false)
@@ -94,7 +96,7 @@ export function PageTransition() {
 		{
 			scope: containerRef,
 			dependencies: [pathname, setIsTransitionComplete, lenis],
-		}
+		},
 	)
 
 	return (

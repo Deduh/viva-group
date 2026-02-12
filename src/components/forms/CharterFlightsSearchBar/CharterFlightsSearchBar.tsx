@@ -91,6 +91,35 @@ export function CharterFlightsSearchBar({
 		register("categories")
 	}, [register])
 
+	useEffect(() => {
+		if (typeof window === "undefined") return
+
+		const mql = window.matchMedia("(max-width: 768px)")
+
+		const applyMobile = (isMobile: boolean) => {
+			if (!isMobile) return
+
+			setValue("categories", [], { shouldDirty: false, shouldTouch: false })
+			setValue("hasSeats", false, { shouldDirty: false, shouldTouch: false })
+			setValue("hasBusinessClass", false, {
+				shouldDirty: false,
+				shouldTouch: false,
+			})
+			setValue("hasComfortClass", false, {
+				shouldDirty: false,
+				shouldTouch: false,
+			})
+			clearErrors("categories")
+		}
+
+		applyMobile(mql.matches)
+
+		const onChange = (e: MediaQueryListEvent) => applyMobile(e.matches)
+		mql.addEventListener("change", onChange)
+
+		return () => mql.removeEventListener("change", onChange)
+	}, [clearErrors, setValue])
+
 	const normalize = (v: string) => v.trim()
 
 	const resolveAllowed = (value: string, allowed: readonly string[]) => {
@@ -412,7 +441,7 @@ export function CharterFlightsSearchBar({
 					</div>
 
 					<div className={s.fieldsWrapper}>
-						<div className={`${s.fields} ${s.fieldsTwoColMobile}`}>
+						<div className={s.fields}>
 							<div className={s.field}>
 								<div className={`${s.icon} ${s.purple}`}>
 									<Calendar size={"2rem"} />
@@ -501,7 +530,7 @@ export function CharterFlightsSearchBar({
 						</div>
 					</div>
 
-					<div className={s.field}>
+					<div className={`${s.field} ${s.desktopOnly}`}>
 						<div className={s.icon}>
 							<Tags size={"2rem"} />
 						</div>
@@ -526,7 +555,7 @@ export function CharterFlightsSearchBar({
 						</div>
 					</div>
 
-					<div className={s.field}>
+					<div className={`${s.field} ${s.desktopOnly}`}>
 						<div className={s.icon}>
 							<Search size={"2rem"} />
 						</div>
@@ -576,7 +605,7 @@ export function CharterFlightsSearchBar({
 
 			{formError && <div className={s.error}>{formError}</div>}
 
-			{flightsError && <div className={s.error}>{flightsError}</div>}
+			{/* {flightsError && <div className={s.error}>{flightsError}</div>} */}
 		</div>
 	)
 }

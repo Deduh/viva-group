@@ -25,7 +25,16 @@ export default function AllToursPage() {
 	const lenis = useLenis()
 
 	const scrollToTop = () => {
-		if (!containerRef.current || !lenis) return
+		if (!containerRef.current) return
+
+		if (!lenis) {
+			containerRef.current.scrollIntoView({
+				behavior: "smooth",
+				block: "start",
+			})
+
+			return
+		}
 
 		lenis.scrollTo(containerRef.current, {
 			offset: 0,

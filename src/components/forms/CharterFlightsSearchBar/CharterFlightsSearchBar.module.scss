@@ -84,6 +84,12 @@
 	min-width: 0;
 }
 
+.desktopOnly {
+	@media (max-width: 768px) {
+		display: none;
+	}
+}
+
 .icon {
 	display: flex;
 	align-items: center;
