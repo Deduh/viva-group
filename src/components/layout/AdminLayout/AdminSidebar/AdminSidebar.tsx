@@ -9,6 +9,7 @@ import {
 	Compass,
 	Headphones,
 	Package,
+	PlaneTakeoff,
 	Power,
 	Settings,
 	UsersRound,
@@ -43,6 +44,12 @@ export function AdminSidebar() {
 			icon: UsersRound,
 			roles: ["CLIENT"],
 		},
+		{
+			href: "/client/flights",
+			label: "Авиабилеты",
+			icon: PlaneTakeoff,
+			roles: ["CLIENT"],
+		},
 		// Менеджер и Админ
 		{
 			href: "/manager/tours",
@@ -54,6 +61,12 @@ export function AdminSidebar() {
 			href: "/manager/group-transport",
 			label: "Групповые перевозки",
 			icon: UsersRound,
+			roles: ["MANAGER", "ADMIN"],
+		},
+		{
+			href: "/manager/flights",
+			label: "Авиабилеты",
+			icon: PlaneTakeoff,
 			roles: ["MANAGER", "ADMIN"],
 		},
 		// Поддержка (для всех)
@@ -176,11 +189,13 @@ export function AdminSidebar() {
 			if (!isMenuVisible) return
 			if (!navRef.current) {
 				setIsMenuVisible(false)
+
 				return
 			}
 
 			if (window.matchMedia("(min-width: 769px)").matches) {
 				setIsMenuVisible(false)
+
 				return
 			}
 

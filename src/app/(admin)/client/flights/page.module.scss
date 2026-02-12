@@ -1,0 +1,13 @@
+.shell {
+	display: flex;
+	flex-direction: column;
+
+	gap: 4.8rem;
+}
+
+@media (max-width: 768px) {
+	.shell {
+		gap: 2.4rem;
+		padding-block: 1.6rem;
+	}
+}

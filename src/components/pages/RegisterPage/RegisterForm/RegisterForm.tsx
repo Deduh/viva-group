@@ -222,7 +222,10 @@ export function RegisterForm() {
 						{isSubmitting ? "Регистрируем..." : "Зарегистрироваться"}
 					</button>
 
-					<TransitionLink href="/login" className={s.ghostButton}>
+					<TransitionLink
+						href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+						className={s.ghostButton}
+					>
 						Уже есть аккаунт?
 					</TransitionLink>
 				</div>

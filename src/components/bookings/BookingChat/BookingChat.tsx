@@ -9,7 +9,7 @@ import s from "./BookingChat.module.scss"
 
 interface BookingChatProps {
 	bookingId: string
-	scope?: "tours" | "group-transport"
+	scope?: "tours" | "group-transport" | "charter"
 }
 
 export function BookingChat({ bookingId, scope = "tours" }: BookingChatProps) {

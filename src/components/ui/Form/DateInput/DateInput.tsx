@@ -16,6 +16,7 @@ type DateInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
 	label?: string
 	error?: string
 	helperText?: string
+	allowedWeekDays?: number[] // 1..7 (Mon..Sun)
 }
 
 const weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
@@ -41,6 +42,18 @@ const formatIsoDate = (date: Date) => {
 	return `${year}-${month}-${day}`
 }
 
+const isoWeekdayFromDateOnly = (dateOnly: string) => {
+	const [year, month, day] = dateOnly.split("-").map(Number)
+	if (!year || !month || !day) return null
+
+	// Treat date-only as a calendar date, independent of local timezone.
+	const dt = new Date(Date.UTC(year, month - 1, day))
+	if (Number.isNaN(dt.getTime())) return null
+
+	// JS: 0..6 (Sun..Sat). API: 1..7 (Mon..Sun).
+	return ((dt.getUTCDay() + 6) % 7) + 1
+}
+
 const formatDisplayDate = (value: string) => {
 	const date = parseIsoDate(value)
 
@@ -59,6 +72,7 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
 			label,
 			error,
 			helperText,
+			allowedWeekDays,
 			className,
 			onChange,
 			onBlur,
@@ -416,9 +430,16 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
 								const iso = formatIsoDate(date)
 								const isSelected = selectedValue === iso
 								const isToday = formatIsoDate(today) === iso
+								const isoWeekday = isoWeekdayFromDateOnly(iso)
+								const isNotAllowedByWeekDay =
+									Array.isArray(allowedWeekDays) &&
+									allowedWeekDays.length > 0 &&
+									isoWeekday !== null &&
+									!allowedWeekDays.includes(isoWeekday)
 								const isDisabled =
 									(minDate ? date < minDate : false) ||
-									(maxDate ? date > maxDate : false)
+									(maxDate ? date > maxDate : false) ||
+									isNotAllowedByWeekDay
 
 								return (
 									<button

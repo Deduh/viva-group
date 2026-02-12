@@ -14,7 +14,7 @@ export type UseMessagesOptions = {
 	enableAutoFetch?: boolean
 	showToasts?: boolean
 	refetchInterval?: number
-	scope?: "tours" | "group-transport"
+	scope?: "tours" | "group-transport" | "charter"
 }
 
 export function useMessages(
@@ -32,6 +32,7 @@ export function useMessages(
 	const { showSuccess, showError } = useToast()
 	const queryClient = useQueryClient()
 	const isGroupTransport = scope === "group-transport"
+	const isCharter = scope === "charter"
 	const wsUrl = process.env.NEXT_PUBLIC_WS_URL
 	const socketRef = useRef<Socket | null>(null)
 	const [isSocketActive, setIsSocketActive] = useState(false)
@@ -48,7 +49,9 @@ export function useMessages(
 		queryFn: () =>
 			isGroupTransport
 				? api.getGroupTransportMessages(bookingId)
-				: api.getMessages(bookingId),
+				: isCharter
+					? api.getCharterMessages(bookingId)
+					: api.getMessages(bookingId),
 		enabled: enableAutoFetch && !!bookingId,
 		refetchInterval: effectiveRefetchInterval,
 	})
@@ -103,12 +106,19 @@ export function useMessages(
 						input.type,
 						input.attachments,
 					)
-				: api.createMessage(
-						bookingId,
-						input.text,
-						input.type,
-						input.attachments,
-					)
+				: isCharter
+					? api.createCharterMessage(
+							bookingId,
+							input.text,
+							input.type,
+							input.attachments,
+						)
+					: api.createMessage(
+							bookingId,
+							input.text,
+							input.type,
+							input.attachments,
+						)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -132,9 +142,15 @@ export function useMessages(
 
 	const deleteMessageMutation = useMutation({
 		mutationFn: async (messageId: string) => {
-			return isGroupTransport
-				? api.deleteGroupTransportMessage(bookingId, messageId)
-				: api.deleteMessage(bookingId, messageId)
+			if (isGroupTransport) {
+				return api.deleteGroupTransportMessage(bookingId, messageId)
+			}
+
+			if (isCharter) {
+				throw new Error("Удаление сообщений для авиабилетов пока недоступно")
+			}
+
+			return api.deleteMessage(bookingId, messageId)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -160,7 +176,9 @@ export function useMessages(
 		mutationFn: async (messageId: string) => {
 			return isGroupTransport
 				? api.markGroupTransportMessageRead(bookingId, messageId)
-				: api.markMessageRead(bookingId, messageId)
+				: isCharter
+					? api.markCharterMessageRead(bookingId, messageId)
+					: api.markMessageRead(bookingId, messageId)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -176,7 +194,9 @@ export function useMessages(
 		mutationFn: async () => {
 			return isGroupTransport
 				? api.markAllGroupTransportMessagesRead(bookingId)
-				: api.markAllMessagesRead(bookingId)
+				: isCharter
+					? api.markAllCharterMessagesRead(bookingId)
+					: api.markAllMessagesRead(bookingId)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -204,16 +224,26 @@ export function useMessages(
 
 		socketRef.current = socket
 
-		const joinEvent = isGroupTransport ? "group-transport:join" : "booking:join"
+		const joinEvent = isGroupTransport
+			? "group-transport:join"
+			: isCharter
+				? "charter:join"
+				: "booking:join"
 		const leaveEvent = isGroupTransport
 			? "group-transport:leave"
-			: "booking:leave"
+			: isCharter
+				? "charter:leave"
+				: "booking:leave"
 		const messageEvent = isGroupTransport
 			? "group-transport:message"
-			: "booking:message"
+			: isCharter
+				? "charter:message"
+				: "booking:message"
 		const statusEvent = isGroupTransport
 			? "group-transport:status"
-			: "booking:status"
+			: isCharter
+				? "charter:status"
+				: "booking:status"
 
 		const handleConnect = () => {
 			setIsSocketActive(true)
@@ -284,7 +314,13 @@ export function useMessages(
 
 		const handleStatus = () => {
 			queryClient.invalidateQueries({
-				queryKey: [isGroupTransport ? "groupTransportBookings" : "bookings"],
+				queryKey: [
+					isGroupTransport
+						? "groupTransportBookings"
+						: isCharter
+							? "charterBookings"
+							: "bookings",
+				],
 			})
 		}
 
@@ -306,7 +342,15 @@ export function useMessages(
 			setIsSocketActive(false)
 			setConnectionStatus("offline")
 		}
-	}, [wsUrl, accessToken, bookingId, isGroupTransport, scope, queryClient])
+	}, [
+		wsUrl,
+		accessToken,
+		bookingId,
+		isGroupTransport,
+		isCharter,
+		scope,
+		queryClient,
+	])
 
 	const sendTextMessage = async (text: string) => {
 		return sendMessageMutation.mutateAsync({

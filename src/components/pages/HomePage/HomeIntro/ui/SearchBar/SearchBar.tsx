@@ -1,51 +1,64 @@
-import { Calendar, ChevronDown, MapPin, Search } from "lucide-react"
+"use client"
 
-import s from "./SearchBar.module.scss"
+import { CharterFlightsSearchBar } from "@/components/forms/CharterFlightsSearchBar/CharterFlightsSearchBar"
+import { navigateWithTransition } from "@/components/ui/PageTransition"
+import { usePageTransition } from "@/context/PageTransitionContext"
+import { useAllCharterFlights } from "@/hooks/useAllCharterFlights"
+import { useAuth } from "@/hooks/useAuth"
+import { saveCharterDraft } from "@/lib/charter-draft"
+import type { CharterFlightsSearchInput } from "@/lib/validation"
+import { useRouter } from "next/navigation"
+
+const CALLBACK_URL = "/flights/continue"
 
 export function SearchBar() {
+	const router = useRouter()
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
+	const { setIsTransitionComplete } = usePageTransition()
+	const { flights, isLoading, error } = useAllCharterFlights({ enabled: true })
+
+	const onValidSubmit = (values: CharterFlightsSearchInput) => {
+		if (isAuthLoading) return
+
+		const payload = {
+			from: values.from,
+			to: values.to,
+			dateFrom: values.dateFrom,
+			dateTo: values.dateTo,
+			adults: values.adults,
+			children: typeof values.children === "number" ? values.children : 0,
+			categories: values.categories || [],
+			hasSeats: values.hasSeats,
+			hasBusinessClass: values.hasBusinessClass,
+			hasComfortClass: values.hasComfortClass,
+		}
+
+		saveCharterDraft(payload)
+
+		if (!isAuthenticated) {
+			navigateWithTransition(
+				router,
+				`/register?callbackUrl=${encodeURIComponent(CALLBACK_URL)}`,
+				setIsTransitionComplete,
+			)
+
+			return
+		}
+
+		navigateWithTransition(router, CALLBACK_URL, setIsTransitionComplete)
+	}
+
 	return (
-		<div className={s.bar}>
-			<div className={s.wrapper}>
-				<div className={s.field}>
-					<div className={s.icon}>
-						<MapPin size={"2rem"} />
-					</div>
-
-					<div className={s.fieldText}>
-						<div className={s.label}>
-							<div className={s.labelText}>Куда?</div>
-
-							<ChevronDown size={"1.6rem"} color="rgba(156, 163, 175, 1)" />
-						</div>
-
-						<div className={s.placeholder}>Напишите направление</div>
-					</div>
-				</div>
-
-				<div className={s.field}>
-					<div className={`${s.icon} ${s.purple}`}>
-						<Calendar size={"2rem"} />
-					</div>
-
-					<div className={s.fieldText}>
-						<div className={s.label}>
-							<div className={s.labelText}>Дата</div>
-
-							<ChevronDown size={"1.6rem"} color="rgba(156, 163, 175, 1)" />
-						</div>
-
-						<div className={s.placeholder}>Выберите дату</div>
-					</div>
-				</div>
-			</div>
-
-			<button className={s.button} type="button">
-				<div className={s.buttonText}>Найти билеты</div>
-
-				<div className={s.buttonIcon}>
-					<Search size={"1.6rem"} />
-				</div>
-			</button>
-		</div>
+		<CharterFlightsSearchBar
+			flights={flights}
+			flightsLoading={isLoading}
+			flightsError={
+				error
+					? "Не удалось загрузить список рейсов. Попробуйте обновить страницу."
+					: undefined
+			}
+			submitLabel="Забронировать"
+			onSubmit={values => onValidSubmit(values)}
+		/>
 	)
 }

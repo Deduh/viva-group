@@ -8,6 +8,12 @@ type ErrorMessageProps = {
 	fullPage?: boolean
 }
 
+const isErrorWithFields = (
+	error: Error,
+): error is Error & { fields?: Record<string, string[]> } => {
+	return "fields" in error
+}
+
 export function ErrorMessage({
 	title = "Ошибка загрузки",
 	message = "Не удалось загрузить данные. Попробуйте обновить страницу.",
@@ -29,6 +35,12 @@ export function ErrorMessage({
 						<summary>Детали ошибки (dev mode)</summary>
 
 						<pre className={s.errorText}>{error.toString()}</pre>
+
+						{isErrorWithFields(error) && error.fields && (
+							<pre className={s.errorText}>
+								{JSON.stringify(error.fields, null, 2)}
+							</pre>
+						)}
 
 						{error.stack && <pre className={s.stack}>{error.stack}</pre>}
 					</details>

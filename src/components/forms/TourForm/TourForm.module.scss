@@ -21,7 +21,7 @@
 	margin-bottom: 0.4rem;
 
 	font-size: 1.8rem;
-	font-weight: 600;
+	font-weight: 700;
 	color: #0f172a;
 }
 
@@ -386,7 +386,7 @@
 	margin-top: 1rem;
 
 	@media (max-width: 768px) {
-		flex-direction: column;
+		flex-direction: column-reverse;
 	}
 }
 

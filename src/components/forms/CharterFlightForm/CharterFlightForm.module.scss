@@ -1,0 +1,149 @@
+.form {
+	display: flex;
+	flex-direction: column;
+
+	gap: 2.4rem;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+
+	gap: 1.6rem;
+	padding: 2.4rem;
+	background: #ffffff;
+	border-radius: 1.6rem;
+	border: 1px solid rgba(243, 244, 246, 1);
+	box-shadow: 0 1.2rem 3.2rem -1rem rgba(15, 23, 42, 0.08);
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+
+	gap: 1.6rem;
+	padding: 2.4rem;
+	background: #ffffff;
+	border-radius: 1.6rem;
+	border: 1px solid rgba(243, 244, 246, 1);
+	box-shadow: 0 1.2rem 3.2rem -1rem rgba(15, 23, 42, 0.08);
+}
+
+.sectionTitle {
+	font-size: 1.4rem;
+	font-weight: 500;
+	color: #0f172a;
+}
+
+.chips {
+	display: flex;
+	flex-wrap: wrap;
+
+	gap: 0.6rem;
+}
+
+.chip {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.6rem 1rem;
+	border-radius: 99.9rem;
+	border: 1px solid rgba(226, 232, 240, 1);
+	background: rgba(248, 250, 252, 1);
+	color: rgba(15, 23, 42, 1);
+	font-size: 1.3rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition:
+		filter 0.15s ease,
+		border-color 0.15s ease,
+		background-color 0.15s ease;
+}
+
+.chip:hover {
+	filter: brightness(95%);
+	border-color: rgba(7, 151, 166, 0.3);
+}
+
+.chip[data-active="true"] {
+	border-color: rgba(7, 151, 166, 0.45);
+	background: rgba(7, 151, 166, 0.12);
+	color: rgba(7, 82, 92, 1);
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 1rem;
+}
+
+.secondary,
+.primary {
+	flex: 1;
+	padding: 1.4rem 2.4rem;
+	font-size: 1.6rem;
+	font-weight: 700;
+	border-radius: 999.9rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.8rem;
+	border: none;
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+.secondary {
+	color: #0f172a;
+	background: #ffffff;
+	border: 1px solid rgba(203, 213, 225, 1);
+
+	&:hover:not(:disabled) {
+		background: #f8fafc;
+		border-color: rgba(148, 163, 184, 1);
+	}
+
+	&:active:not(:disabled) {
+		transform: translateY(1px);
+	}
+}
+
+.primary {
+	color: #fff;
+	background: rgba(7, 151, 166, 1);
+	box-shadow: 0 1.2rem 2.4rem -0.8rem rgba(7, 151, 166, 0.35);
+
+	&:hover:not(:disabled) {
+		filter: brightness(90%);
+	}
+
+	&:active:not(:disabled) {
+		filter: brightness(80%);
+	}
+}
+
+.error {
+	margin: 0;
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: rgba(185, 28, 28, 1);
+}
+
+@media (max-width: 768px) {
+	.grid {
+		grid-template-columns: 1fr;
+	}
+
+	.actions {
+		flex-direction: column-reverse;
+	}
+
+	.secondary,
+	.primary {
+		width: 100%;
+	}
+}

@@ -9,11 +9,18 @@ import {
 import type {
 	ApiCollection,
 	Booking,
+	CharterBooking,
+	CharterBookingsFilters,
+	CharterFlight,
+	CharterFlightsFilters,
 	CreateBookingInput,
+	CreateCharterBookingInput,
+	CreateCharterFlightInput,
 	CreateManagerInput,
 	Message,
 	Tour,
 	UpdateBookingInput,
+	UpdateCharterFlightInput,
 	UpdateManagerInput,
 	User,
 } from "@/types"
@@ -28,6 +35,8 @@ import { z } from "zod"
 import {
 	ApiCollectionSchema,
 	BookingSchema,
+	CharterBookingSchema,
+	CharterFlightSchema,
 	MessageSchema,
 	TourSchema,
 	UserSchema,
@@ -363,6 +372,36 @@ const toIsoDate = (value: string) => {
 	return Number.isNaN(parsed.getTime()) ? trimmed : parsed.toISOString()
 }
 
+const toDateOnly = (value: string) => {
+	const trimmed = value.trim()
+	if (!trimmed) return ""
+
+	if (trimmed.includes("T") && trimmed.length >= 10) {
+		return trimmed.slice(0, 10)
+	}
+
+	return trimmed
+}
+
+const toQueryString = (params: Record<string, unknown>) => {
+	const search = new URLSearchParams()
+
+	Object.entries(params).forEach(([key, value]) => {
+		if (value === undefined || value === null || value === "") return
+
+		if (Array.isArray(value)) {
+			if (value.length === 0) return
+			search.set(key, value.join(","))
+			return
+		}
+
+		search.set(key, String(value))
+	})
+
+	const q = search.toString()
+	return q ? `?${q}` : ""
+}
+
 const serializeGroupTransportSegment = (
 	segment: GroupTransportSegmentInput,
 ): Record<string, unknown> => {
@@ -481,6 +520,163 @@ export const api = {
 			"/api/bookings",
 			ApiCollectionSchema(BookingSchema),
 		),
+	getCharterFlights: (filters: CharterFlightsFilters = {}) => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { isActive, ...publicFilters } = filters
+		const query = toQueryString(publicFilters as Record<string, unknown>)
+		return fetchAndValidate<ApiCollection<CharterFlight>>(
+			`/api/charter/flights${query}`,
+			ApiCollectionSchema(CharterFlightSchema),
+		)
+	},
+	getCharterFlightsAdmin: (filters: CharterFlightsFilters = {}) => {
+		const query = toQueryString(filters as Record<string, unknown>)
+		return fetchAndValidate<ApiCollection<CharterFlight>>(
+			`/api/charter/flights/admin${query}`,
+			ApiCollectionSchema(CharterFlightSchema),
+		)
+	},
+	getAllCharterFlights: async (
+		filters: Omit<CharterFlightsFilters, "page" | "limit"> = {},
+	): Promise<CharterFlight[]> => {
+		const loadWithLimit = async (limit: number) => {
+			const first = await api.getCharterFlights({ ...filters, page: 1, limit })
+			const items: CharterFlight[] = [...(first.items || [])]
+			const totalPages = first.pagination?.totalPages || 1
+
+			if (totalPages <= 1) return items
+
+			const rest = await Promise.all(
+				Array.from({ length: totalPages - 1 }, (_, idx) => {
+					const page = idx + 2
+					return api.getCharterFlights({ ...filters, page, limit })
+				}),
+			)
+
+			for (const pageData of rest) {
+				items.push(...(pageData.items || []))
+			}
+
+			return items
+		}
+
+		try {
+			return await loadWithLimit(50)
+		} catch (e) {
+			if (e instanceof ValidationError) {
+				return loadWithLimit(20)
+			}
+
+			throw e
+		}
+	},
+	getCharterFlight: (id: string) =>
+		fetchAndValidate<CharterFlight>(
+			`/api/charter/flights/${id}`,
+			CharterFlightSchema,
+		),
+	getCharterFlightAdmin: (id: string) =>
+		fetchAndValidate<CharterFlight>(
+			`/api/charter/flights/admin/${id}`,
+			CharterFlightSchema,
+		),
+	createCharterFlight: (data: CreateCharterFlightInput) => {
+		const payload = {
+			...data,
+			dateFrom: toIsoDate(data.dateFrom),
+			dateTo: toIsoDate(data.dateTo),
+		}
+
+		return fetchAndValidate<CharterFlight>(
+			"/api/charter/flights",
+			CharterFlightSchema,
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			},
+		)
+	},
+	updateCharterFlight: (id: string, data: UpdateCharterFlightInput) => {
+		const payload = {
+			...data,
+			dateFrom: data.dateFrom ? toIsoDate(data.dateFrom) : undefined,
+			dateTo: data.dateTo ? toIsoDate(data.dateTo) : undefined,
+		}
+
+		return fetchAndValidate<CharterFlight>(
+			`/api/charter/flights/${id}`,
+			CharterFlightSchema,
+			{
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			},
+		)
+	},
+	getCharterBookings: (filters: CharterBookingsFilters = {}) => {
+		const query = toQueryString(filters as Record<string, unknown>)
+
+		return fetchAndValidate<ApiCollection<CharterBooking>>(
+			`/api/charter/bookings${query}`,
+			ApiCollectionSchema(CharterBookingSchema),
+		)
+	},
+	getCharterBooking: (id: string) =>
+		fetchAndValidate<CharterBooking>(
+			`/api/charter/bookings/${id}`,
+			CharterBookingSchema,
+		),
+	createCharterBooking: (data: CreateCharterBookingInput) => {
+		const payload = {
+			...data,
+			dateFrom: toDateOnly(data.dateFrom),
+			dateTo: toDateOnly(data.dateTo),
+			children: typeof data.children === "number" ? data.children : 0,
+		}
+
+		return fetchAndValidate<CharterBooking>(
+			"/api/charter/bookings",
+			CharterBookingSchema,
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			},
+		).catch(error => {
+			if (
+				error instanceof ApiError &&
+				error.statusCode === 400 &&
+				typeof error.message === "string" &&
+				error.message.includes("Charter flight is archived")
+			) {
+				throw new ApiError(
+					"Этот рейс больше недоступен. Выберите другой.",
+					error.statusCode,
+					error.code,
+					error.details,
+				)
+			}
+
+			throw error
+		})
+	},
+	updateCharterBookingStatus: (
+		id: string,
+		status: BookingStatusUpdateInput["status"],
+	) => {
+		const validatedData = bookingStatusUpdateSchema.parse({ id, status })
+
+		return fetchAndValidate<CharterBooking>(
+			`/api/charter/bookings/${id}/status`,
+			CharterBookingSchema,
+			{
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ status: validatedData.status }),
+			},
+		)
+	},
 	getGroupTransportBookings: async (): Promise<
 		ApiCollection<GroupTransportBooking>
 	> => {
@@ -548,6 +744,11 @@ export const api = {
 		return parseMessagesResponse(
 			`/api/group-transport/bookings/${bookingId}/messages`,
 		)
+	},
+	getCharterMessages: async (
+		bookingId: string,
+	): Promise<ApiCollection<Message>> => {
+		return parseMessagesResponse(`/api/charter/bookings/${bookingId}/messages`)
 	},
 
 	createTour: async (data: TourCreateInput): Promise<Tour> => {
@@ -645,6 +846,22 @@ export const api = {
 			},
 		)
 	},
+	createCharterMessage: async (
+		bookingId: string,
+		text: string,
+		type: MessageType = MessageType.TEXT,
+		attachments?: Array<string | Record<string, unknown>>,
+	): Promise<Message> => {
+		return fetchJson<Message>(`/api/charter/bookings/${bookingId}/messages`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				text,
+				type,
+				attachments,
+			}),
+		})
+	},
 
 	deleteMessage: async (
 		bookingId: string,
@@ -711,5 +928,18 @@ export const api = {
 				method: "PATCH",
 			},
 		)
+	},
+	markCharterMessageRead: async (bookingId: string, messageId: string) => {
+		return fetchJson(
+			`/api/charter/bookings/${bookingId}/messages/${messageId}/read`,
+			{
+				method: "PATCH",
+			},
+		)
+	},
+	markAllCharterMessagesRead: async (bookingId: string) => {
+		return fetchJson(`/api/charter/bookings/${bookingId}/messages/read-all`, {
+			method: "PATCH",
+		})
 	},
 }

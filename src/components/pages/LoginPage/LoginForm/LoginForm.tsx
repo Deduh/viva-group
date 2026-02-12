@@ -228,7 +228,14 @@ export function LoginForm() {
 						{isSubmitting ? "Входим..." : "Войти"}
 					</button>
 
-					<TransitionLink href="/register" className={s.ghostButton}>
+					<TransitionLink
+						href={
+							callbackUrlParam
+								? `/register?callbackUrl=${encodeURIComponent(callbackUrlParam)}`
+								: "/register"
+						}
+						className={s.ghostButton}
+					>
 						Создать аккаунт
 					</TransitionLink>
 				</div>

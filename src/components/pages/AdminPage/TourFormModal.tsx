@@ -4,7 +4,6 @@ import { TourForm } from "@/components/forms/TourForm/TourForm"
 import { Modal } from "@/components/ui/Modal/Modal"
 import type { TourCreateInput, TourUpdateInput } from "@/lib/validation"
 import type { Tour } from "@/types"
-import s from "./TourModal.module.scss"
 
 interface TourFormModalPropsCreate {
 	isOpen: boolean
@@ -42,9 +41,7 @@ export function TourFormModal({
 			title={tour ? "Редактировать тур" : "Создать тур"}
 			size="large"
 		>
-			<div className={s.body}>
-				<TourForm tour={tour} onSubmit={handleSubmit} onCancel={onClose} />
-			</div>
+			<TourForm tour={tour} onSubmit={handleSubmit} onCancel={onClose} />
 		</Modal>
 	)
 }

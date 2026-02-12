@@ -16,7 +16,7 @@ export function ToursSection({ tours, isLoading }: ToursSectionProps) {
 			<h2 className={s.title}>Все туры</h2>
 
 			{isLoading ? (
-				<div className={s.loading}>
+				<div className={s.empty}>
 					<LoadingSpinner text="Загрузка туров..." />
 				</div>
 			) : tours.length === 0 ? (

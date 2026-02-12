@@ -125,3 +125,93 @@ export type CreateMessageInput = {
 	type?: MessageType // Тип сообщения
 	attachments?: Array<string | Record<string, unknown>>
 }
+
+export type CharterFlight = {
+	id: string
+	publicId: string // VIVA-AVFL-YYYY-#####
+	from: string
+	to: string
+	dateFrom: string
+	dateTo: string
+	weekDays: number[] // 1..7 (Mon..Sun)
+	categories: string[]
+	seatsTotal: number
+	hasBusinessClass: boolean
+	hasComfortClass: boolean
+	isActive: boolean
+	createdAt?: string
+	updatedAt?: string
+}
+
+export type CharterBooking = {
+	id: string // внутренний UUID (для чата/комнат)
+	publicId: string // VIVA-AVBOOK-YYYY-#####
+	userId: string
+	flightId: string
+	dateFrom: string
+	dateTo: string
+	adults: number
+	children: number
+	status: BookingStatus
+	createdAt: string
+	updatedAt: string
+	from?: string
+	to?: string
+	categories?: string[]
+	user?: {
+		id: string
+		email: string
+		name?: string | null
+	}
+	flight?: CharterFlight
+}
+
+export type CreateCharterBookingInput = {
+	flightId?: string
+	dateFrom: string
+	dateTo: string
+	adults: number
+	children?: number
+	from?: string
+	to?: string
+	categories?: string[]
+}
+
+export type CreateCharterFlightInput = {
+	from: string
+	to: string
+	dateFrom: string
+	dateTo: string
+	weekDays: number[]
+	categories: string[]
+	seatsTotal: number
+	hasBusinessClass: boolean
+	hasComfortClass: boolean
+}
+
+export type UpdateCharterFlightInput = Partial<CreateCharterFlightInput> & {
+	isActive?: boolean
+}
+
+export type CharterBookingsFilters = {
+	page?: number
+	limit?: number
+	status?: BookingStatus
+	userId?: string
+	search?: string
+}
+
+export type CharterFlightsFilters = {
+	from?: string
+	to?: string
+	categories?: string[]
+	hasBusinessClass?: boolean
+	hasComfortClass?: boolean
+	hasSeats?: boolean
+	dateFrom?: string
+	dateTo?: string
+	pax?: number
+	page?: number
+	limit?: number
+	isActive?: boolean
+}

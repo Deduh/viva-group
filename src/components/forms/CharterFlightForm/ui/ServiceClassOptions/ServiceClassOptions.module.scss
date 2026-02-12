@@ -1,0 +1,23 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+}
+
+.title {
+	font-size: 1.4rem;
+	font-weight: 500;
+	color: #0f172a;
+}
+
+.options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+@media (max-width: 768px) {
+	.options {
+		flex-direction: column;
+	}
+}

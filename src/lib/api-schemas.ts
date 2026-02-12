@@ -70,6 +70,21 @@ const optionalPositiveNumberSchema = z.preprocess(value => {
 	return value
 }, z.number().positive().optional())
 
+const booleanLikeSchema = z.preprocess(value => {
+	if (value === null || value === undefined) return value
+
+	if (typeof value === "string") {
+		const normalized = value.trim().toLowerCase()
+
+		if (normalized === "true") return true
+		if (normalized === "false") return false
+		if (normalized === "1") return true
+		if (normalized === "0") return false
+	}
+
+	return value
+}, z.boolean())
+
 const PaymentStatusInputSchema = z.preprocess(value => {
 	if (value === null || value === undefined || value === "") return undefined
 
@@ -141,6 +156,49 @@ export const TourSchema = z.object({
 	updatedAt: z.iso.datetime().optional(),
 })
 
+const CharterBookingUserSchema = z.object({
+	id: z.string().min(1),
+	email: z.string().min(1),
+	name: z.string().nullable().optional(),
+})
+
+export const CharterFlightSchema = z.object({
+	id: z.string().min(1, "ID рейса обязателен"),
+	publicId: z.string().min(1, "Публичный ID рейса обязателен"),
+	from: z.string().min(1),
+	to: z.string().min(1),
+	dateFrom: z.string().min(1),
+	dateTo: z.string().min(1),
+	weekDays: z.array(z.coerce.number().int().min(1).max(7)).default([]),
+	categories: stringArraySchema.default([]),
+	seatsTotal: z.coerce.number().int().min(1),
+	hasBusinessClass: z.coerce.boolean(),
+	hasComfortClass: z.coerce.boolean(),
+	isActive: booleanLikeSchema.default(true),
+	createdAt: z.iso.datetime().optional(),
+	updatedAt: z.iso.datetime().optional(),
+})
+
+export const CharterBookingSchema = z.object({
+	id: z.string().min(1, "ID бронирования обязателен"),
+	publicId: z.string().min(1, "Публичный ID бронирования обязателен"),
+	userId: z.string().min(1, "ID пользователя обязателен"),
+	flightId: z.string().min(1, "ID рейса обязателен"),
+	dateFrom: z.string().min(1),
+	dateTo: z.string().min(1),
+	adults: z.coerce.number().int().min(1),
+	children: z.coerce.number().int().min(0).default(0),
+	status: BookingStatusSchema,
+	// Legacy-compatible fields for transitional UI
+	from: z.string().optional(),
+	to: z.string().optional(),
+	categories: stringArraySchema.optional(),
+	createdAt: z.iso.datetime("Некорректная дата создания"),
+	updatedAt: z.iso.datetime(),
+	user: CharterBookingUserSchema.optional(),
+	flight: CharterFlightSchema.optional(),
+})
+
 const nullToUndefined = <T>(val: T | null | undefined): T | undefined => {
 	return val ?? undefined
 }
@@ -166,12 +224,18 @@ const RawMessageSchema = z.object({
 	groupTransportBookingId: z
 		.union([z.string(), z.number(), z.null()])
 		.optional(),
+	charterBookingId: z.union([z.string(), z.number(), z.null()]).optional(),
 	booking: z
 		.object({
 			id: z.union([z.string(), z.number()]),
 		})
 		.optional(),
 	groupTransportBooking: z
+		.object({
+			id: z.union([z.string(), z.number()]),
+		})
+		.optional(),
+	charterBooking: z
 		.object({
 			id: z.union([z.string(), z.number()]),
 		})
@@ -203,8 +267,10 @@ export const MessageSchema = RawMessageSchema.transform(raw => {
 	const bookingId =
 		raw.bookingId ??
 		raw.groupTransportBookingId ??
+		raw.charterBookingId ??
 		raw.booking?.id ??
 		raw.groupTransportBooking?.id ??
+		raw.charterBooking?.id ??
 		""
 	const authorId = raw.authorId ?? raw.userId ?? raw.author?.id ?? ""
 	const text = raw.text ?? raw.message ?? raw.content ?? ""

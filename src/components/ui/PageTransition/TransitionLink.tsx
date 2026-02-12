@@ -1,10 +1,10 @@
 "use client"
 
 import { usePageTransition } from "@/context/PageTransitionContext"
-import gsap from "gsap"
 import Link, { LinkProps } from "next/link"
 import { useRouter } from "next/navigation"
 import { forwardRef, ReactNode, useCallback } from "react"
+import { navigateWithTransition } from "./navigate-with-transition"
 
 interface TransitionLinkProps
 	extends
@@ -31,37 +31,12 @@ export const TransitionLink = forwardRef<
 			if (e.defaultPrevented) return
 
 			e.preventDefault()
-
-			const container = document.getElementById("page-transition-container")
-
-			if (!container) {
-				router.push(href.toString())
-
-				return
-			}
-
-			const columns = container.querySelectorAll(`[data-transition-column]`)
-
-			if (columns.length === 0) {
-				router.push(href.toString())
-
-				return
-			}
-
-			container.style.pointerEvents = "auto"
-
-			gsap.set(columns, { yPercent: -100 })
-
-			gsap.to(columns, {
-				yPercent: 0,
-				duration: 0.8,
-				stagger: 0.1,
-				ease: "power4.inOut",
-				onComplete: () => {
-					setIsTransitionComplete(false)
-					router.push(href.toString())
-				},
-			})
+			navigateWithTransition(
+				router,
+				href.toString(),
+				setIsTransitionComplete,
+				"push",
+			)
 		},
 		[href, onClick, router, setIsTransitionComplete],
 	)

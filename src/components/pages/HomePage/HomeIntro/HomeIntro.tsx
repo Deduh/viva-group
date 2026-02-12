@@ -5,17 +5,14 @@ import { usePageTransition } from "@/context/PageTransitionContext"
 import { usePreloader } from "@/context/PreloaderContext"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { useLenis } from "lenis/react"
-import { ArrowBigDown } from "lucide-react"
-import { useCallback, useLayoutEffect, useRef } from "react"
+import { useLayoutEffect, useRef } from "react"
 import s from "./HomeIntro.module.scss"
+import { SearchBar } from "./ui/SearchBar/SearchBar"
 
 export function HomeIntro() {
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const textRef = useRef<HTMLParagraphElement>(null)
 	const searchWrapperRef = useRef<HTMLDivElement>(null)
-	const buttonRef = useRef<HTMLButtonElement>(null)
-	const lenis = useLenis()
 
 	const { isLoaded } = usePreloader()
 	const { isTransitionComplete } = usePageTransition()
@@ -78,7 +75,7 @@ export function HomeIntro() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=1"
+					"-=1",
 				)
 				.to(
 					searchWrapperRef.current,
@@ -89,7 +86,7 @@ export function HomeIntro() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=0.8"
+					"-=0.8",
 				)
 
 			return () => {
@@ -98,69 +95,8 @@ export function HomeIntro() {
 		},
 		{
 			dependencies: [isLoaded, isTransitionComplete],
-		}
-	)
-
-	useGSAP(
-		() => {
-			if (!buttonRef.current) return
-
-			const arrowMain = buttonRef.current.querySelector(
-				`[data-home-arrow-main]`
-			) as HTMLElement
-			const arrowSecondary = buttonRef.current.querySelector(
-				`[data-home-arrow-secondary]`
-			) as HTMLElement
-
-			if (!arrowMain || !arrowSecondary) return
-
-			const tl = gsap
-				.timeline({ paused: true })
-				.to(arrowMain, {
-					y: "100%",
-					duration: 0.3,
-					ease: "power2.inOut",
-				})
-				.to(
-					arrowSecondary,
-					{
-						y: "0%",
-						duration: 0.3,
-						ease: "power2.inOut",
-					},
-					"<"
-				)
-
-			gsap.set(arrowSecondary, { y: "-100%" })
-
-			const handleEnter = () => tl.play()
-			const handleLeave = () => tl.reverse()
-
-			const button = buttonRef.current
-			button.addEventListener("mouseenter", handleEnter)
-			button.addEventListener("mouseleave", handleLeave)
-
-			return () => {
-				button.removeEventListener("mouseenter", handleEnter)
-				button.removeEventListener("mouseleave", handleLeave)
-				tl.kill()
-			}
 		},
-		{ scope: buttonRef }
 	)
-
-	const handleScrollToSections = useCallback(() => {
-		const target =
-			document.querySelector<HTMLElement>("[data-public-wrapper]") || null
-
-		if (!target) return
-
-		if (lenis) {
-			lenis.scrollTo(target, { offset: 0, duration: 2 })
-		} else {
-			target.scrollIntoView({ behavior: "smooth" })
-		}
-	}, [lenis])
 
 	return (
 		<StickyHeroSection backgroundImage="/backgrounds/viva-background.webp">
@@ -177,24 +113,7 @@ export function HomeIntro() {
 				</div>
 
 				<div ref={searchWrapperRef} className={s.searchWrapper}>
-					<button
-						className={s.button}
-						type="button"
-						onClick={handleScrollToSections}
-						ref={buttonRef}
-					>
-						<div className={s.buttonText}>Перейти к разделам</div>
-
-						<div className={s.buttonIcon}>
-							<div className={s.arrowMain} data-home-arrow-main>
-								<ArrowBigDown size={"1.6rem"} />
-							</div>
-
-							<div className={s.arrowSecondary} data-home-arrow-secondary>
-								<ArrowBigDown size={"1.6rem"} />
-							</div>
-						</div>
-					</button>
+					<SearchBar />
 				</div>
 			</div>
 		</StickyHeroSection>
