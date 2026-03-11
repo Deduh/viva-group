@@ -79,6 +79,18 @@ export default function FlightsContinuePage() {
 			return
 		}
 
+		if (draft.tripType === "ROUND_TRIP" && !draft.dateTo) {
+			setError(
+				prev =>
+					prev ??
+					new Error(
+						"В черновике отсутствует дата возврата. Заполните форму заново.",
+					),
+			)
+
+			return
+		}
+
 		if (flightsError) {
 			setError(
 				prev =>
@@ -90,6 +102,7 @@ export default function FlightsContinuePage() {
 		}
 
 		const resolved = resolveCharterFlightForBooking(flights, {
+			tripType: draft.tripType,
 			from: draft.from,
 			to: draft.to,
 			dateFrom: draft.dateFrom,
@@ -122,8 +135,9 @@ export default function FlightsContinuePage() {
 		api
 			.createCharterBooking({
 				flightId: resolved.flight.id,
+				tripType: draft.tripType,
 				dateFrom: draft.dateFrom,
-				dateTo: draft.dateTo,
+				dateTo: draft.tripType === "ROUND_TRIP" ? draft.dateTo : undefined,
 				adults: draft.adults,
 				children: typeof draft.children === "number" ? draft.children : 0,
 			})

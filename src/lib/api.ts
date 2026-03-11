@@ -628,11 +628,17 @@ export const api = {
 			CharterBookingSchema,
 		),
 	createCharterBooking: (data: CreateCharterBookingInput) => {
-		const payload = {
-			...data,
+		const tripType = data.tripType ?? "ROUND_TRIP"
+		const payload: Record<string, unknown> = {
+			flightId: data.flightId,
+			tripType,
 			dateFrom: toDateOnly(data.dateFrom),
-			dateTo: toDateOnly(data.dateTo),
+			adults: data.adults,
 			children: typeof data.children === "number" ? data.children : 0,
+		}
+
+		if (tripType === "ROUND_TRIP" && data.dateTo) {
+			payload.dateTo = toDateOnly(data.dateTo)
 		}
 
 		return fetchAndValidate<CharterBooking>(
@@ -644,6 +650,36 @@ export const api = {
 				body: JSON.stringify(payload),
 			},
 		).catch(error => {
+			if (
+				error instanceof ApiError &&
+				error.statusCode === 400 &&
+				typeof error.message === "string"
+			) {
+				const map: Record<string, string> = {
+					"dateTo is required for ROUND_TRIP":
+						"Укажите дату возврата для перелета туда-обратно.",
+					"dateTo must be empty for ONE_WAY":
+						"Для перелета в одну сторону удалите дату возврата.",
+					"dateFrom must be <= dateTo":
+						"Дата вылета должна быть раньше или равна дате возврата.",
+					"No seats available for selected dates":
+						"На выбранные даты нет свободных мест.",
+					"Charter flight is archived":
+						"Этот рейс больше недоступен. Выберите другой.",
+				}
+
+				const matched = map[error.message]
+
+				if (matched) {
+					throw new ApiError(
+						matched,
+						error.statusCode,
+						error.code,
+						error.details,
+					)
+				}
+			}
+
 			if (
 				error instanceof ApiError &&
 				error.statusCode === 400 &&

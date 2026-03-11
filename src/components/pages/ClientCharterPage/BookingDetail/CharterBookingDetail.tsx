@@ -7,9 +7,13 @@ import {
 	BOOKING_STATUS_COLOR,
 	BOOKING_STATUS_LABEL,
 } from "@/lib/booking-status"
+import {
+	CHARTER_TRIP_TYPE_LABEL,
+	normalizeCharterTripType,
+} from "@/lib/charter-trip-type"
 import { formatDate } from "@/lib/format"
 import type { CharterBooking } from "@/types"
-import { Calendar, MapPin, Tags, Users } from "lucide-react"
+import { ArrowRightLeft, Calendar, MapPin, Tags, Users } from "lucide-react"
 
 interface CharterBookingDetailProps {
 	booking: CharterBooking
@@ -21,6 +25,7 @@ export function CharterBookingDetail({ booking }: CharterBookingDetailProps) {
 	const from = booking.flight?.from || booking.from || "Не указано"
 	const to = booking.flight?.to || booking.to || "Не указано"
 	const displayBookingId = booking.publicId ?? booking.id
+	const tripType = normalizeCharterTripType(booking.tripType)
 	const categories = booking.categories ?? booking.flight?.categories ?? []
 
 	return (
@@ -68,15 +73,32 @@ export function CharterBookingDetail({ booking }: CharterBookingDetailProps) {
 							</div>
 
 							<div className={s.infoItem}>
+								<ArrowRightLeft size={"2rem"} className={s.infoIcon} />
+
+								<div className={s.infoItemWrapper}>
+									<p className={s.infoLabel}>Тип перелета</p>
+
+									<p className={s.infoValue}>
+										{CHARTER_TRIP_TYPE_LABEL[tripType]}
+									</p>
+								</div>
+							</div>
+
+							<div className={s.infoItem}>
 								<Calendar size={"2rem"} className={s.infoIcon} />
 
 								<div className={s.infoItemWrapper}>
 									<p className={s.infoLabel}>Даты</p>
 
 									<p className={`${s.infoValue} ${s.nowrap}`}>
-										{formatDate(booking.dateFrom)} -{" "}
-										{formatDate(booking.dateTo)}
+										{tripType === "ONE_WAY" || !booking.dateTo
+											? `Вылет: ${formatDate(booking.dateFrom)}`
+											: `${formatDate(booking.dateFrom)} - ${formatDate(booking.dateTo)}`}
 									</p>
+
+									{tripType === "ONE_WAY" && (
+										<p className={s.infoValue}>Обратный рейс: не нужен</p>
+									)}
 								</div>
 							</div>
 

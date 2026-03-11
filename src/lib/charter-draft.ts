@@ -1,8 +1,11 @@
+import type { CharterTripType } from "@/types"
+
 export type CharterDraft = {
+	tripType: CharterTripType
 	from: string
 	to: string
 	dateFrom: string // YYYY-MM-DD
-	dateTo: string // YYYY-MM-DD
+	dateTo?: string // YYYY-MM-DD (для ROUND_TRIP)
 	adults: number
 	children: number
 	categories: string[]
@@ -43,7 +46,36 @@ export function loadCharterDraft(): CharterDraft | null {
 			return null
 		}
 
-		return parsed.data as CharterDraft
+		const data = parsed.data as Partial<CharterDraft>
+
+		if (
+			typeof data.from !== "string" ||
+			typeof data.to !== "string" ||
+			typeof data.dateFrom !== "string" ||
+			typeof data.adults !== "number"
+		) {
+			return null
+		}
+
+		const tripType: CharterTripType =
+			data.tripType === "ONE_WAY" ? "ONE_WAY" : "ROUND_TRIP"
+
+		return {
+			tripType,
+			from: data.from,
+			to: data.to,
+			dateFrom: data.dateFrom,
+			dateTo:
+				tripType === "ROUND_TRIP" && typeof data.dateTo === "string"
+					? data.dateTo
+					: undefined,
+			adults: data.adults,
+			children: typeof data.children === "number" ? data.children : 0,
+			categories: Array.isArray(data.categories) ? data.categories : [],
+			hasSeats: Boolean(data.hasSeats),
+			hasBusinessClass: Boolean(data.hasBusinessClass),
+			hasComfortClass: Boolean(data.hasComfortClass),
+		}
 	} catch {
 		return null
 	}

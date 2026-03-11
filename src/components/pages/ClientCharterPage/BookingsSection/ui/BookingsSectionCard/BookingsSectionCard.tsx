@@ -1,6 +1,10 @@
 "use client"
 
 import { BOOKING_STATUS_LABEL } from "@/lib/booking-status"
+import {
+	CHARTER_TRIP_TYPE_LABEL,
+	normalizeCharterTripType,
+} from "@/lib/charter-trip-type"
 import { formatDate } from "@/lib/format"
 import type { CharterBooking } from "@/types"
 import Link from "next/link"
@@ -14,9 +18,15 @@ export function BookingsSectionCard({ booking }: BookingsSectionCardProps) {
 	const displayBookingId = booking.publicId ?? booking.id
 	const from = booking.flight?.from || booking.from || "Не указано"
 	const to = booking.flight?.to || booking.to || "Не указано"
+	const tripType = normalizeCharterTripType(booking.tripType)
+	const dateRange =
+		tripType === "ONE_WAY" || !booking.dateTo
+			? `Вылет: ${formatDate(booking.dateFrom)} · Обратный рейс: не нужен`
+			: `Даты: ${formatDate(booking.dateFrom)} - ${formatDate(booking.dateTo)}`
 
 	const metaParts = [
-		`Даты: ${formatDate(booking.dateFrom)} - ${formatDate(booking.dateTo)}`,
+		`Тип: ${CHARTER_TRIP_TYPE_LABEL[tripType]}`,
+		dateRange,
 
 		`Пассажиров: ${booking.adults} взр${booking.children ? `, ${booking.children} дет` : ""}`,
 	].filter(Boolean)

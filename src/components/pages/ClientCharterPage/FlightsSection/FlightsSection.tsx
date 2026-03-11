@@ -56,6 +56,7 @@ export function FlightsSection() {
 		}
 
 		const resolved = resolveCharterFlightForBooking(flights, {
+			tripType: values.tripType,
 			from: values.from,
 			to: values.to,
 			dateFrom: values.dateFrom,
@@ -76,16 +77,21 @@ export function FlightsSection() {
 
 		const payload = {
 			flightId: resolved.flight.id,
+			tripType: values.tripType,
 			dateFrom: values.dateFrom,
-			dateTo: values.dateTo,
 			adults: values.adults,
 			children: typeof values.children === "number" ? values.children : 0,
-		}
+		} as const
+
+		const createPayload =
+			values.tripType === "ROUND_TRIP" && values.dateTo
+				? { ...payload, dateTo: values.dateTo }
+				: payload
 
 		setIsSubmitting(true)
 
 		try {
-			const created = await api.createCharterBooking(payload)
+			const created = await api.createCharterBooking(createPayload)
 
 			const wishesText = buildWishesText(values)
 

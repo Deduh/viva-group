@@ -162,6 +162,8 @@ const CharterBookingUserSchema = z.object({
 	name: z.string().nullable().optional(),
 })
 
+const CharterTripTypeSchema = z.enum(["ONE_WAY", "ROUND_TRIP"])
+
 export const CharterFlightSchema = z.object({
 	id: z.string().min(1, "ID рейса обязателен"),
 	publicId: z.string().min(1, "Публичный ID рейса обязателен"),
@@ -184,8 +186,9 @@ export const CharterBookingSchema = z.object({
 	publicId: z.string().min(1, "Публичный ID бронирования обязателен"),
 	userId: z.string().min(1, "ID пользователя обязателен"),
 	flightId: z.string().min(1, "ID рейса обязателен"),
+	tripType: CharterTripTypeSchema.default("ROUND_TRIP"),
 	dateFrom: z.string().min(1),
-	dateTo: z.string().min(1),
+	dateTo: z.string().min(1).nullable(),
 	adults: z.coerce.number().int().min(1),
 	children: z.coerce.number().int().min(0).default(0),
 	status: BookingStatusSchema,

@@ -126,7 +126,7 @@ export function ManagerGroupTransportBookingDetail({
 				<div>
 					<p className={s.bookingId}>Бронирование #{currentBooking.id}</p>
 
-					<h1>Детали перевозки</h1>
+					<h1 className={s.headerTitle}>Детали перевозки</h1>
 				</div>
 
 				<div className={s.statusDropdown} ref={dropdownRef}>
@@ -176,7 +176,7 @@ export function ManagerGroupTransportBookingDetail({
 			<div className={s.content}>
 				<div className={s.mainInfo}>
 					<div className={s.bookingInfo}>
-						<h2>Информация о перевозке</h2>
+						<h2 className={s.bookingInfoTitle}>Информация о перевозке</h2>
 
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
@@ -217,7 +217,7 @@ export function ManagerGroupTransportBookingDetail({
 						</div>
 
 						<div className={s.notes}>
-							<h3>Маршруты</h3>
+							<h3 className={s.notesTitle}>Маршруты</h3>
 
 							<div className={s.statusGrid}>
 								{currentBooking.segments.map(seg => (

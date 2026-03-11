@@ -5,6 +5,9 @@ import { env } from "./env/server"
 import type { Role } from "./roles"
 
 export const authSecret = env.NEXTAUTH_SECRET
+const ACCESS_TOKEN_FALLBACK_MS = 15 * 60 * 1000
+const REFRESH_TOKEN_FALLBACK_MS = 7 * 24 * 60 * 60 * 1000
+const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
 
 type AuthResponse = {
 	user: {
@@ -76,8 +79,10 @@ const refreshAccessToken = async (token: {
 		}
 
 		const data = (await response.json()) as AuthResponse
-		const accessExpiresIn = parseExpiresIn(data.tokens.accessExpiresIn) || 0
-		const refreshExpiresIn = parseExpiresIn(data.tokens.refreshExpiresIn) || 0
+		const accessExpiresIn =
+			parseExpiresIn(data.tokens.accessExpiresIn) || ACCESS_TOKEN_FALLBACK_MS
+		const refreshExpiresIn =
+			parseExpiresIn(data.tokens.refreshExpiresIn) || REFRESH_TOKEN_FALLBACK_MS
 
 		return {
 			...token,
@@ -96,6 +101,10 @@ export const authOptions: NextAuthOptions = {
 	secret: authSecret,
 	session: {
 		strategy: "jwt",
+		maxAge: SESSION_MAX_AGE_SECONDS,
+	},
+	jwt: {
+		maxAge: SESSION_MAX_AGE_SECONDS,
 	},
 	pages: {
 		signIn: "/login",
@@ -153,8 +162,24 @@ export const authOptions: NextAuthOptions = {
 					(user as { refreshExpiresIn?: string | number }).refreshExpiresIn,
 				)
 
-				token.accessTokenExpires = Date.now() + accessExpiresIn
-				token.refreshTokenExpires = Date.now() + refreshExpiresIn
+				token.accessTokenExpires =
+					Date.now() + (accessExpiresIn || ACCESS_TOKEN_FALLBACK_MS)
+				token.refreshTokenExpires =
+					Date.now() + (refreshExpiresIn || REFRESH_TOKEN_FALLBACK_MS)
+			}
+
+			if (
+				token.refreshTokenExpires &&
+				Date.now() >= token.refreshTokenExpires
+			) {
+				return {
+					...token,
+					accessToken: undefined,
+					refreshToken: undefined,
+					accessTokenExpires: undefined,
+					refreshTokenExpires: undefined,
+					error: "RefreshTokenExpired",
+				}
 			}
 
 			if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {

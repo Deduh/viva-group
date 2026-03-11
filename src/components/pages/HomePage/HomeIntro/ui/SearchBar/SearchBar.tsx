@@ -21,10 +21,11 @@ export function SearchBar() {
 		if (isAuthLoading) return
 
 		const payload = {
+			tripType: values.tripType,
 			from: values.from,
 			to: values.to,
 			dateFrom: values.dateFrom,
-			dateTo: values.dateTo,
+			dateTo: values.tripType === "ROUND_TRIP" ? values.dateTo : undefined,
 			adults: values.adults,
 			children: typeof values.children === "number" ? values.children : 0,
 			categories: values.categories || [],

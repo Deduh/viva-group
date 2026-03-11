@@ -1,5 +1,6 @@
 "use client"
 
+import { SessionExpiryGuard } from "@/components/auth/SessionExpiryGuard/SessionExpiryGuard"
 import { PageTransition } from "@/components/ui/PageTransition/PageTransition"
 import { ClientPreloader } from "@/components/ui/Preloader/ClientPreloader"
 import { PageTransitionProvider } from "@/context/PageTransitionContext"
@@ -96,6 +97,8 @@ export function Providers({ children }: Props) {
 
 	return (
 		<SessionProvider>
+			<SessionExpiryGuard />
+
 			<QueryClientProvider client={queryClient}>
 				<PreloaderProvider>
 					<PageTransitionProvider>

@@ -143,13 +143,16 @@ export type CharterFlight = {
 	updatedAt?: string
 }
 
+export type CharterTripType = "ONE_WAY" | "ROUND_TRIP"
+
 export type CharterBooking = {
 	id: string // внутренний UUID (для чата/комнат)
 	publicId: string // VIVA-AVBOOK-YYYY-#####
 	userId: string
 	flightId: string
+	tripType: CharterTripType
 	dateFrom: string
-	dateTo: string
+	dateTo: string | null
 	adults: number
 	children: number
 	status: BookingStatus
@@ -167,14 +170,12 @@ export type CharterBooking = {
 }
 
 export type CreateCharterBookingInput = {
-	flightId?: string
+	flightId: string
+	tripType?: CharterTripType
 	dateFrom: string
-	dateTo: string
+	dateTo?: string
 	adults: number
 	children?: number
-	from?: string
-	to?: string
-	categories?: string[]
 }
 
 export type CreateCharterFlightInput = {

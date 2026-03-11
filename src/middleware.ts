@@ -9,6 +9,7 @@ type TokenWithRole = {
 	role?: Role
 	email?: string
 	name?: string
+	error?: string
 }
 
 const PUBLIC_ROUTES = new Set([
@@ -189,7 +190,7 @@ export default async function middleware(request: NextRequest) {
 			secret: authSecret,
 		})) as TokenWithRole | null
 
-		if (!token) {
+		if (!token || token.error) {
 			return applySecurityHeaders(
 				NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
 			)
@@ -244,7 +245,7 @@ export default async function middleware(request: NextRequest) {
 			secret: authSecret,
 		})) as TokenWithRole | null
 
-		if (!token) {
+		if (!token || token.error) {
 			return nextWithHeaders()
 		}
 
@@ -274,7 +275,7 @@ export default async function middleware(request: NextRequest) {
 	)
 
 	if (isProtected) {
-		if (!token) {
+		if (!token || token.error) {
 			const loginUrl = new URL("/login", origin)
 			const callbackUrl = new URL(
 				request.nextUrl.pathname + request.nextUrl.search,

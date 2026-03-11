@@ -9,12 +9,24 @@ import {
 	BOOKING_STATUS_COLOR,
 	BOOKING_STATUS_LABEL,
 } from "@/lib/booking-status"
+import {
+	CHARTER_TRIP_TYPE_LABEL,
+	normalizeCharterTripType,
+} from "@/lib/charter-trip-type"
 import { formatDate } from "@/lib/format"
 import type { CharterBooking } from "@/types"
 import { BookingStatus } from "@/types/enums"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { Calendar, ChevronDown, MapPin, Tags, User, Users } from "lucide-react"
+import {
+	ArrowRightLeft,
+	Calendar,
+	ChevronDown,
+	MapPin,
+	Tags,
+	User,
+	Users,
+} from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 interface ManagerFlightsBookingDetailProps {
@@ -41,6 +53,7 @@ export function ManagerCharterBookingDetail({
 	const from =
 		currentBooking.flight?.from || currentBooking.from || "Не указано"
 	const to = currentBooking.flight?.to || currentBooking.to || "Не указано"
+	const tripType = normalizeCharterTripType(currentBooking.tripType)
 	const categories =
 		currentBooking.categories ?? currentBooking.flight?.categories ?? []
 
@@ -182,15 +195,32 @@ export function ManagerCharterBookingDetail({
 							)}
 
 							<div className={s.infoItem}>
+								<ArrowRightLeft size={"2rem"} className={s.infoIcon} />
+
+								<div className={s.infoItemWrapper}>
+									<p className={s.infoLabel}>Тип перелета</p>
+
+									<p className={s.infoValue}>
+										{CHARTER_TRIP_TYPE_LABEL[tripType]}
+									</p>
+								</div>
+							</div>
+
+							<div className={s.infoItem}>
 								<Calendar size={"2rem"} className={s.infoIcon} />
 
 								<div className={s.infoItemWrapper}>
 									<p className={s.infoLabel}>Даты</p>
 
 									<p className={`${s.infoValue} ${s.nowrap}`}>
-										{formatDate(currentBooking.dateFrom)} -{" "}
-										{formatDate(currentBooking.dateTo)}
+										{tripType === "ONE_WAY" || !currentBooking.dateTo
+											? `Вылет: ${formatDate(currentBooking.dateFrom)}`
+											: `${formatDate(currentBooking.dateFrom)} - ${formatDate(currentBooking.dateTo)}`}
 									</p>
+
+									{tripType === "ONE_WAY" && (
+										<p className={s.infoValue}>Обратный рейс: не нужен</p>
+									)}
 								</div>
 							</div>
 

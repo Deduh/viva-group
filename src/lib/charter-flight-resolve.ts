@@ -1,10 +1,12 @@
 import type { CharterFlight } from "@/types"
+import { normalizeCharterTripType } from "./charter-trip-type"
 
 export type CharterBookingWishInput = {
+	tripType?: "ONE_WAY" | "ROUND_TRIP"
 	from: string
 	to: string
 	dateFrom: string // YYYY-MM-DD
-	dateTo: string // YYYY-MM-DD
+	dateTo?: string // YYYY-MM-DD
 }
 
 const toDateOnly = (iso: string) => iso.slice(0, 10)
@@ -55,20 +57,39 @@ export function resolveCharterFlightForBooking(
 	}
 
 	const df = input.dateFrom
+	const tripType = normalizeCharterTripType(input.tripType)
 	const dt = input.dateTo
 
 	const dfTime = new Date(df).getTime()
-	const dtTime = new Date(dt).getTime()
-	if (Number.isNaN(dfTime) || Number.isNaN(dtTime)) {
+	if (Number.isNaN(dfTime)) {
+		return { ok: false, reason: "invalid_date" }
+	}
+
+	if (tripType === "ROUND_TRIP") {
+		if (!dt) return { ok: false, reason: "invalid_date" }
+
+		const dtTime = new Date(dt).getTime()
+		if (Number.isNaN(dtTime)) {
+			return { ok: false, reason: "invalid_date" }
+		}
+	}
+
+	if (tripType === "ONE_WAY" && dt) {
 		return { ok: false, reason: "invalid_date" }
 	}
 
 	const matching = routeFlights.find(flight => {
 		if (!inRange(df, flight.dateFrom, flight.dateTo)) return false
-		if (!inRange(dt, flight.dateFrom, flight.dateTo)) return false
+		if (tripType === "ROUND_TRIP") {
+			if (!dt) return false
+			if (!inRange(dt, flight.dateFrom, flight.dateTo)) return false
+		}
 
 		if (!matchesSchedule(flight, df)) return false
-		if (!matchesSchedule(flight, dt)) return false
+		if (tripType === "ROUND_TRIP") {
+			if (!dt) return false
+			if (!matchesSchedule(flight, dt)) return false
+		}
 
 		return true
 	})

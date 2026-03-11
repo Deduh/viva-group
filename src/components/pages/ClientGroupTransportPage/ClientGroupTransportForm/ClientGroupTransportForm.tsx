@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/ui/Form/DateInput/DateInput"
 import { Input } from "@/components/ui/Form/Input/Input"
 import { TextArea } from "@/components/ui/Form/TextArea/TextArea"
 import { useAuth } from "@/hooks/useAuth"
@@ -90,7 +91,7 @@ export function ClientGroupTransportForm() {
 						items,
 						total,
 					}
-				}
+				},
 			)
 
 			return { previous, optimisticId }
@@ -117,7 +118,7 @@ export function ClientGroupTransportForm() {
 						...old,
 						items: replaced ? items : [createdBooking, ...items],
 					}
-				}
+				},
 			)
 
 			reset({ segments: [createSegment()], note: "" })
@@ -130,7 +131,7 @@ export function ClientGroupTransportForm() {
 			}
 			console.error("Ошибка создания заявки на перевозку:", error)
 			showError(
-				error.message || "Не удалось отправить заявку. Попробуйте снова."
+				error.message || "Не удалось отправить заявку. Попробуйте снова.",
 			)
 		},
 		onSettled: () => {
@@ -202,12 +203,16 @@ export function ClientGroupTransportForm() {
 													{isReturn ? "Дата обратного вылета" : "Дата вылета"}
 												</span>
 
-												<Input
-													type="date"
+												<DateInput
+													disabled={isBusy}
 													{...register(`segments.${index}.departureDate`, {
 														required: "Укажите дату вылета",
 													})}
-													error={segmentErrors?.departureDate?.message}
+													error={
+														segmentErrors?.departureDate?.message as
+															| string
+															| undefined
+													}
 												/>
 											</div>
 
@@ -274,7 +279,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.seniorsEco`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -289,7 +294,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.adultsEco`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -304,7 +309,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.youthEco`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -319,7 +324,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.childrenEco`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -334,7 +339,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.infantsEco`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -351,7 +356,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.seniorsBusiness`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -366,7 +371,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.adultsBusiness`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -381,7 +386,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.youthBusiness`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -396,7 +401,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.childrenBusiness`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>
@@ -411,7 +416,7 @@ export function ClientGroupTransportForm() {
 														placeholder="0"
 														{...register(
 															`segments.${index}.passengers.infantsBusiness`,
-															passengerFieldOptions
+															passengerFieldOptions,
 														)}
 													/>
 												</div>

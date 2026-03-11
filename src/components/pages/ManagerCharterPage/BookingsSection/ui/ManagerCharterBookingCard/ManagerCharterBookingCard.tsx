@@ -1,6 +1,10 @@
 "use client"
 
 import { BOOKING_STATUS_LABEL } from "@/lib/booking-status"
+import {
+	CHARTER_TRIP_TYPE_LABEL,
+	normalizeCharterTripType,
+} from "@/lib/charter-trip-type"
 import { formatDate } from "@/lib/format"
 import type { CharterBooking } from "@/types"
 import Link from "next/link"
@@ -16,6 +20,7 @@ export function ManagerCharterBookingCard({
 	const displayBookingId = booking.publicId ?? booking.id
 	const from = booking.flight?.from || booking.from || "Не указано"
 	const to = booking.flight?.to || booking.to || "Не указано"
+	const tripType = normalizeCharterTripType(booking.tripType)
 	const route = `${from} - ${to}`
 	const passengerCount = booking.adults + booking.children
 	const clientName = booking.user?.name || booking.user?.email || ""
@@ -38,8 +43,11 @@ export function ManagerCharterBookingCard({
 				</p>
 
 				<p className={s.cardMeta}>
-					Вылет: {formatDate(booking.dateFrom)} · Возврат:{" "}
-					{formatDate(booking.dateTo)}
+					Тип: {CHARTER_TRIP_TYPE_LABEL[tripType]} · Вылет:{" "}
+					{formatDate(booking.dateFrom)} ·{" "}
+					{tripType === "ONE_WAY" || !booking.dateTo
+						? "Обратный рейс: не нужен"
+						: `Возврат: ${formatDate(booking.dateTo)}`}
 					{booking.flight?.publicId ? ` · ${booking.flight.publicId}` : ""}
 				</p>
 

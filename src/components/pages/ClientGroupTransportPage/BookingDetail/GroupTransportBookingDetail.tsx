@@ -49,7 +49,8 @@ export function GroupTransportBookingDetail({
 			<div className={s.header}>
 				<div>
 					<p className={s.bookingId}>Бронирование #{booking.id}</p>
-					<h1>
+
+					<h1 className={s.headerTitle}>
 						{forward ? `${forward.from} → ${forward.to}` : "Детали перевозки"}
 					</h1>
 				</div>
@@ -70,7 +71,7 @@ export function GroupTransportBookingDetail({
 			<div className={s.content}>
 				<div className={s.mainInfo}>
 					<div className={s.bookingInfo}>
-						<h2>Информация о перевозке</h2>
+						<h2 className={s.bookingInfoTitle}>Информация о перевозке</h2>
 
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
@@ -113,7 +114,8 @@ export function GroupTransportBookingDetail({
 						</div>
 
 						<div className={s.notes}>
-							<h3>Маршруты</h3>
+							<h3 className={s.notesTitle}>Маршруты</h3>
+
 							{booking.segments.map(seg => (
 								<div key={`${seg.direction}-${seg.departureDate}`}>
 									<p className={s.infoLabel}>
