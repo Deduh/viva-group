@@ -12,7 +12,7 @@ const PageTransitionContext = createContext<
 >(undefined)
 
 export function PageTransitionProvider({ children }: { children: ReactNode }) {
-	const [isTransitionComplete, setIsTransitionComplete] = useState(false)
+	const [isTransitionComplete, setIsTransitionComplete] = useState(true)
 
 	return (
 		<PageTransitionContext.Provider
@@ -28,7 +28,7 @@ export function usePageTransition() {
 
 	if (context === undefined) {
 		throw new Error(
-			"usePageTransition must be used within a PageTransitionProvider"
+			"usePageTransition must be used within a PageTransitionProvider",
 		)
 	}
 

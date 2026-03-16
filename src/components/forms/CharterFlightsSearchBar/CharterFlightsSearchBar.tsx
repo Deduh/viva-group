@@ -12,15 +12,7 @@ import {
 } from "@/lib/validation"
 import type { CharterFlight } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
-import {
-	ArrowRightLeft,
-	Calendar,
-	MapPin,
-	MoveRight,
-	Search,
-	Tags,
-	Users,
-} from "lucide-react"
+import { Calendar, MapPin, Search, Tags, Users } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import s from "./CharterFlightsSearchBar.module.scss"
@@ -90,7 +82,6 @@ export function CharterFlightsSearchBar({
 
 	const fromValue = watch("from") || ""
 	const toValue = watch("to") || ""
-	const tripTypeValue = watch("tripType") ?? "ROUND_TRIP"
 	const dateFromValue = watch("dateFrom") || ""
 	const dateToValue = watch("dateTo") || ""
 	const categoriesValue = watch("categories") || []
@@ -101,19 +92,6 @@ export function CharterFlightsSearchBar({
 		register("categories")
 		register("tripType")
 	}, [register])
-
-	useEffect(() => {
-		if (tripTypeValue === "ROUND_TRIP") return
-
-		if (dateToValue) {
-			setValue("dateTo", undefined, {
-				shouldDirty: true,
-				shouldTouch: true,
-			})
-		}
-
-		clearErrors("dateTo")
-	}, [clearErrors, dateToValue, setValue, tripTypeValue])
 
 	useEffect(() => {
 		if (typeof window === "undefined") return
@@ -296,7 +274,6 @@ export function CharterFlightsSearchBar({
 		}
 
 		if (
-			tripTypeValue === "ROUND_TRIP" &&
 			dateToValue &&
 			(dateToValue < routeMinDate || dateToValue > routeMaxDate)
 		) {
@@ -310,7 +287,6 @@ export function CharterFlightsSearchBar({
 		routeMaxDate,
 		routeMinDate,
 		setValue,
-		tripTypeValue,
 	])
 
 	const onValidSubmit = async (values: CharterFlightsSearchInput) => {
@@ -345,32 +321,20 @@ export function CharterFlightsSearchBar({
 			return
 		}
 
-		if (values.tripType === "ROUND_TRIP") {
-			if (!values.dateTo) {
-				setError("dateTo", {
-					type: "manual",
-					message: "Укажите дату возвращения",
-				})
+		if (
+			!isDateAllowedByRange(values.dateTo) ||
+			!isDateAllowedBySchedule(values.dateTo)
+		) {
+			setError("dateTo", {
+				type: "manual",
+				message: "Дата возврата недоступна по расписанию",
+			})
 
-				return
-			}
-
-			if (
-				!isDateAllowedByRange(values.dateTo) ||
-				!isDateAllowedBySchedule(values.dateTo)
-			) {
-				setError("dateTo", {
-					type: "manual",
-					message: "Дата возврата недоступна по расписанию",
-				})
-
-				return
-			}
+			return
 		}
 
 		await onSubmit({
 			...values,
-			dateTo: values.tripType === "ROUND_TRIP" ? values.dateTo : undefined,
 			from: fromMatch,
 			to: toMatch,
 			children: typeof values.children === "number" ? values.children : 0,
@@ -387,57 +351,6 @@ export function CharterFlightsSearchBar({
 			>
 				<div className={s.wrapper}>
 					<input type="hidden" {...register("tripType")} />
-
-					<div
-						className={s.tripTypeSwitch}
-						role="radiogroup"
-						aria-label="Тип перелета"
-					>
-						<button
-							type="button"
-							role="radio"
-							aria-checked={tripTypeValue === "ROUND_TRIP"}
-							className={`${s.tripTypeButton} ${
-								tripTypeValue === "ROUND_TRIP" ? s.tripTypeButtonActive : ""
-							}`}
-							onClick={() => {
-								setFormError(null)
-								setValue("tripType", "ROUND_TRIP", {
-									shouldDirty: true,
-									shouldTouch: true,
-								})
-								clearErrors("dateTo")
-							}}
-							disabled={formState.isSubmitting || flightsLoading}
-						>
-							<ArrowRightLeft size={"1.6rem"} />
-							Туда-обратно
-						</button>
-
-						<button
-							type="button"
-							role="radio"
-							aria-checked={tripTypeValue === "ONE_WAY"}
-							className={`${s.tripTypeButton} ${
-								tripTypeValue === "ONE_WAY" ? s.tripTypeButtonActive : ""
-							}`}
-							onClick={() => {
-								setFormError(null)
-								setValue("tripType", "ONE_WAY", {
-									shouldDirty: true,
-									shouldTouch: true,
-								})
-								setValue("dateTo", undefined, {
-									shouldDirty: true,
-									shouldTouch: true,
-								})
-								clearErrors("dateTo")
-							}}
-							disabled={formState.isSubmitting || flightsLoading}
-						>
-							<MoveRight size={"1.6rem"} />В одну сторону
-						</button>
-					</div>
 
 					<div className={s.fields}>
 						<div className={s.field}>
@@ -554,11 +467,7 @@ export function CharterFlightsSearchBar({
 								</div>
 							</div>
 
-							<div
-								className={`${s.field} ${
-									tripTypeValue === "ONE_WAY" ? s.fieldDisabled : ""
-								}`}
-							>
+							<div className={s.field}>
 								<div className={`${s.icon} ${s.purple}`}>
 									<Calendar size={"2rem"} />
 								</div>
@@ -572,7 +481,6 @@ export function CharterFlightsSearchBar({
 										min={routeMinDate || undefined}
 										max={routeMaxDate || undefined}
 										allowedWeekDays={routeWeekDaysNumbers || undefined}
-										disabled={tripTypeValue === "ONE_WAY"}
 										{...register("dateTo", {
 											onChange: () => setFormError(null),
 										})}

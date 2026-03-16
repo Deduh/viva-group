@@ -251,7 +251,9 @@ export const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
 		const displayValue = selectedValue ? formatDisplayDate(selectedValue) : ""
 		const displayPlaceholder = placeholder || "Выберите дату"
 		const today = new Date()
-		const useNativePicker = isTouch !== false
+		const hasWeekDayRestrictions =
+			Array.isArray(allowedWeekDays) && allowedWeekDays.length > 0
+		const useNativePicker = isTouch !== false && !hasWeekDayRestrictions
 
 		const handleNativeChange = (event: ChangeEvent<HTMLInputElement>) => {
 			if (!isControlled) {

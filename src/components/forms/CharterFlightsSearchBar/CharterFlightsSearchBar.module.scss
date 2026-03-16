@@ -33,59 +33,6 @@
 	}
 }
 
-.tripTypeSwitch {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 0.8rem;
-
-	@media (max-width: 768px) {
-		gap: 0.4rem;
-	}
-}
-
-.tripTypeButton {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	gap: 0.6rem;
-	height: 4.2rem;
-	padding: 0 1.4rem;
-	border-radius: 1.2rem;
-	border: 1px solid rgba(226, 232, 240, 1);
-	background: rgba(248, 250, 252, 0.9);
-
-	color: rgba(15, 23, 42, 0.82);
-	font-size: 1.35rem;
-	font-weight: 700;
-
-	cursor: pointer;
-	transition:
-		background-color 0.2s ease,
-		border-color 0.2s ease,
-		color 0.2s ease,
-		filter 0.2s ease;
-
-	&:hover {
-		filter: brightness(0.97);
-	}
-
-	&:active {
-		filter: brightness(0.94);
-	}
-
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-}
-
-.tripTypeButtonActive {
-	border-color: rgba(7, 151, 166, 0.34);
-	background: rgba(7, 151, 166, 0.12);
-	color: rgba(8, 78, 86, 1);
-}
-
 .fieldsWrapper {
 	display: flex;
 	gap: 0.8rem;
@@ -130,11 +77,6 @@
 		padding: 0.4rem;
 		border-radius: 1.2rem;
 	}
-}
-
-.fieldDisabled {
-	background: rgba(248, 250, 252, 0.55);
-	border-color: rgba(226, 232, 240, 0.8);
 }
 
 .fieldBody {

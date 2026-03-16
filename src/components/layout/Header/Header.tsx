@@ -64,16 +64,10 @@ export function Header() {
 		return "/client/tours"
 	})()
 
-	useGSAP(() => {
+	useEffect(() => {
 		if (!headerRef.current) return
 
-		if (!isLoaded) {
-			gsap.set(headerRef.current, { yPercent: -100, autoAlpha: 0 })
-		}
-	}, [isLoaded])
-
-	useGSAP(() => {
-		if (!headerRef.current) return
+		gsap.killTweensOf(headerRef.current, "yPercent,autoAlpha")
 
 		if (isLoaded && isTransitionComplete) {
 			gsap.to(headerRef.current, {
@@ -81,12 +75,10 @@ export function Header() {
 				autoAlpha: 1,
 				duration: 0.8,
 				ease: "power3.out",
+				overwrite: "auto",
 			})
 		} else {
-			gsap.set(headerRef.current, {
-				yPercent: -100,
-				autoAlpha: 0,
-			})
+			gsap.set(headerRef.current, { yPercent: -100, autoAlpha: 0 })
 		}
 	}, [isLoaded, isTransitionComplete])
 
