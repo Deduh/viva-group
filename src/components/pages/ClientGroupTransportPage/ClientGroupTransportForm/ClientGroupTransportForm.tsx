@@ -217,9 +217,7 @@ export function ClientGroupTransportForm() {
 											</div>
 
 											<div className={s.formTopHeaderInput}>
-												<span className={s.formTopHeaderInputLabel}>
-													Рейс U6
-												</span>
+												<span className={s.formTopHeaderInputLabel}>Рейс</span>
 
 												<Input
 													type="number"
