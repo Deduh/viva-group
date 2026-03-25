@@ -35,7 +35,7 @@ export default function ClientTourDetailPage() {
 			return
 		}
 
-		if (user && user.role !== "CLIENT") {
+		if (user && user.role !== "CLIENT" && user.role !== "AGENT") {
 			if (user.role === "ADMIN") {
 				router.push("/manager/tours")
 			} else if (user.role === "MANAGER") {
@@ -58,7 +58,7 @@ export default function ClientTourDetailPage() {
 		)
 	}
 
-	if (!user || user.role !== "CLIENT") {
+	if (!user || (user.role !== "CLIENT" && user.role !== "AGENT")) {
 		return null
 	}
 
@@ -110,7 +110,11 @@ export default function ClientTourDetailPage() {
 						isAvailable={tour.available}
 					/>
 
-					<PriceCalculation partySize={partySize} pricePerPerson={tour.price} />
+					<PriceCalculation
+						partySize={partySize}
+						pricePerPerson={tour.price}
+						baseCurrency={tour.baseCurrency}
+					/>
 				</div>
 			</div>
 		</div>

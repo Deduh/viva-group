@@ -1,5 +1,6 @@
 "use client"
 
+import { useCurrency } from "@/context/CurrencyContext"
 import { formatCharterWeekDays } from "@/lib/charter-week-days"
 import { formatDate } from "@/lib/format"
 import type { CharterFlight } from "@/types"
@@ -16,13 +17,16 @@ interface CharterFlightResultCardProps {
 	flight: CharterFlight
 	onBook: () => void
 	isBooking?: boolean
+	showPricing?: boolean
 }
 
 export function CharterFlightResultCard({
 	flight,
 	onBook,
 	isBooking = false,
+	showPricing = false,
 }: CharterFlightResultCardProps) {
+	const { formatPrice } = useCurrency()
 	const classes = [
 		flight.hasBusinessClass ? "Business" : null,
 		flight.hasComfortClass ? "Comfort" : null,
@@ -84,6 +88,44 @@ export function CharterFlightResultCard({
 					<span className={s.tag}>+{flight.categories.length - 4}</span>
 				)}
 			</div>
+
+			{showPricing &&
+				(flight.agentPrice || flight.price || flight.agentCommission) && (
+					<div className={s.pricing}>
+						{flight.agentPrice ? (
+							<div className={s.priceCard}>
+								<span className={s.priceLabel}>Цена для агентства</span>
+								<strong className={s.priceValue}>
+									{formatPrice(
+										flight.agentPrice,
+										flight.priceCurrency ?? "RUB",
+									)}
+								</strong>
+							</div>
+						) : null}
+
+						{flight.price ? (
+							<div className={s.priceCard}>
+								<span className={s.priceLabel}>Публичная цена</span>
+								<strong className={s.priceValue}>
+									{formatPrice(flight.price, flight.priceCurrency ?? "RUB")}
+								</strong>
+							</div>
+						) : null}
+
+						{typeof flight.agentCommission === "number" ? (
+							<div className={s.priceCard}>
+								<span className={s.priceLabel}>Комиссия</span>
+								<strong className={s.priceValue}>
+									{formatPrice(
+										flight.agentCommission,
+										flight.priceCurrency ?? "RUB",
+									)}
+								</strong>
+							</div>
+						) : null}
+					</div>
+				)}
 
 			<div className={s.actions}>
 				<button

@@ -1,5 +1,6 @@
 "use client"
 
+import { CurrencySelector } from "@/components/currency/CurrencySelector/CurrencySelector"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { usePreloader } from "@/context/PreloaderContext"
@@ -60,6 +61,8 @@ export function Header() {
 
 		if (user?.role === "ADMIN" || user?.role === "MANAGER")
 			return "/manager/tours"
+
+		if (user?.role === "AGENT") return "/agent/flights"
 
 		return "/client/tours"
 	})()
@@ -330,6 +333,10 @@ export function Header() {
 			</nav>
 
 			<div className={s.buttonWrapper}>
+				<div className={s.currencyWrap}>
+					<CurrencySelector compact />
+				</div>
+
 				<TransitionLink
 					href={dashboardHref}
 					className={s.button}

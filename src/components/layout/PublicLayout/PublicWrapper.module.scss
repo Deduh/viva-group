@@ -1,6 +1,8 @@
 @use "../../../styles/utils/function.scss" as *;
 
 .wrapper {
+	--public-header-offset: 12rem;
+
 	position: relative;
 	z-index: z("home-wrapper");
 
@@ -8,10 +10,20 @@
 	border-radius: 3.2rem 3.2rem 0 0;
 
 	@media (max-width: 768px) {
+		--public-header-offset: 9.6rem;
+
 		position: static;
 
 		border-radius: 2.4rem 2.4rem 0 0;
 	}
+}
+
+.withHeaderOffset {
+	margin-top: var(--public-header-offset);
+}
+
+.withHeaderOffsetPadding {
+	padding-top: var(--public-header-offset);
 }
 
 .content {

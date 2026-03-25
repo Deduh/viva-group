@@ -22,3 +22,36 @@
 	display: flex;
 	justify-content: center;
 }
+
+.results {
+	display: flex;
+	flex-direction: column;
+	gap: 1.6rem;
+}
+
+.resultsHeader {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+.resultsTitle {
+	margin: 0;
+	color: rgba(17, 24, 39, 1);
+	font-size: 2rem;
+	font-weight: 700;
+	line-height: 2.6rem;
+}
+
+.resultsText {
+	margin: 0;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+	line-height: 2rem;
+}
+
+.resultsGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+	gap: 1.2rem;
+}

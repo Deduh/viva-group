@@ -1,6 +1,5 @@
 import "@/styles/index.scss"
 import type { Metadata } from "next"
-import { Inter, Oswald } from "next/font/google"
 import { headers } from "next/headers"
 import Image from "next/image"
 import { Providers } from "./providers"
@@ -10,18 +9,6 @@ export const metadata: Metadata = {
 	description:
 		"Премиальные туры и групповые перевозки. Подбор маршрутов, перелетов и авторских программ.",
 }
-
-const inter = Inter({
-	variable: "--font-inter",
-	subsets: ["latin"],
-	display: "swap",
-})
-
-const oswald = Oswald({
-	variable: "--font-oswald",
-	subsets: ["latin"],
-	display: "swap",
-})
 
 export default async function RootLayout({
 	children,
@@ -39,6 +26,10 @@ export default async function RootLayout({
 					suppressHydrationWarning
 					dangerouslySetInnerHTML={{
 						__html: `
+					:root {
+						--font-inter: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+						--font-oswald: "Arial Narrow", "Helvetica Neue Condensed", "Franklin Gothic Medium", sans-serif;
+					}
 					#__preloader {
 						position: fixed;
 						inset: 0;
@@ -71,7 +62,7 @@ export default async function RootLayout({
 				/>
 			</head>
 
-			<body className={`${inter.variable} ${oswald.variable}`}>
+			<body>
 				<div id="__preloader" suppressHydrationWarning>
 					<div id="__preloader-logo">
 						<Image

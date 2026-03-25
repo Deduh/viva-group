@@ -108,13 +108,20 @@
 
 .buttonWrapper {
 	display: flex;
+	align-items: center;
+	gap: 1rem;
 	justify-content: flex-end;
 
-	width: 25.44rem;
+	width: auto;
 
 	@media (max-width: 768px) {
 		display: none;
 	}
+}
+
+.currencyWrap {
+	display: flex;
+	align-items: center;
 }
 
 .button {

@@ -32,6 +32,8 @@ export default function CharterBookingDetailPage() {
 		if (user && user.role !== "CLIENT") {
 			if (user.role === "ADMIN" || user.role === "MANAGER") {
 				router.push("/manager/flights")
+			} else if (user.role === "AGENT") {
+				router.push("/agent/flights")
 			}
 
 			return

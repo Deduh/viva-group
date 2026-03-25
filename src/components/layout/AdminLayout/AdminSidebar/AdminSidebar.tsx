@@ -3,6 +3,7 @@
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { useAuth } from "@/hooks/useAuth"
+import { AGENT_APPLICATION_PATH } from "@/lib/auth-redirect"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import {
@@ -17,13 +18,12 @@ import {
 import { signOut } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import s from "./AdminSidebar.module.scss"
 
 export function AdminSidebar() {
 	const pathname = usePathname()
-	const router = useRouter()
 	const { user } = useAuth()
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isMenuVisible, setIsMenuVisible] = useState(false)
@@ -50,6 +50,18 @@ export function AdminSidebar() {
 			icon: PlaneTakeoff,
 			roles: ["CLIENT"],
 		},
+		{
+			href: AGENT_APPLICATION_PATH,
+			label: "Заявка агента",
+			icon: Package,
+			roles: ["CLIENT"],
+		},
+		{
+			href: "/agent/flights",
+			label: "Агентские чартеры",
+			icon: PlaneTakeoff,
+			roles: ["AGENT"],
+		},
 		// Менеджер и Админ
 		{
 			href: "/manager/tours",
@@ -74,7 +86,7 @@ export function AdminSidebar() {
 			href: "/support",
 			label: "Поддержка",
 			icon: Headphones,
-			roles: ["CLIENT", "MANAGER", "ADMIN"],
+			roles: ["CLIENT", "AGENT", "MANAGER", "ADMIN"],
 		},
 		// Админ-панель (только для админа)
 		{
@@ -89,6 +101,18 @@ export function AdminSidebar() {
 			icon: UsersRound,
 			roles: ["ADMIN"],
 		},
+		{
+			href: "/admin/currency",
+			label: "Валюты",
+			icon: Package,
+			roles: ["ADMIN"],
+		},
+		{
+			href: "/admin/agent-applications",
+			label: "Заявки агентов",
+			icon: UsersRound,
+			roles: ["ADMIN"],
+		},
 	]
 
 	const filteredNavItems = navItems.filter(item =>
@@ -98,47 +122,29 @@ export function AdminSidebar() {
 	const { setIsTransitionComplete } = usePageTransition()
 
 	const handleSignOut = useCallback(
-		(e: React.MouseEvent<HTMLAnchorElement>) => {
+		async (e: React.MouseEvent<HTMLAnchorElement>) => {
 			e.preventDefault()
+			setIsMenuOpen(false)
+			setIsMenuVisible(false)
 
 			const container = document.getElementById("page-transition-container")
+			const columns = container?.querySelectorAll(`[data-transition-column]`)
 
-			if (!container) {
-				signOut({ redirect: false }).then(() => {
-					router.push("/login")
-				})
-
-				return
+			if (container && columns?.length) {
+				gsap.killTweensOf(columns)
+				gsap.set(columns, { yPercent: -100 })
+				container.style.pointerEvents = "none"
 			}
 
-			const columns = container.querySelectorAll(`[data-transition-column]`)
+			setIsTransitionComplete(true)
 
-			if (columns.length === 0) {
-				signOut({ redirect: false }).then(() => {
-					router.push("/login")
-				})
-
-				return
+			try {
+				await signOut({ redirect: false })
+			} finally {
+				window.location.assign("/login")
 			}
-
-			container.style.pointerEvents = "auto"
-
-			gsap.set(columns, { yPercent: -100 })
-
-			gsap.to(columns, {
-				yPercent: 0,
-				duration: 0.8,
-				stagger: 0.1,
-				ease: "power4.inOut",
-				onComplete: () => {
-					signOut({ redirect: false }).then(() => {
-						setIsTransitionComplete(false)
-						router.push("/login")
-					})
-				},
-			})
 		},
-		[setIsTransitionComplete, router],
+		[setIsTransitionComplete],
 	)
 
 	const handleOpenMenu = () => {

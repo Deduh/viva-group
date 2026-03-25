@@ -97,6 +97,8 @@ const PaymentStatusInputSchema = z.preprocess(value => {
 		: undefined
 }, PaymentStatusSchema.optional())
 
+const CurrencyCodeSchema = z.enum(["RUB", "USD", "EUR", "CNY"])
+
 const ParticipantSchema = z.object({
 	fullName: z.string(),
 	birthDate: z.string(),
@@ -123,9 +125,27 @@ const nullableDateSchema = z.preprocess(value => {
 	return value
 }, z.string().optional())
 
+const nullableStringSchema = z.preprocess(value => {
+	if (value === null || value === undefined) return undefined
+
+	return value
+}, z.string().optional())
+
+const nullToUndefined = <T>(val: T | null | undefined): T | undefined => {
+	return val ?? undefined
+}
+
 const fullDescriptionBlockSchema = z.object({
 	title: z.string().min(1, "Заголовок блока обязателен"),
 	items: z.array(z.string()).default([]),
+})
+
+const TourHotelSchema = z.object({
+	name: z.string().min(1, "Название отеля обязательно"),
+	stars: z.coerce.number().int().min(1).max(5),
+	note: nullableStringSchema.optional(),
+	basePrice: z.coerce.number().positive("Цена отеля должна быть положительной"),
+	baseCurrency: CurrencyCodeSchema.default("RUB"),
 })
 
 export const TourSchema = z.object({
@@ -135,6 +155,7 @@ export const TourSchema = z.object({
 	shortDescription: z.string().min(1, "Краткое описание обязательно"),
 	fullDescriptionBlocks: z.array(fullDescriptionBlockSchema).default([]),
 	price: z.coerce.number().positive("Цена должна быть положительным числом"),
+	baseCurrency: CurrencyCodeSchema.default("RUB"),
 	image: z
 		.string()
 		.min(1, "URL изображения обязателен")
@@ -147,6 +168,9 @@ export const TourSchema = z.object({
 		),
 	tags: stringArraySchema.default([]),
 	categories: stringArraySchema.default([]),
+	programText: nullableStringSchema.optional(),
+	hasHotelOptions: booleanLikeSchema.default(false),
+	hotels: z.array(TourHotelSchema).default([]),
 	dateFrom: nullableDateSchema.optional(),
 	dateTo: nullableDateSchema.optional(),
 	durationDays: optionalPositiveNumberSchema.optional(),
@@ -177,8 +201,49 @@ export const CharterFlightSchema = z.object({
 	hasBusinessClass: z.coerce.boolean(),
 	hasComfortClass: z.coerce.boolean(),
 	isActive: booleanLikeSchema.default(true),
+	price: optionalPositiveNumberSchema.optional(),
+	priceCurrency: CurrencyCodeSchema.optional(),
+	agentPrice: optionalPositiveNumberSchema.optional(),
+	agentCommission: optionalPositiveNumberSchema.optional(),
 	createdAt: z.iso.datetime().optional(),
 	updatedAt: z.iso.datetime().optional(),
+})
+
+const AgentApplicationStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED"])
+
+export const AgentApplicationSchema = z.object({
+	id: z.string().min(1, "ID заявки обязателен"),
+	userId: z.string().optional(),
+	email: z.email("Некорректный email адрес"),
+	name: z.string().nullable().optional().transform(nullToUndefined),
+	companyName: z.string().min(1, "Название компании обязательно"),
+	contactName: z.string().min(1, "Имя контактного лица обязательно"),
+	phone: z.string().min(1, "Телефон обязателен"),
+	website: z.string().nullable().optional().transform(nullToUndefined),
+	city: z.string().nullable().optional().transform(nullToUndefined),
+	comment: z.string().nullable().optional().transform(nullToUndefined),
+	status: AgentApplicationStatusSchema.default("PENDING"),
+	createdAt: z.iso.datetime("Некорректная дата создания"),
+	updatedAt: z.iso.datetime().nullable().optional().transform(nullToUndefined),
+	reviewedAt: z.iso.datetime().nullable().optional().transform(nullToUndefined),
+	reviewerName: z.string().nullable().optional().transform(nullToUndefined),
+	rejectionReason: z
+		.string()
+		.nullable()
+		.optional()
+		.transform(nullToUndefined),
+})
+
+const CurrencyRateSchema = z.object({
+	currency: CurrencyCodeSchema,
+	rate: z.coerce.number().positive("Курс должен быть положительным"),
+	markupPercent: z.coerce.number().min(0),
+})
+
+export const CurrencySettingsSchema = z.object({
+	baseCurrency: CurrencyCodeSchema.default("RUB"),
+	rates: z.array(CurrencyRateSchema).default([]),
+	updatedAt: z.string().default(() => new Date().toISOString()),
 })
 
 export const CharterBookingSchema = z.object({
@@ -201,10 +266,6 @@ export const CharterBookingSchema = z.object({
 	user: CharterBookingUserSchema.optional(),
 	flight: CharterFlightSchema.optional(),
 })
-
-const nullToUndefined = <T>(val: T | null | undefined): T | undefined => {
-	return val ?? undefined
-}
 
 export const BookingSchema = z.object({
 	id: z.string().min(1, "ID бронирования обязателен"),

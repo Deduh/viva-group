@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth"
+import type { JWT } from "next-auth/jwt"
 import Credentials from "next-auth/providers/credentials"
 
 import { env } from "./env/server"
@@ -59,10 +60,7 @@ const parseExpiresIn = (value?: string | number) => {
 	}
 }
 
-const refreshAccessToken = async (token: {
-	accessToken?: string
-	refreshToken?: string
-}) => {
+const refreshAccessToken = async (token: JWT): Promise<JWT> => {
 	if (!token.refreshToken) {
 		return { ...token, error: "MissingRefreshToken" }
 	}
@@ -86,6 +84,10 @@ const refreshAccessToken = async (token: {
 
 		return {
 			...token,
+			id: data.user.id ?? token.id,
+			email: data.user.email ?? token.email,
+			name: data.user.name ?? token.name,
+			role: data.user.role ?? token.role ?? "CLIENT",
 			accessToken: data.tokens.accessToken,
 			refreshToken: data.tokens.refreshToken,
 			accessTokenExpires: Date.now() + accessExpiresIn,
@@ -115,13 +117,33 @@ export const authOptions: NextAuthOptions = {
 			credentials: {
 				email: { label: "Email", type: "email" },
 				password: { label: "Password", type: "password" },
+				recaptchaToken: { label: "reCAPTCHA Token", type: "text" },
+				recaptchaAction: { label: "reCAPTCHA Action", type: "text" },
 			},
 			async authorize(credentials) {
 				if (!credentials?.email || !credentials.password) return null
 
+				const recaptchaToken =
+					typeof credentials.recaptchaToken === "string"
+						? credentials.recaptchaToken
+						: undefined
+				const recaptchaAction =
+					typeof credentials.recaptchaAction === "string"
+						? credentials.recaptchaAction
+						: undefined
+
 				const res = await fetch(`${apiBaseUrl}/auth/login`, {
 					method: "POST",
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						"Content-Type": "application/json",
+						...(recaptchaToken
+							? {
+									"X-Recaptcha-Token": recaptchaToken,
+									"X-Recaptcha-Action":
+										recaptchaAction || "login_submit",
+								}
+							: {}),
+					},
 					body: JSON.stringify({
 						email: credentials.email,
 						password: credentials.password,
@@ -148,9 +170,11 @@ export const authOptions: NextAuthOptions = {
 		}),
 	],
 	callbacks: {
-		async jwt({ token, user }) {
+		async jwt({ token, user, trigger }) {
 			if (user) {
 				token.id = user.id
+				token.email = user.email
+				token.name = user.name
 				token.role = (user as { role?: Role }).role ?? "CLIENT"
 				token.accessToken = (user as { accessToken?: string }).accessToken
 				token.refreshToken = (user as { refreshToken?: string }).refreshToken
@@ -166,6 +190,10 @@ export const authOptions: NextAuthOptions = {
 					Date.now() + (accessExpiresIn || ACCESS_TOKEN_FALLBACK_MS)
 				token.refreshTokenExpires =
 					Date.now() + (refreshExpiresIn || REFRESH_TOKEN_FALLBACK_MS)
+			}
+
+			if (trigger === "update") {
+				return refreshAccessToken(token)
 			}
 
 			if (
@@ -193,6 +221,8 @@ export const authOptions: NextAuthOptions = {
 		async session({ session, token }) {
 			if (session.user && token) {
 				;(session.user as { id?: string }).id = token.id as string
+				session.user.email = token.email as string
+				session.user.name = (token.name as string | null | undefined) ?? null
 				;(session.user as { role?: Role }).role =
 					(token.role as Role) ?? "CLIENT"
 			}

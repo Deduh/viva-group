@@ -38,6 +38,13 @@
 	letter-spacing: 0%;
 }
 
+.lead {
+	margin: 0;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.6rem;
+	line-height: 2.4rem;
+}
+
 .tagsList {
 	display: flex;
 	flex-wrap: wrap;
@@ -114,6 +121,45 @@
 	flex-direction: column;
 
 	gap: 1.2rem;
+}
+
+.sections {
+	display: flex;
+	flex-direction: column;
+	gap: 1.8rem;
+}
+
+.programPriceCard {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	padding: 1.8rem;
+	border-radius: 2rem;
+	background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(7, 89, 133, 0.96));
+	box-shadow: 0 1.6rem 3rem -2.2rem rgba(2, 6, 23, 0.8);
+}
+
+.programPriceLabel {
+	color: rgba(191, 219, 254, 0.85);
+	font-size: 1.2rem;
+	font-weight: 700;
+	line-height: 1.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.programPriceValue {
+	color: rgba(255, 255, 255, 1);
+	font-size: 3rem;
+	font-weight: 800;
+	line-height: 3.6rem;
+}
+
+.programPriceHint {
+	margin: 0;
+	color: rgba(226, 232, 240, 0.84);
+	font-size: 1.3rem;
+	line-height: 1.9rem;
 }
 
 .propertyBlock {
@@ -193,6 +239,11 @@
 		line-height: 2.8rem;
 	}
 
+	.lead {
+		font-size: 1.4rem;
+		line-height: 2rem;
+	}
+
 	.tagBadge {
 		font-size: 1.2rem;
 		line-height: 1.6rem;
@@ -206,6 +257,16 @@
 
 	.propertiesTitle {
 		font-size: 1.6rem;
+	}
+
+	.programPriceCard {
+		padding: 1.6rem;
+		border-radius: 1.6rem;
+	}
+
+	.programPriceValue {
+		font-size: 2.4rem;
+		line-height: 3rem;
 	}
 
 	.propertyItem {

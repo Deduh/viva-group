@@ -27,7 +27,7 @@ export default function ClientToursPage() {
 			return
 		}
 
-		if (session.user.role !== "CLIENT") {
+		if (session.user.role !== "CLIENT" && session.user.role !== "AGENT") {
 			if (session.user.role === "ADMIN") {
 				router.push("/manager/tours")
 			} else if (session.user.role === "MANAGER") {
@@ -46,7 +46,10 @@ export default function ClientToursPage() {
 		)
 	}
 
-	if (!session?.user || session.user.role !== "CLIENT") {
+	if (
+		!session?.user ||
+		(session.user.role !== "CLIENT" && session.user.role !== "AGENT")
+	) {
 		return (
 			<div className={s.shell}>
 				<LoadingSpinner fullScreen text="Перенаправление..." />

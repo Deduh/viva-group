@@ -1,14 +1,16 @@
 "use client"
 
 import { TransitionLink } from "@/components/ui/PageTransition"
-import { useAuth } from "@/hooks/useAuth"
-import { formatCurrency, formatDate } from "@/lib/format"
+import { useCurrency } from "@/context/CurrencyContext"
+import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getImageSizes,
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
+import { getPublicTourHref } from "@/lib/tours"
+import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
 import type { Tour } from "@/types"
 import { useGSAP } from "@gsap/react"
 import { EmblaOptionsType } from "embla-carousel"
@@ -32,16 +34,7 @@ interface EmblaCarouselProps {
 
 export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 	const [emblaRef, emblaApi] = useEmblaCarousel(options)
-	const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth()
-
-	const dashboardHref = (() => {
-		if (!isAuthLoading && !isAuthenticated) return "/login"
-
-		if (user?.role === "ADMIN" || user?.role === "MANAGER")
-			return "/manager/tours"
-
-		return "/client/tours"
-	})()
+	const { formatPrice } = useCurrency()
 
 	const containerRef = useRef(null)
 
@@ -93,7 +86,7 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 					{slides.map((item, index) => (
 						<div className={s.card} key={index}>
 							<TransitionLink
-								href={dashboardHref}
+								href={getPublicTourHref(item)}
 								className={s.cardInner}
 								data-embla-card-inner
 							>
@@ -122,6 +115,8 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 
 											<p className={s.text}>{item.shortDescription}</p>
 										</div>
+
+										<TourHotelPreview tour={item} />
 
 										<ul className={s.list}>
 											{item.tags.map((tag, index) => (
@@ -177,7 +172,7 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 											</span>
 
 											<span className={s.priceText}>
-												{formatCurrency(item.price)}
+												{formatPrice(item.price, item.baseCurrency)}
 											</span>
 										</div>
 

@@ -3,6 +3,7 @@
 import { SessionExpiryGuard } from "@/components/auth/SessionExpiryGuard/SessionExpiryGuard"
 import { PageTransition } from "@/components/ui/PageTransition/PageTransition"
 import { ClientPreloader } from "@/components/ui/Preloader/ClientPreloader"
+import { CurrencyProvider } from "@/context/CurrencyContext"
 import { PageTransitionProvider } from "@/context/PageTransitionContext"
 import { PreloaderProvider } from "@/context/PreloaderContext"
 import { queryClient } from "@/lib/query-client"
@@ -100,20 +101,22 @@ export function Providers({ children }: Props) {
 			<SessionExpiryGuard />
 
 			<QueryClientProvider client={queryClient}>
-				<PreloaderProvider>
-					<PageTransitionProvider>
-						<ClientPreloader />
-						<PageTransition />
+				<CurrencyProvider>
+					<PreloaderProvider>
+						<PageTransitionProvider>
+							<ClientPreloader />
+							<PageTransition />
 
-						{enableSmoothScroll ? (
-							<ReactLenis ref={lenisRef} root options={lenisOptions}>
-								{appContent}
-							</ReactLenis>
-						) : (
-							appContent
-						)}
-					</PageTransitionProvider>
-				</PreloaderProvider>
+							{enableSmoothScroll ? (
+								<ReactLenis ref={lenisRef} root options={lenisOptions}>
+									{appContent}
+								</ReactLenis>
+							) : (
+								appContent
+							)}
+						</PageTransitionProvider>
+					</PreloaderProvider>
+				</CurrencyProvider>
 			</QueryClientProvider>
 		</SessionProvider>
 	)

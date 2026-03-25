@@ -1,12 +1,15 @@
 "use client"
 
-import { formatCurrency, formatDate } from "@/lib/format"
+import { useCurrency } from "@/context/CurrencyContext"
+import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
+import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getImageSizes,
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
+import { getPublicTourHref } from "@/lib/tours"
 import type { Tour } from "@/types"
 import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
@@ -19,12 +22,12 @@ interface ToursSectionCardProps {
 }
 
 export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
+	const { formatPrice } = useCurrency()
 	const isAvailable = tour.available !== false
-	const tourSlug = tour.publicId ?? tour.id
 
 	return (
 		<Link
-			href={`/client/tours/tour/${tourSlug}`}
+			href={getPublicTourHref(tour)}
 			className={`${s.tourCard} ${!isAvailable ? s.tourCardUnavailable : ""}`}
 		>
 			<div className={s.cardImage}>
@@ -52,6 +55,8 @@ export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 
 						<p className={s.text}>{tour.shortDescription}</p>
 					</div>
+
+					<TourHotelPreview tour={tour} />
 
 					<ul className={s.list}>
 						{tour.tags.map((tag, index) => (
@@ -96,7 +101,9 @@ export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 					<div className={s.price}>
 						<span className={s.pricePlaceholder}>Цена за человека</span>
 
-						<span className={s.priceText}>{formatCurrency(tour.price)}</span>
+						<span className={s.priceText}>
+							{formatPrice(tour.price, tour.baseCurrency)}
+						</span>
 					</div>
 
 					<button className={s.bottomButton}>Подробнее</button>

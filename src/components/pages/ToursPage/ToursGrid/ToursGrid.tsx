@@ -2,14 +2,16 @@
 
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { TransitionLink } from "@/components/ui/PageTransition"
-import { useAuth } from "@/hooks/useAuth"
-import { formatCurrency, formatDate } from "@/lib/format"
+import { useCurrency } from "@/context/CurrencyContext"
+import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
+import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getImageSizes,
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
+import { getPublicTourHref } from "@/lib/tours"
 import type { Tour } from "@/types"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
@@ -29,16 +31,7 @@ interface ToursGridProps {
 export const ToursGrid = memo(
 	function ToursGrid({ tours, isLoading = false }: ToursGridProps) {
 		const gridRef = useRef<HTMLDivElement>(null)
-		const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth()
-
-		const dashboardHref = (() => {
-			if (!isAuthLoading && !isAuthenticated) return "/login"
-
-			if (user?.role === "ADMIN" || user?.role === "MANAGER")
-				return "/manager/tours"
-
-			return "/client/tours"
-		})()
+		const { formatPrice } = useCurrency()
 
 		useGSAP(
 			() => {
@@ -107,7 +100,7 @@ export const ToursGrid = memo(
 					return (
 						<TransitionLink
 							key={tour.id}
-							href={dashboardHref}
+							href={getPublicTourHref(tour)}
 							className={`${s.card} ${!isAvailable ? s.cardUnavailable : ""}`}
 							data-tours-grid-card
 						>
@@ -136,6 +129,8 @@ export const ToursGrid = memo(
 
 										<p className={s.text}>{tour.shortDescription}</p>
 									</div>
+
+									<TourHotelPreview tour={tour} />
 
 									<ul className={s.list}>
 										{tour.tags.map((tag, index) => (
@@ -189,7 +184,7 @@ export const ToursGrid = memo(
 										<span className={s.pricePlaceholder}>Цена за человека</span>
 
 										<span className={s.priceText}>
-											{formatCurrency(tour.price)}
+											{formatPrice(tour.price, tour.baseCurrency)}
 										</span>
 									</div>
 

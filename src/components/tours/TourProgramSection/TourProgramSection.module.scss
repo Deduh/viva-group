@@ -1,0 +1,118 @@
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 1.8rem;
+	padding: 2rem;
+	border-radius: 2.4rem;
+	background: linear-gradient(180deg, rgba(247, 250, 252, 1), rgba(240, 249, 255, 0.92));
+	border: 0.1rem solid rgba(125, 211, 252, 0.32);
+}
+
+.header {
+	display: flex;
+	align-items: flex-start;
+	gap: 1.2rem;
+}
+
+.iconWrap {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 4rem;
+	height: 4rem;
+	border-radius: 1.4rem;
+	background: rgba(14, 165, 233, 0.12);
+	color: rgba(3, 105, 161, 1);
+}
+
+.title {
+	margin: 0;
+	color: rgba(15, 23, 42, 1);
+	font-size: 2rem;
+	font-weight: 700;
+	line-height: 2.6rem;
+}
+
+.text {
+	margin: 0.4rem 0 0;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+	line-height: 2rem;
+}
+
+.daysGrid,
+.fallbackList {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+	gap: 1.2rem;
+}
+
+.dayCard,
+.fallbackCard {
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+	padding: 1.6rem;
+	border-radius: 1.8rem;
+	background: rgba(255, 255, 255, 0.82);
+	border: 0.1rem solid rgba(226, 232, 240, 1);
+	box-shadow: 0 1.2rem 2.8rem -2.2rem rgba(15, 23, 42, 0.45);
+}
+
+.dayTop {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.dayTitle,
+.fallbackTitle {
+	margin: 0;
+	color: rgba(15, 23, 42, 1);
+	font-size: 1.7rem;
+	font-weight: 700;
+	line-height: 2.2rem;
+}
+
+.daySubtitle {
+	margin: 0;
+	color: rgba(7, 82, 92, 1);
+	font-size: 1.4rem;
+	font-weight: 600;
+	line-height: 2rem;
+}
+
+.items {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.item {
+	position: relative;
+	padding-left: 1.4rem;
+	color: rgba(51, 65, 85, 1);
+	font-size: 1.4rem;
+	line-height: 2rem;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0.8rem;
+		left: 0;
+		width: 0.6rem;
+		height: 0.6rem;
+		border-radius: 50%;
+		background: rgba(14, 165, 233, 1);
+	}
+}
+
+@media (max-width: 768px) {
+	.section {
+		padding: 1.6rem;
+		border-radius: 1.8rem;
+	}
+}

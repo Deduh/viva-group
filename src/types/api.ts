@@ -6,6 +6,16 @@ export type FullDescriptionBlock = {
 	items: string[]
 }
 
+export type CurrencyCode = "RUB" | "USD" | "EUR" | "CNY"
+
+export type TourHotel = {
+	name: string
+	stars: number
+	note?: string
+	basePrice: number
+	baseCurrency: CurrencyCode
+}
+
 export type Tour = {
 	id: string
 	publicId?: string // Публичный ID тура
@@ -13,9 +23,13 @@ export type Tour = {
 	shortDescription: string // Краткое описание тура
 	fullDescriptionBlocks: FullDescriptionBlock[] // Полное описание тура (блоки)
 	price: number // Цена тура в рублях
+	baseCurrency?: CurrencyCode // Базовая валюта цены тура
 	image: string // URL изображения тура
 	tags: string[] // Визуальные теги тура
 	categories: string[] // Категории для фильтрации
+	programText?: string // Программа тура в свободном текстовом виде
+	hasHotelOptions?: boolean // Есть ли список отелей на выбор
+	hotels: TourHotel[] // Доступные отели по программе
 	dateFrom?: string // Дата начала тура
 	dateTo?: string // Дата окончания тура
 	durationDays?: number // Длительность в днях
@@ -73,6 +87,62 @@ export type User = {
 	invitedAt?: string | null // Дата приглашения
 	invitedBy?: string | null // Кто пригласил
 	password?: string | null // Текущий пароль (для внутренних сценариев)
+}
+
+export type CurrencyRate = {
+	currency: CurrencyCode
+	rate: number
+	markupPercent: number
+}
+
+export type CurrencySettings = {
+	baseCurrency: CurrencyCode
+	rates: CurrencyRate[]
+	updatedAt: string
+}
+
+export type CurrencySettingsUpdateInput = {
+	baseCurrency: CurrencyCode
+	rates: CurrencyRate[]
+}
+
+export type AgentApplicationStatus =
+	| "PENDING"
+	| "APPROVED"
+	| "REJECTED"
+
+export type AgentApplication = {
+	id: string
+	userId?: string
+	email: string
+	name?: string
+	companyName: string
+	contactName: string
+	phone: string
+	website?: string
+	city?: string
+	comment?: string
+	status: AgentApplicationStatus
+	createdAt: string
+	updatedAt?: string
+	reviewedAt?: string
+	reviewerName?: string
+	rejectionReason?: string
+}
+
+export type CreateAgentApplicationInput = {
+	companyName: string
+	contactName: string
+	email: string
+	phone: string
+	website?: string
+	city?: string
+	comment?: string
+}
+
+export type UpdateAgentApplicationStatusInput = {
+	status: Exclude<AgentApplicationStatus, "PENDING">
+	rejectionReason?: string
 }
 
 export type ManagerStatus = "active" | "blocked"
@@ -139,6 +209,10 @@ export type CharterFlight = {
 	hasBusinessClass: boolean
 	hasComfortClass: boolean
 	isActive: boolean
+	price?: number
+	priceCurrency?: CurrencyCode
+	agentPrice?: number
+	agentCommission?: number
 	createdAt?: string
 	updatedAt?: string
 }

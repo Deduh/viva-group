@@ -1,24 +1,35 @@
 import {
+	agentApplicationCreateSchema,
+	agentApplicationStatusUpdateSchema,
 	bookingStatusUpdateSchema,
+	currencySettingsUpdateSchema,
 	tourCreateInputSchema,
 	tourUpdateInputSchema,
+	type AgentApplicationCreateInput,
+	type AgentApplicationStatusUpdateInput,
 	type BookingStatusUpdateInput,
+	type CurrencySettingsUpdateSchemaInput,
 	type TourCreateInput,
 	type TourUpdateInput,
 } from "@/lib/validation"
 import type {
 	ApiCollection,
+	AgentApplication,
 	Booking,
 	CharterBooking,
 	CharterBookingsFilters,
 	CharterFlight,
 	CharterFlightsFilters,
+	CreateAgentApplicationInput,
 	CreateBookingInput,
 	CreateCharterBookingInput,
 	CreateCharterFlightInput,
 	CreateManagerInput,
+	CurrencySettings,
+	CurrencySettingsUpdateInput,
 	Message,
 	Tour,
+	UpdateAgentApplicationStatusInput,
 	UpdateBookingInput,
 	UpdateCharterFlightInput,
 	UpdateManagerInput,
@@ -34,24 +45,29 @@ import type {
 import { z } from "zod"
 import {
 	ApiCollectionSchema,
+	AgentApplicationSchema,
 	BookingSchema,
 	CharterBookingSchema,
 	CharterFlightSchema,
+	CurrencySettingsSchema,
 	MessageSchema,
 	TourSchema,
 	UserSchema,
 } from "./api-schemas"
 import { env as publicEnv } from "./env/client"
 import { ApiError, NetworkError, ValidationError } from "./errors"
+import { getRecaptchaHeaders, RECAPTCHA_ACTIONS } from "./recaptcha"
 import { normalizeImageUrl } from "./url"
 
 const apiBaseUrl =
 	typeof window === "undefined"
 		? publicEnv.NEXT_PUBLIC_API_URL ||
+			process.env.AUTH_API_URL ||
+			process.env.NEXT_PUBLIC_API_URL ||
 			process.env.APP_URL ||
 			process.env.NEXTAUTH_URL ||
 			"http://localhost:3000"
-		: process.env.NEXT_PUBLIC_API_URL || ""
+		: publicEnv.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL || ""
 
 const REQUEST_TIMEOUT = 30000 // 30 секунд
 
@@ -203,6 +219,25 @@ async function fetchAndValidate<
 
 		throw error
 	}
+}
+
+async function buildHeaders(
+	headers?: HeadersInit,
+	recaptchaAction?: keyof typeof RECAPTCHA_ACTIONS,
+) {
+	const merged = new Headers(headers)
+
+	if (recaptchaAction && typeof window !== "undefined") {
+		const recaptchaHeaders = await getRecaptchaHeaders(
+			RECAPTCHA_ACTIONS[recaptchaAction],
+		)
+
+		Object.entries(recaptchaHeaders).forEach(([key, value]) => {
+			merged.set(key, value)
+		})
+	}
+
+	return merged
 }
 
 type RawGroupTransportSegment = Record<string, unknown>
@@ -441,9 +476,14 @@ export const api = {
 	subscribeMailing: async (input: {
 		email: string
 	}): Promise<{ ok: boolean }> => {
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"MAILING",
+		)
+
 		return fetchJson<{ ok: boolean }>("/api/mailing/subscribe", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers,
 			body: JSON.stringify(input),
 		})
 	},
@@ -453,9 +493,14 @@ export const api = {
 		phone?: string
 		message: string
 	}): Promise<{ ok: boolean }> => {
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"CONTACT",
+		)
+
 		return fetchJson<{ ok: boolean }>("/api/contacts", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers,
 			body: JSON.stringify(input),
 		})
 	},
@@ -465,9 +510,14 @@ export const api = {
 		password: string
 		phone?: string
 	}): Promise<AuthResponse> => {
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"REGISTER",
+		)
+
 		return fetchJson<AuthResponse>("/auth/register", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers,
 			body: JSON.stringify(input),
 		})
 	},
@@ -482,6 +532,70 @@ export const api = {
 		return fetchAndValidate<ApiCollection<User>>(
 			"/api/admin/managers",
 			ApiCollectionSchema(UserSchema),
+		)
+	},
+	getCurrencySettings: async (): Promise<CurrencySettings> => {
+		return fetchAndValidate<CurrencySettings>(
+			"/api/admin/currency-settings",
+			CurrencySettingsSchema,
+		)
+	},
+	updateCurrencySettings: async (
+		input: CurrencySettingsUpdateInput | CurrencySettingsUpdateSchemaInput,
+	): Promise<CurrencySettings> => {
+		const payload = currencySettingsUpdateSchema.parse(input)
+
+		return fetchAndValidate<CurrencySettings>(
+			"/api/admin/currency-settings",
+			CurrencySettingsSchema,
+			{
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			},
+		)
+	},
+	getAgentApplications: async (): Promise<ApiCollection<AgentApplication>> => {
+		return fetchAndValidate<ApiCollection<AgentApplication>>(
+			"/api/admin/agent-applications",
+			ApiCollectionSchema(AgentApplicationSchema),
+		)
+	},
+	createAgentApplication: async (
+		input: CreateAgentApplicationInput | AgentApplicationCreateInput,
+	): Promise<AgentApplication> => {
+		const payload = agentApplicationCreateSchema.parse(input)
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"AGENT_APPLICATION",
+		)
+
+		return fetchAndValidate<AgentApplication>(
+			"/api/agent-applications",
+			AgentApplicationSchema,
+			{
+				method: "POST",
+				headers,
+				body: JSON.stringify(payload),
+			},
+		)
+	},
+	updateAgentApplicationStatus: async (
+		id: string,
+		input:
+			| UpdateAgentApplicationStatusInput
+			| AgentApplicationStatusUpdateInput,
+	): Promise<AgentApplication> => {
+		const payload = agentApplicationStatusUpdateSchema.parse(input)
+
+		return fetchAndValidate<AgentApplication>(
+			`/api/admin/agent-applications/${id}`,
+			AgentApplicationSchema,
+			{
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			},
 		)
 	},
 	uploadTourImage: async (file: File): Promise<{ url: string }> => {
@@ -536,6 +650,14 @@ export const api = {
 			ApiCollectionSchema(CharterFlightSchema),
 		)
 	},
+	getAgentCharterFlights: (filters: CharterFlightsFilters = {}) => {
+		const query = toQueryString(filters as Record<string, unknown>)
+
+		return fetchAndValidate<ApiCollection<CharterFlight>>(
+			`/api/charter/flights/agent${query}`,
+			ApiCollectionSchema(CharterFlightSchema),
+		)
+	},
 	getAllCharterFlights: async (
 		filters: Omit<CharterFlightsFilters, "page" | "limit"> = {},
 	): Promise<CharterFlight[]> => {
@@ -550,6 +672,45 @@ export const api = {
 				Array.from({ length: totalPages - 1 }, (_, idx) => {
 					const page = idx + 2
 					return api.getCharterFlights({ ...filters, page, limit })
+				}),
+			)
+
+			for (const pageData of rest) {
+				items.push(...(pageData.items || []))
+			}
+
+			return items
+		}
+
+		try {
+			return await loadWithLimit(50)
+		} catch (e) {
+			if (e instanceof ValidationError) {
+				return loadWithLimit(20)
+			}
+
+			throw e
+		}
+	},
+	getAllAgentCharterFlights: async (
+		filters: Omit<CharterFlightsFilters, "page" | "limit"> = {},
+	): Promise<CharterFlight[]> => {
+		const loadWithLimit = async (limit: number) => {
+			const first = await api.getAgentCharterFlights({
+				...filters,
+				page: 1,
+				limit,
+			})
+			const items: CharterFlight[] = [...(first.items || [])]
+			const totalPages = first.pagination?.totalPages || 1
+
+			if (totalPages <= 1) return items
+
+			const rest = await Promise.all(
+				Array.from({ length: totalPages - 1 }, (_, idx) => {
+					const page = idx + 2
+
+					return api.getAgentCharterFlights({ ...filters, page, limit })
 				}),
 			)
 
@@ -628,6 +789,7 @@ export const api = {
 			CharterBookingSchema,
 		),
 	createCharterBooking: (data: CreateCharterBookingInput) => {
+		return (async () => {
 		const tripType = data.tripType ?? "ROUND_TRIP"
 		const payload: Record<string, unknown> = {
 			flightId: data.flightId,
@@ -641,12 +803,17 @@ export const api = {
 			payload.dateTo = toDateOnly(data.dateTo)
 		}
 
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"CHARTER_BOOKING",
+		)
+
 		return fetchAndValidate<CharterBooking>(
 			"/api/charter/bookings",
 			CharterBookingSchema,
 			{
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers,
 				body: JSON.stringify(payload),
 			},
 		).catch(error => {
@@ -696,6 +863,7 @@ export const api = {
 
 			throw error
 		})
+		})()
 	},
 	updateCharterBookingStatus: (
 		id: string,
@@ -742,12 +910,16 @@ export const api = {
 			note: data.note?.trim() || undefined,
 			segments: data.segments.map(serializeGroupTransportSegment),
 		}
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"GROUP_TRANSPORT_BOOKING",
+		)
 
 		const raw = await fetchJson<Record<string, unknown>>(
 			"/api/group-transport/bookings",
 			{
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers,
 				body: JSON.stringify(payload),
 			},
 		)
@@ -918,9 +1090,14 @@ export const api = {
 		)
 	},
 	createBooking: async (data: CreateBookingInput) => {
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"TOUR_BOOKING",
+		)
+
 		return fetchJson<Booking>("/api/bookings", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers,
 			body: JSON.stringify(data),
 		})
 	},

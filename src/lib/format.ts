@@ -33,6 +33,13 @@ export function formatCurrency(
 	}).format(value)
 }
 
+export function formatPercent(value: number, locale = "ru-RU") {
+	return new Intl.NumberFormat(locale, {
+		style: "percent",
+		maximumFractionDigits: 1,
+	}).format(value / 100)
+}
+
 function formatRuPhoneNumber(digits: string) {
 	let normalized = digits
 

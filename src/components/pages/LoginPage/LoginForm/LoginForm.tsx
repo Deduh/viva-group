@@ -4,6 +4,11 @@ import { Input } from "@/components/ui/Form/Input/Input"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { useToast } from "@/hooks/useToast"
+import {
+	getPostAuthTarget,
+	resolveSafeCallbackPath,
+} from "@/lib/auth-redirect"
+import { executeRecaptcha, RECAPTCHA_ACTIONS } from "@/lib/recaptcha"
 import { loginSchema, type LoginInput } from "@/lib/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import gsap from "gsap"
@@ -69,26 +74,19 @@ export function LoginForm() {
 	})
 
 	const onSubmit = async (data: LoginInput) => {
-		const resolvedCallbackUrl = (() => {
-			if (!callbackUrlParam) return null
-
-			try {
-				const resolved = new URL(callbackUrlParam, window.location.origin)
-
-				if (resolved.origin !== window.location.origin) {
-					return null
-				}
-
-				return `${resolved.pathname}${resolved.search}${resolved.hash}`
-			} catch {
-				return null
-			}
-		})()
+		const resolvedCallbackUrl = resolveSafeCallbackPath(
+			callbackUrlParam,
+			window.location.origin,
+		)
 
 		try {
+			const recaptchaToken = await executeRecaptcha(RECAPTCHA_ACTIONS.LOGIN)
+
 			const res = await signIn("credentials", {
 				email: data.email,
 				password: data.password,
+				recaptchaToken,
+				recaptchaAction: RECAPTCHA_ACTIONS.LOGIN,
 				redirect: false,
 				callbackUrl: resolvedCallbackUrl ?? undefined,
 			})
@@ -109,33 +107,14 @@ export function LoginForm() {
 
 			const session = await getSession()
 			const role = session?.user?.role
-
-			const roleFallback =
-				role === "ADMIN"
-					? "/manager/tours"
-					: role === "MANAGER"
-						? "/manager/tours"
-						: "/client/tours"
-
-			const callbackPath = res.url || resolvedCallbackUrl
-
-			const callbackAllowed = (() => {
-				if (!callbackPath || !role) return false
-
-				if (callbackPath.startsWith("/admin")) return role === "ADMIN"
-
-				if (callbackPath.startsWith("/manager"))
-					return role === "ADMIN" || role === "MANAGER"
-
-				if (callbackPath.startsWith("/client")) return role === "CLIENT"
-
-				return true
-			})()
-
+			const callbackPath = resolveSafeCallbackPath(
+				res?.url || resolvedCallbackUrl,
+				window.location.origin,
+			)
 			const targetUrl =
-				hasCallbackUrl && callbackAllowed && callbackPath
-					? callbackPath
-					: roleFallback
+				hasCallbackUrl && role
+					? getPostAuthTarget(role, callbackPath)
+					: getPostAuthTarget(role, null)
 
 			const container = document.getElementById("page-transition-container")
 

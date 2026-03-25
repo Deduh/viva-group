@@ -36,6 +36,35 @@
 	}
 }
 
+.selectWrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+}
+
+.selectLabel {
+	font-size: 1.4rem;
+	font-weight: 600;
+	color: #0f172a;
+}
+
+.nativeSelect {
+	min-height: 4.8rem;
+	padding: 0 1.2rem;
+	border-radius: 1.2rem;
+	border: 1px solid rgba(203, 213, 225, 1);
+	background: #ffffff;
+	font-size: 1.4rem;
+	color: #0f172a;
+}
+
+.helperText {
+	margin: 0;
+	font-size: 1.3rem;
+	line-height: 1.8rem;
+	color: rgba(71, 85, 105, 1);
+}
+
 .switch {
 	display: inline-flex;
 	align-items: center;
@@ -124,6 +153,20 @@
 	&:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+	}
+}
+
+.spin {
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
 	}
 }
 
@@ -380,6 +423,56 @@
 	}
 }
 
+.hotelList {
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+}
+
+.hotelCard {
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+	padding: 1.4rem;
+	border-radius: 1.2rem;
+	border: 1px solid rgba(226, 232, 240, 1);
+	background: #ffffff;
+	box-shadow: 0 1.2rem 2.4rem -1.8rem rgba(15, 23, 42, 0.25);
+}
+
+.hotelCardHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.hotelCardTitle {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 800;
+	color: rgba(7, 151, 166, 1);
+}
+
+.hotelGrid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.removeHotelButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3.2rem;
+	height: 3.2rem;
+	border-radius: 0.8rem;
+	border: 1px solid rgba(254, 202, 202, 1);
+	background: rgba(254, 242, 242, 1);
+	color: rgba(220, 38, 38, 1);
+	cursor: pointer;
+}
+
 .actions {
 	display: flex;
 	gap: 1.2rem;
@@ -520,6 +613,10 @@
 	.addItemButton {
 		width: 100%;
 		justify-content: center;
+	}
+
+	.hotelGrid {
+		grid-template-columns: 1fr;
 	}
 
 	.cancelButton,

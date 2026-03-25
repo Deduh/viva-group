@@ -18,8 +18,15 @@ export function SessionExpiryGuard() {
 
 		signOutInFlightRef.current = true
 
+		const container = document.getElementById("page-transition-container")
+		const columns = container?.querySelectorAll(`[data-transition-column]`)
+
+		if (container && columns?.length) {
+			container.style.pointerEvents = "none"
+		}
+
 		signOut({ redirect: false }).finally(() => {
-			window.location.href = AUTH_ROUTES.has(pathname) ? pathname : "/login"
+			window.location.replace(AUTH_ROUTES.has(pathname) ? pathname : "/login")
 		})
 	}, [pathname, session?.error, status])
 

@@ -42,7 +42,7 @@ export default function RegisterPage() {
 	)
 
 	return (
-		<PublicWrapper>
+		<PublicWrapper headerOffsetMode="padding">
 			<div ref={containerRef} className={styles.page}>
 				<Suspense fallback={null}>
 					<RegisterForm />

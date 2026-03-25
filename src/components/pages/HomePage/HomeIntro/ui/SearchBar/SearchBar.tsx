@@ -13,7 +13,7 @@ const CALLBACK_URL = "/flights/continue"
 
 export function SearchBar() {
 	const router = useRouter()
-	const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
+	const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth()
 	const { setIsTransitionComplete } = usePageTransition()
 	const { flights, isLoading, error } = useAllCharterFlights({ enabled: true })
 
@@ -35,6 +35,12 @@ export function SearchBar() {
 		}
 
 		saveCharterDraft(payload)
+
+		if (user?.role === "AGENT") {
+			navigateWithTransition(router, "/agent/flights", setIsTransitionComplete)
+
+			return
+		}
 
 		if (!isAuthenticated) {
 			navigateWithTransition(

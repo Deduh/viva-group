@@ -1,5 +1,8 @@
 "use client"
 
+import { CurrencySelector } from "@/components/currency/CurrencySelector/CurrencySelector"
+import { CurrencyTicker } from "@/components/currency/CurrencyTicker/CurrencyTicker"
+import { TransitionLink } from "@/components/ui/PageTransition"
 import { StickyHeroSection } from "@/components/ui/StickyHeroSection"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { usePreloader } from "@/context/PreloaderContext"
@@ -11,7 +14,6 @@ import { SearchBar } from "./ui/SearchBar/SearchBar"
 
 export function HomeIntro() {
 	const titleRef = useRef<HTMLHeadingElement>(null)
-	const textRef = useRef<HTMLParagraphElement>(null)
 	const searchWrapperRef = useRef<HTMLDivElement>(null)
 
 	const { isLoaded } = usePreloader()
@@ -19,15 +21,10 @@ export function HomeIntro() {
 
 	useLayoutEffect(() => {
 		const title = titleRef.current
-		const text = textRef.current
 		const searchWrapper = searchWrapperRef.current
 
 		if (title) {
 			gsap.set(title, { y: 100, opacity: 0 })
-		}
-
-		if (text) {
-			gsap.set(text, { y: 50, opacity: 0 })
 		}
 
 		if (searchWrapper) {
@@ -37,10 +34,6 @@ export function HomeIntro() {
 		return () => {
 			if (title) {
 				gsap.set(title, { clearProps: "all" })
-			}
-
-			if (text) {
-				gsap.set(text, { clearProps: "all" })
 			}
 
 			if (searchWrapper) {
@@ -53,8 +46,7 @@ export function HomeIntro() {
 		() => {
 			if (!isLoaded || !isTransitionComplete) return
 
-			if (!titleRef.current || !textRef.current || !searchWrapperRef.current)
-				return
+			if (!titleRef.current || !searchWrapperRef.current) return
 
 			const tlIntro = gsap.timeline()
 
@@ -67,17 +59,6 @@ export function HomeIntro() {
 					clearProps: "y",
 				})
 				.to(
-					textRef.current,
-					{
-						y: 0,
-						opacity: 1,
-						duration: 1,
-						ease: "power3.out",
-						clearProps: "y",
-					},
-					"-=1",
-				)
-				.to(
 					searchWrapperRef.current,
 					{
 						y: 0,
@@ -86,7 +67,7 @@ export function HomeIntro() {
 						ease: "power3.out",
 						clearProps: "y",
 					},
-					"-=0.8",
+					"-=0.85",
 				)
 
 			return () => {
@@ -105,14 +86,23 @@ export function HomeIntro() {
 					<h1 ref={titleRef} className={s.title}>
 						ADVENTURE
 					</h1>
-
-					<p ref={textRef} className={s.text}>
-						Путешествуйте вместе с Вива Тур и открывайте для себя самые лучшие
-						направления по самым лучшим ценам!
-					</p>
 				</div>
 
 				<div ref={searchWrapperRef} className={s.searchWrapper}>
+					<div className={s.toolsRow}>
+						<CurrencyTicker />
+
+						<div className={s.toolsFooter}>
+							<div className={s.currencySlot}>
+								<CurrencySelector compact />
+							</div>
+
+							<TransitionLink href="/for-agents" className={s.agentBadge}>
+								Для турагентов
+							</TransitionLink>
+						</div>
+					</div>
+
 					<SearchBar />
 				</div>
 			</div>

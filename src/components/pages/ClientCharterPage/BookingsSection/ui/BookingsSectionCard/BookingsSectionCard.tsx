@@ -6,6 +6,7 @@ import {
 	normalizeCharterTripType,
 } from "@/lib/charter-trip-type"
 import { formatDate } from "@/lib/format"
+import { useAuth } from "@/hooks/useAuth"
 import type { CharterBooking } from "@/types"
 import Link from "next/link"
 import s from "./BookingsSectionCard.module.scss"
@@ -15,6 +16,7 @@ interface BookingsSectionCardProps {
 }
 
 export function BookingsSectionCard({ booking }: BookingsSectionCardProps) {
+	const { user } = useAuth()
 	const displayBookingId = booking.publicId ?? booking.id
 	const from = booking.flight?.from || booking.from || "Не указано"
 	const to = booking.flight?.to || booking.to || "Не указано"
@@ -33,7 +35,7 @@ export function BookingsSectionCard({ booking }: BookingsSectionCardProps) {
 
 	return (
 		<Link
-			href={`/client/flights/booking/${displayBookingId}`}
+			href={`/${user?.role === "AGENT" ? "agent" : "client"}/flights/booking/${displayBookingId}`}
 			className={s.bookingCard}
 		>
 			<div className={s.bookingInfo}>

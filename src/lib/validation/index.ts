@@ -1,3 +1,4 @@
+export * from "./agent"
 export * from "./auth"
 export * from "./booking"
 export {
@@ -8,4 +9,5 @@ export * from "./charter"
 export * from "./charter-flights-search"
 export * from "./charter-flight"
 export * from "./contact"
+export * from "./currency"
 export * from "./tour"

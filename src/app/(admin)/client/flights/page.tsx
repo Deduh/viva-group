@@ -28,6 +28,8 @@ export default function ClientCharterPage() {
 		if (session.user.role !== "CLIENT") {
 			if (session.user.role === "ADMIN" || session.user.role === "MANAGER") {
 				router.push("/manager/flights")
+			} else if (session.user.role === "AGENT") {
+				router.push("/agent/flights")
 			}
 
 			return

@@ -2,6 +2,7 @@
 
 import { BookingChat } from "@/components/bookings/BookingChat/BookingChat"
 import { BackButton } from "@/components/ui/BackButton/BackButton"
+import { useCurrency } from "@/context/CurrencyContext"
 import { ErrorMessage } from "@/components/ui/ErrorMessage/ErrorMessage"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { useAuth } from "@/hooks/useAuth"
@@ -11,7 +12,7 @@ import {
 	BOOKING_STATUS_COLOR,
 	BOOKING_STATUS_LABEL,
 } from "@/lib/booking-status"
-import { formatCurrency, formatDate } from "@/lib/format"
+import { formatDate } from "@/lib/format"
 import type { Booking } from "@/types"
 import { BookingStatus } from "@/types/enums"
 import { useGSAP } from "@gsap/react"
@@ -35,6 +36,7 @@ interface ManagerBookingDetailProps {
 
 export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 	const { user } = useAuth()
+	const { formatPrice } = useCurrency()
 	const [currentBooking, setCurrentBooking] = useState<Booking>(booking)
 	const updateStatus = useUpdateBookingStatus()
 	const displayBookingId = currentBooking.publicId ?? currentBooking.id
@@ -246,7 +248,10 @@ export function ManagerBookingDetail({ booking }: ManagerBookingDetailProps) {
 
 								<div className={s.tourMeta}>
 									<span className={s.tourPrice}>
-										{formatCurrency(tourQuery.data.price)}
+										{formatPrice(
+											tourQuery.data.price,
+											tourQuery.data.baseCurrency,
+										)}
 									</span>
 								</div>
 							</div>

@@ -1,6 +1,7 @@
 "use client"
 
-import { formatCurrency, formatDate } from "@/lib/format"
+import { useCurrency } from "@/context/CurrencyContext"
+import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getImageSizes,
@@ -25,6 +26,8 @@ export function AdminTourCard({
 	onEdit,
 	onDelete,
 }: AdminTourCardProps) {
+	const { formatPrice } = useCurrency()
+
 	return (
 		<div className={s.tourCard}>
 			<div className={s.cardImage}>
@@ -100,7 +103,9 @@ export function AdminTourCard({
 					<div className={s.price}>
 						<span className={s.pricePlaceholder}>Цена за человека</span>
 
-						<span className={s.priceText}>{formatCurrency(tour.price)}</span>
+						<span className={s.priceText}>
+							{formatPrice(tour.price, tour.baseCurrency)}
+						</span>
 					</div>
 
 					<div className={s.actions}>

@@ -5,11 +5,16 @@ import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { useToast } from "@/hooks/useToast"
 import { api } from "@/lib/api"
+import {
+	getPostAuthTarget,
+	resolveSafeCallbackPath,
+} from "@/lib/auth-redirect"
+import { executeRecaptcha, RECAPTCHA_ACTIONS } from "@/lib/recaptcha"
 import { registerSchema, type RegisterInput } from "@/lib/validation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import gsap from "gsap"
 import { Eye, EyeOff } from "lucide-react"
-import { signIn } from "next-auth/react"
+import { getSession, signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useLayoutEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -18,7 +23,12 @@ import s from "./RegisterForm.module.scss"
 export function RegisterForm() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
-	const callbackUrl = searchParams.get("callbackUrl") || "/client/tours"
+	const callbackUrlParam = searchParams.get("callbackUrl")
+	const callbackUrl =
+		resolveSafeCallbackPath(
+			callbackUrlParam,
+			typeof window === "undefined" ? "http://localhost:3001" : window.location.origin,
+		) || "/client/tours"
 	const { showError, showSuccess } = useToast()
 	const { setIsTransitionComplete } = usePageTransition()
 	const cardRef = useRef<HTMLDivElement>(null)
@@ -81,9 +91,15 @@ export function RegisterForm() {
 
 			showSuccess("Регистрация успешна! Входим...")
 
+			const loginRecaptchaToken = await executeRecaptcha(
+				RECAPTCHA_ACTIONS.LOGIN,
+			)
+
 			const res = await signIn("credentials", {
 				email: data.email,
 				password: data.password,
+				recaptchaToken: loginRecaptchaToken,
+				recaptchaAction: RECAPTCHA_ACTIONS.LOGIN,
 				redirect: false,
 				callbackUrl,
 			})
@@ -91,7 +107,13 @@ export function RegisterForm() {
 			if (res?.error) {
 				showError("Не удалось авторизоваться после регистрации")
 			} else {
-				const targetUrl = res?.url || callbackUrl
+				const session = await getSession()
+				const role = session?.user?.role
+				const resolvedCallbackUrl = resolveSafeCallbackPath(
+					res?.url || callbackUrl,
+					window.location.origin,
+				)
+				const targetUrl = getPostAuthTarget(role, resolvedCallbackUrl)
 
 				const container = document.getElementById("page-transition-container")
 

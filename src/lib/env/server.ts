@@ -13,10 +13,12 @@ const serverEnvSchema = z
 		NEXT_PUBLIC_WS_URL: z.url().optional(),
 		DATABASE_URL: z.url().optional(),
 		AUTH_API_URL: z.url().optional(),
+		RECAPTCHA_SECRET_KEY: z.string().min(1).optional(),
 	})
 	.superRefine((value, ctx) => {
 		if (process.env.NEXT_RUNTIME === "edge") return
 		if (value.NODE_ENV !== "production") return
+		if (process.env.NEXT_PHASE === "phase-production-build") return
 
 		if (!value.NEXTAUTH_URL) {
 			ctx.addIssue({
@@ -52,6 +54,7 @@ type EnvInput = {
 	NEXT_PUBLIC_WS_URL?: string
 	DATABASE_URL?: string
 	AUTH_API_URL?: string
+	RECAPTCHA_SECRET_KEY?: string
 }
 
 function getEnv(): EnvInput {
@@ -64,6 +67,7 @@ function getEnv(): EnvInput {
 		NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL,
 		DATABASE_URL: process.env.DATABASE_URL,
 		AUTH_API_URL: process.env.AUTH_API_URL,
+		RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY,
 	}
 }
 

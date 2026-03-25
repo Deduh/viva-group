@@ -42,7 +42,7 @@ export default function LoginPage() {
 	)
 
 	return (
-		<PublicWrapper>
+		<PublicWrapper headerOffsetMode="padding">
 			<div ref={containerRef} className={s.page}>
 				<Suspense fallback={null}>
 					<LoginForm />

@@ -2,6 +2,7 @@
 
 import { BookingChat } from "@/components/bookings/BookingChat/BookingChat"
 import { BackButton } from "@/components/ui/BackButton/BackButton"
+import { useCurrency } from "@/context/CurrencyContext"
 import { ErrorMessage } from "@/components/ui/ErrorMessage/ErrorMessage"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { useAuth } from "@/hooks/useAuth"
@@ -11,7 +12,7 @@ import {
 	BOOKING_STATUS_COLOR,
 	BOOKING_STATUS_LABEL,
 } from "@/lib/booking-status"
-import { formatCurrency, formatDate } from "@/lib/format"
+import { formatDate } from "@/lib/format"
 import type { Booking } from "@/types"
 import { BookingStatus } from "@/types/enums"
 import { useQuery } from "@tanstack/react-query"
@@ -29,6 +30,7 @@ interface BookingDetailProps {
 export function BookingDetail({ booking }: BookingDetailProps) {
 	const router = useRouter()
 	const { user } = useAuth()
+	const { formatPrice } = useCurrency()
 	const [showCancelModal, setShowCancelModal] = useState(false)
 	const cancelBookingMutation = useCancelBooking()
 	const displayBookingId = booking.publicId ?? booking.id
@@ -186,7 +188,10 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 								<div className={s.tourMeta}>
 									<span className={s.tourPrice}>
-										{formatCurrency(tourQuery.data.price)}
+										{formatPrice(
+											tourQuery.data.price,
+											tourQuery.data.baseCurrency,
+										)}
 									</span>
 								</div>
 							</div>

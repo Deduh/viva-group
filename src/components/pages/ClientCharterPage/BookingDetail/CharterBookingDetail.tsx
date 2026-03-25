@@ -12,6 +12,7 @@ import {
 	normalizeCharterTripType,
 } from "@/lib/charter-trip-type"
 import { formatDate } from "@/lib/format"
+import { useAuth } from "@/hooks/useAuth"
 import type { CharterBooking } from "@/types"
 import { ArrowRightLeft, Calendar, MapPin, Tags, Users } from "lucide-react"
 
@@ -20,6 +21,7 @@ interface CharterBookingDetailProps {
 }
 
 export function CharterBookingDetail({ booking }: CharterBookingDetailProps) {
+	const { user } = useAuth()
 	const statusLabel = BOOKING_STATUS_LABEL[booking.status]
 	const statusColor = BOOKING_STATUS_COLOR[booking.status]
 	const from = booking.flight?.from || booking.from || "Не указано"
@@ -31,7 +33,10 @@ export function CharterBookingDetail({ booking }: CharterBookingDetailProps) {
 	return (
 		<div className={s.container}>
 			<div className={s.navigation}>
-				<BackButton href="/client/flights" label="Назад к заявкам" />
+				<BackButton
+					href={user?.role === "AGENT" ? "/agent/flights" : "/client/flights"}
+					label="Назад к заявкам"
+				/>
 			</div>
 
 			<div className={s.header}>

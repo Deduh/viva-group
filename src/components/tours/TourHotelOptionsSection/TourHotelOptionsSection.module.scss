@@ -1,0 +1,153 @@
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 1.8rem;
+	padding: 2rem;
+	border-radius: 2.4rem;
+	background: linear-gradient(180deg, rgba(255, 251, 235, 0.92), rgba(255, 247, 237, 1));
+	border: 0.1rem solid rgba(251, 191, 36, 0.24);
+}
+
+.header {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 1.2rem;
+}
+
+.eyebrow {
+	display: inline-flex;
+	margin-bottom: 0.8rem;
+	padding: 0.6rem 1rem;
+	border-radius: 999px;
+	background: rgba(245, 158, 11, 0.12);
+	color: rgba(146, 64, 14, 1);
+	font-size: 1.1rem;
+	font-weight: 800;
+	line-height: 1.4rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.title {
+	margin: 0;
+	color: rgba(15, 23, 42, 1);
+	font-size: 2rem;
+	font-weight: 700;
+	line-height: 2.6rem;
+}
+
+.note {
+	max-width: 42rem;
+	margin: 0;
+	color: rgba(120, 53, 15, 0.92);
+	font-size: 1.4rem;
+	line-height: 2rem;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+	gap: 1.2rem;
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+	padding: 1.6rem;
+	border-radius: 1.8rem;
+	background: rgba(255, 255, 255, 0.84);
+	border: 0.1rem solid rgba(253, 230, 138, 0.72);
+	box-shadow: 0 1.2rem 2.4rem -2rem rgba(146, 64, 14, 0.4);
+}
+
+.cardTop {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.hotelHead {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+}
+
+.hotelIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3.6rem;
+	height: 3.6rem;
+	border-radius: 1.2rem;
+	background: rgba(245, 158, 11, 0.14);
+	color: rgba(180, 83, 9, 1);
+}
+
+.hotelName {
+	margin: 0;
+	color: rgba(15, 23, 42, 1);
+	font-size: 1.7rem;
+	font-weight: 700;
+	line-height: 2.2rem;
+}
+
+.stars {
+	display: flex;
+	gap: 0.3rem;
+	margin-top: 0.4rem;
+	color: rgba(245, 158, 11, 1);
+}
+
+.priceWrap {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.3rem;
+}
+
+.priceLabel {
+	color: rgba(120, 53, 15, 0.8);
+	font-size: 1.2rem;
+	font-weight: 600;
+	line-height: 1.6rem;
+}
+
+.price {
+	color: rgba(146, 64, 14, 1);
+	font-size: 2rem;
+	font-weight: 800;
+	line-height: 2.6rem;
+}
+
+.hotelNote {
+	margin: 0;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+	line-height: 2rem;
+}
+
+.cardFooter {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.8rem;
+	padding-top: 1rem;
+	border-top: 0.1rem solid rgba(251, 191, 36, 0.24);
+	color: rgba(120, 53, 15, 0.92);
+	font-size: 1.2rem;
+	font-weight: 600;
+	line-height: 1.7rem;
+}
+
+@media (max-width: 768px) {
+	.section {
+		padding: 1.6rem;
+		border-radius: 1.8rem;
+	}
+
+	.priceWrap {
+		align-items: flex-start;
+	}
+}

@@ -1,6 +1,7 @@
 "use client"
 
 import { CharterFlightsSearchBar } from "@/components/forms/CharterFlightsSearchBar/CharterFlightsSearchBar"
+import { useAllAgentCharterFlights } from "@/hooks/useAllAgentCharterFlights"
 import { useAllCharterFlights } from "@/hooks/useAllCharterFlights"
 import { useToast } from "@/hooks/useToast"
 import { api } from "@/lib/api"
@@ -9,21 +10,36 @@ import type { CharterFlightsSearchInput } from "@/lib/validation"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { CharterFlightResultCard } from "./ui/CharterFlightResultCard/CharterFlightResultCard"
 import s from "./FlightsSection.module.scss"
 
-export function FlightsSection() {
+interface FlightsSectionProps {
+	mode?: "client" | "agent"
+}
+
+export function FlightsSection({ mode = "client" }: FlightsSectionProps) {
+	const isAgentMode = mode === "agent"
 	const router = useRouter()
 	const queryClient = useQueryClient()
 	const { showError, showSuccess } = useToast()
 
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
-	const {
-		flights,
-		isLoading: flightsLoading,
-		error: flightsError,
-		refetch,
-	} = useAllCharterFlights({ enabled: true })
+	const clientFlightsQuery = useAllCharterFlights({ enabled: !isAgentMode })
+	const agentFlightsQuery = useAllAgentCharterFlights({ enabled: isAgentMode })
+
+	const flights = isAgentMode
+		? agentFlightsQuery.flights
+		: clientFlightsQuery.flights
+	const flightsLoading = isAgentMode
+		? agentFlightsQuery.isLoading
+		: clientFlightsQuery.isLoading
+	const flightsError = isAgentMode
+		? agentFlightsQuery.error
+		: clientFlightsQuery.error
+	const refetch = isAgentMode
+		? agentFlightsQuery.refetch
+		: clientFlightsQuery.refetch
 
 	const buildWishesText = (values: CharterFlightsSearchInput) => {
 		const wishes: string[] = []
@@ -47,7 +63,7 @@ export function FlightsSection() {
 		return `Пожелания по авиабилету:\n${wishes.map(w => `- ${w}`).join("\n")}`
 	}
 
-	const handleSubmit = async (values: CharterFlightsSearchInput) => {
+	const createBookingFromValues = async (values: CharterFlightsSearchInput) => {
 		if (flightsLoading) return
 		if (!flights || flights.length === 0) {
 			showError("Список рейсов пока недоступен. Попробуйте позже.")
@@ -102,7 +118,11 @@ export function FlightsSection() {
 			void queryClient.invalidateQueries({ queryKey: ["charterBookings"] })
 
 			showSuccess("Заявка на авиабилет создана")
-			router.push(`/client/flights/booking/${created.publicId}`)
+			router.push(
+				isAgentMode
+					? `/agent/flights/booking/${created.publicId}`
+					: `/client/flights/booking/${created.publicId}`,
+			)
 		} catch (e) {
 			const message =
 				e instanceof Error ? e.message : "Не удалось создать заявку"
@@ -117,9 +137,27 @@ export function FlightsSection() {
 		}
 	}
 
+	const handleQuickBook = (flight: (typeof flights)[number]) => {
+		void createBookingFromValues({
+			tripType: "ROUND_TRIP",
+			from: flight.from,
+			to: flight.to,
+			dateFrom: flight.dateFrom.slice(0, 10),
+			dateTo: flight.dateTo.slice(0, 10),
+			adults: 1,
+			children: 0,
+			categories: [],
+			hasSeats: true,
+			hasBusinessClass: false,
+			hasComfortClass: false,
+		})
+	}
+
 	return (
 		<section className={s.section}>
-			<h2 className={s.title}>Забронировать авиабилет</h2>
+			<h2 className={s.title}>
+				{isAgentMode ? "Чартеры для агентств" : "Забронировать авиабилет"}
+			</h2>
 
 			<div className={s.formWrap}>
 				<CharterFlightsSearchBar
@@ -130,11 +168,34 @@ export function FlightsSection() {
 							? "Не удалось загрузить список рейсов. Попробуйте обновить страницу."
 							: undefined
 					}
-					submitLabel="Забронировать"
+					submitLabel={isAgentMode ? "Оформить агентскую заявку" : "Забронировать"}
 					submitDisabled={isSubmitting}
-					onSubmit={handleSubmit}
+					onSubmit={values => createBookingFromValues(values)}
 				/>
 			</div>
+
+			{isAgentMode && flights.length > 0 && (
+				<div className={s.results}>
+					<div className={s.resultsHeader}>
+						<h3 className={s.resultsTitle}>Агентские тарифы</h3>
+						<p className={s.resultsText}>
+							На этом экране агент видит отдельную цену и свою комиссию по рейсу.
+						</p>
+					</div>
+
+					<div className={s.resultsGrid}>
+						{flights.slice(0, 6).map(flight => (
+							<CharterFlightResultCard
+								key={flight.id}
+								flight={flight}
+								showPricing
+								onBook={() => handleQuickBook(flight)}
+								isBooking={isSubmitting}
+							/>
+						))}
+					</div>
+				</div>
+			)}
 		</section>
 	)
 }

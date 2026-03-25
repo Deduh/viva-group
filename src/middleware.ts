@@ -1,8 +1,14 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
-import { getToken } from "next-auth/jwt"
+import hkdf from "@panva/hkdf"
+import { jwtDecrypt } from "jose"
 
+import {
+	AGENT_APPLICATION_PATH,
+	getPostAuthTarget,
+	resolveSafeCallbackPath,
+} from "@/lib/auth-redirect"
 import type { Role } from "@/lib/roles"
 
 type TokenWithRole = {
@@ -18,6 +24,7 @@ const PUBLIC_ROUTES = new Set([
 	"/group",
 	"/cargo",
 	"/contacts",
+	"/for-agents",
 	"/privacy-policy",
 	"/terms-of-service",
 	"/login",
@@ -31,6 +38,7 @@ const PUBLIC_PREFIXES = [
 	"/group/",
 	"/cargo/",
 	"/contacts/",
+	"/for-agents/",
 	"/privacy-policy/",
 	"/terms-of-service/",
 ]
@@ -39,7 +47,7 @@ const PUBLIC_API_PREFIXES = ["/api/auth", "/api/contacts", "/api/mailing"]
 const PUBLIC_API_METHODS = new Set(["GET", "HEAD"])
 const WRITE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"])
 
-const PROTECTED_PREFIXES = ["/admin", "/manager", "/client", "/support"]
+const PROTECTED_PREFIXES = ["/admin", "/manager", "/client", "/agent", "/support"]
 const ADMIN_API_PREFIXES = ["/api/admin"]
 const MANAGER_API_PREFIXES = ["/api/manager"]
 const authSecret = process.env.NEXTAUTH_SECRET
@@ -80,6 +88,8 @@ const buildCsp = (nonce: string, isDev: boolean, isLocalhost: boolean) => {
 	const scriptSrc = [
 		"'self'",
 		`'nonce-${nonce}'`,
+		"https://www.google.com/recaptcha/",
+		"https://www.gstatic.com/recaptcha/",
 		isDev ? "'unsafe-eval'" : "",
 	].filter(Boolean)
 
@@ -112,6 +122,7 @@ const buildCsp = (nonce: string, isDev: boolean, isLocalhost: boolean) => {
 		`base-uri 'self'`,
 		`object-src 'none'`,
 		`frame-ancestors 'none'`,
+		`frame-src 'self' https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/`,
 		`form-action 'self'`,
 		`script-src ${scriptSrc.join(" ")}`,
 		`style-src ${styleSrc.join(" ")}`,
@@ -125,6 +136,76 @@ const buildCsp = (nonce: string, isDev: boolean, isLocalhost: boolean) => {
 	}
 
 	return directives.join("; ")
+}
+
+const getSessionCookieName = (request: NextRequest) => {
+	const secureCookie =
+		request.nextUrl.protocol === "https:" ||
+		process.env.NEXTAUTH_URL?.startsWith("https://") ||
+		!!process.env.VERCEL
+
+	return secureCookie
+		? "__Secure-next-auth.session-token"
+		: "next-auth.session-token"
+}
+
+const getSessionTokenValue = (request: NextRequest) => {
+	const cookieName = getSessionCookieName(request)
+	const cookieChunks = request.cookies
+		.getAll()
+		.filter(cookie => cookie.name === cookieName || cookie.name.startsWith(`${cookieName}.`))
+		.sort((left, right) => {
+			const leftSuffix = Number.parseInt(left.name.split(".").pop() ?? "0", 10)
+			const rightSuffix = Number.parseInt(
+				right.name.split(".").pop() ?? "0",
+				10,
+			)
+
+			return leftSuffix - rightSuffix
+		})
+
+	if (cookieChunks.length > 0) {
+		return cookieChunks.map(cookie => cookie.value).join("")
+	}
+
+	const authorization = request.headers.get("authorization")
+
+	if (authorization?.startsWith("Bearer ")) {
+		return decodeURIComponent(authorization.slice("Bearer ".length))
+	}
+
+	return null
+}
+
+const getDerivedEncryptionKey = async (secret: string, salt = "") => {
+	return hkdf(
+		"sha256",
+		secret,
+		salt,
+		`NextAuth.js Generated Encryption Key${salt ? ` (${salt})` : ""}`,
+		32,
+	)
+}
+
+const getTokenFromRequest = async (
+	request: NextRequest,
+): Promise<TokenWithRole | null> => {
+	if (!authSecret) return null
+
+	const token = getSessionTokenValue(request)
+
+	if (!token) return null
+
+	try {
+		const encryptionSecret = await getDerivedEncryptionKey(authSecret)
+		const { payload } = await jwtDecrypt(token, encryptionSecret, {
+			clockTolerance: 15,
+		})
+
+		return payload as TokenWithRole
+	} catch {
+		return null
+	}
 }
 
 export default async function middleware(request: NextRequest) {
@@ -185,10 +266,7 @@ export default async function middleware(request: NextRequest) {
 			return nextWithHeaders()
 		}
 
-		const token = (await getToken({
-			req: request,
-			secret: authSecret,
-		})) as TokenWithRole | null
+		const token = await getTokenFromRequest(request)
 
 		if (!token || token.error) {
 			return applySecurityHeaders(
@@ -240,23 +318,18 @@ export default async function middleware(request: NextRequest) {
 	}
 
 	if (pathname === "/login" || pathname === "/register") {
-		const token = (await getToken({
-			req: request,
-			secret: authSecret,
-		})) as TokenWithRole | null
+		const token = await getTokenFromRequest(request)
 
 		if (!token || token.error) {
 			return nextWithHeaders()
 		}
 
 		const role = token.role
-		let redirectPath = "/client/tours"
-
-		if (role === "ADMIN") {
-			redirectPath = "/admin/tours"
-		} else if (role === "MANAGER") {
-			redirectPath = "/manager/tours"
-		}
+		const callbackPath = resolveSafeCallbackPath(
+			request.nextUrl.searchParams.get("callbackUrl"),
+			origin,
+		)
+		const redirectPath = getPostAuthTarget(role, callbackPath)
 
 		return applySecurityHeaders(
 			NextResponse.redirect(new URL(redirectPath, origin)),
@@ -265,10 +338,7 @@ export default async function middleware(request: NextRequest) {
 
 	if (isPublic) return nextWithHeaders()
 
-	const token = (await getToken({
-		req: request,
-		secret: authSecret,
-	})) as TokenWithRole | null
+	const token = await getTokenFromRequest(request)
 
 	const isProtected = PROTECTED_PREFIXES.some(prefix =>
 		pathname.startsWith(prefix),
@@ -302,7 +372,26 @@ export default async function middleware(request: NextRequest) {
 			}
 		}
 
-		if (pathname.startsWith("/client") && role !== "CLIENT") {
+		if (
+			pathname.startsWith(AGENT_APPLICATION_PATH) &&
+			role === "AGENT"
+		) {
+			return applySecurityHeaders(
+				NextResponse.redirect(new URL("/agent/flights", origin)),
+			)
+		}
+
+		if (
+			pathname.startsWith("/client") &&
+			role !== "CLIENT" &&
+			role !== "AGENT"
+		) {
+			return applySecurityHeaders(
+				NextResponse.redirect(new URL("/access-denied", origin)),
+			)
+		}
+
+		if (pathname.startsWith("/agent") && role !== "AGENT") {
 			return applySecurityHeaders(
 				NextResponse.redirect(new URL("/access-denied", origin)),
 			)

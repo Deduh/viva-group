@@ -13,7 +13,7 @@ export default async function Home() {
 		<div>
 			<HomeIntro />
 
-			<PublicWrapper>
+			<PublicWrapper withHeaderOffset={false}>
 				<ErrorBoundary
 					fallback={
 						<SectionErrorFallback

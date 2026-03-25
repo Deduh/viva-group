@@ -1,11 +1,14 @@
 "use client"
 
+import { useCurrency } from "@/context/CurrencyContext"
 import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getDetailPageImageSizes,
 	getTourImageAlt,
 } from "@/lib/image-utils"
+import { TourHotelOptionsSection } from "@/components/tours/TourHotelOptionsSection/TourHotelOptionsSection"
+import { TourProgramSection } from "@/components/tours/TourProgramSection/TourProgramSection"
 import type { Tour } from "@/types"
 import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
@@ -16,6 +19,8 @@ interface TourInfoProps {
 }
 
 export function TourInfo({ tour }: TourInfoProps) {
+	const { formatPrice } = useCurrency()
+
 	return (
 		<div className={s.tourInfo}>
 			<div className={s.imageWrapper}>
@@ -33,6 +38,8 @@ export function TourInfo({ tour }: TourInfoProps) {
 
 			<div className={s.tourDetails}>
 				<h1 className={s.title}>{tour.title}</h1>
+
+				<p className={s.lead}>{tour.shortDescription}</p>
 
 				{tour.tags.length > 0 && (
 					<ul className={s.tagsList}>
@@ -75,22 +82,45 @@ export function TourInfo({ tour }: TourInfoProps) {
 					)}
 				</div>
 
-				{tour.fullDescriptionBlocks.length > 0 && (
-					<div className={s.properties}>
-						{tour.fullDescriptionBlocks.map((block, index) => (
-							<div key={`${block.title}-${index}`} className={s.propertyBlock}>
-								<h3 className={s.propertiesTitle}>{block.title}</h3>
+				<div className={s.programPriceCard}>
+					<span className={s.programPriceLabel}>Базовая цена программы</span>
+					<span className={s.programPriceValue}>
+						{formatPrice(tour.price, tour.baseCurrency)}
+					</span>
+					<p className={s.programPriceHint}>
+						Стоимость отелей показывается отдельно ниже и не заменяет цену тура.
+					</p>
+				</div>
 
-								<ul className={s.propertiesList}>
-									{block.items.map((item, itemIndex) => (
-										<li key={`${item}-${itemIndex}`} className={s.propertyItem}>
-											{item}
-										</li>
-									))}
-								</ul>
-							</div>
-						))}
-					</div>
+				<div className={s.sections}>
+					<TourProgramSection tour={tour} />
+					<TourHotelOptionsSection tour={tour} />
+				</div>
+
+				{!tour.programText &&
+					!tour.hasHotelOptions &&
+					tour.fullDescriptionBlocks.length > 0 && (
+						<div className={s.properties}>
+							{tour.fullDescriptionBlocks.map((block, index) => (
+								<div
+									key={`${block.title}-${index}`}
+									className={s.propertyBlock}
+								>
+									<h3 className={s.propertiesTitle}>{block.title}</h3>
+
+									<ul className={s.propertiesList}>
+										{block.items.map((item, itemIndex) => (
+											<li
+												key={`${item}-${itemIndex}`}
+												className={s.propertyItem}
+											>
+												{item}
+											</li>
+										))}
+									</ul>
+								</div>
+							))}
+						</div>
 				)}
 			</div>
 		</div>
