@@ -15,6 +15,7 @@ import {
 	LogIn,
 	Phone,
 	PlaneTakeoff,
+	User,
 	UsersRound,
 } from "lucide-react"
 import Image from "next/image"
@@ -39,6 +40,7 @@ const links: LinkItem[] = [
 	{ href: "/contacts", label: "Контакты", icon: Phone },
 	{ href: "/tours", label: "Туры", icon: PlaneTakeoff },
 	{ href: "/group", label: "Групповые перевозки", icon: UsersRound },
+	{ href: "/for-agents", label: "Для турагентов", icon: User },
 ]
 
 export function Header() {

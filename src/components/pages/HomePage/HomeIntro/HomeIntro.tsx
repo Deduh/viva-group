@@ -2,7 +2,6 @@
 
 import { CurrencySelector } from "@/components/currency/CurrencySelector/CurrencySelector"
 import { CurrencyTicker } from "@/components/currency/CurrencyTicker/CurrencyTicker"
-import { TransitionLink } from "@/components/ui/PageTransition"
 import { StickyHeroSection } from "@/components/ui/StickyHeroSection"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { usePreloader } from "@/context/PreloaderContext"
@@ -97,9 +96,9 @@ export function HomeIntro() {
 								<CurrencySelector compact />
 							</div>
 
-							<TransitionLink href="/for-agents" className={s.agentBadge}>
+							{/* <TransitionLink href="/for-agents" className={s.agentBadge}>
 								Для турагентов
-							</TransitionLink>
+							</TransitionLink> */}
 						</div>
 					</div>
 
