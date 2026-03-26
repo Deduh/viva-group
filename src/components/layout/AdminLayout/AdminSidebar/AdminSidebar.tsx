@@ -65,19 +65,19 @@ export function AdminSidebar() {
 		// Менеджер и Админ
 		{
 			href: "/manager/tours",
-			label: "Туры",
+			label: "Заявки по турам",
 			icon: Compass,
 			roles: ["MANAGER", "ADMIN"],
 		},
 		{
 			href: "/manager/group-transport",
-			label: "Групповые перевозки",
+			label: "Заявки по групповым перевозкам",
 			icon: UsersRound,
 			roles: ["MANAGER", "ADMIN"],
 		},
 		{
 			href: "/manager/flights",
-			label: "Авиабилеты",
+			label: "Заявки на а/б и чартеры",
 			icon: PlaneTakeoff,
 			roles: ["MANAGER", "ADMIN"],
 		},
@@ -91,7 +91,7 @@ export function AdminSidebar() {
 		// Админ-панель (только для админа)
 		{
 			href: "/admin/tours",
-			label: "Админ-панель",
+			label: "Редактор туров",
 			icon: Settings,
 			roles: ["ADMIN"],
 		},
@@ -103,13 +103,13 @@ export function AdminSidebar() {
 		},
 		{
 			href: "/admin/currency",
-			label: "Валюты",
+			label: "Управление курсами валют",
 			icon: Package,
 			roles: ["ADMIN"],
 		},
 		{
 			href: "/admin/agent-applications",
-			label: "Заявки агентов",
+			label: "Заявки на турагентов",
 			icon: UsersRound,
 			roles: ["ADMIN"],
 		},

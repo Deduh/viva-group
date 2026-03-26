@@ -77,6 +77,26 @@ export function getErrorStatus(error: unknown): number | null {
 		return error.statusCode
 	}
 
+	if (typeof error === "object" && error !== null) {
+		if ("status" in error && typeof error.status === "number") {
+			return error.status
+		}
+
+		if ("statusCode" in error && typeof error.statusCode === "number") {
+			return error.statusCode
+		}
+
+		if (
+			"response" in error &&
+			typeof error.response === "object" &&
+			error.response !== null &&
+			"status" in error.response &&
+			typeof error.response.status === "number"
+		) {
+			return error.response.status
+		}
+	}
+
 	if (error instanceof Error) {
 		const statusMatch = error.message.match(/status (\d+)/i)
 
@@ -111,6 +131,33 @@ export function getErrorMessage(error: unknown): string {
 
 	if (typeof error === "string") {
 		return error
+	}
+
+	if (typeof error === "object" && error !== null) {
+		if ("message" in error && typeof error.message === "string") {
+			return error.message
+		}
+
+		if (
+			"error" in error &&
+			typeof error.error === "string" &&
+			error.error.trim().length > 0
+		) {
+			return error.error
+		}
+
+		if (
+			"response" in error &&
+			typeof error.response === "object" &&
+			error.response !== null &&
+			"data" in error.response &&
+			typeof error.response.data === "object" &&
+			error.response.data !== null &&
+			"message" in error.response.data &&
+			typeof error.response.data.message === "string"
+		) {
+			return error.response.data.message
+		}
 	}
 
 	return "Произошла неизвестная ошибка"

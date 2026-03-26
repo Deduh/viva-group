@@ -133,19 +133,29 @@ export function getCurrencyMarkup(
 	return settings.rates.find(rate => rate.currency === currency)?.markupPercent ?? 0
 }
 
+export function getEffectiveCurrencyRateToRub(
+	settings: CurrencySettings,
+	currency: CurrencyCode,
+) {
+	if (currency === "RUB") return 1
+
+	const rateToRub = getCurrencyRateToRub(settings, currency)
+	const markupPercent = getCurrencyMarkup(settings, currency)
+
+	return rateToRub * (1 + markupPercent / 100)
+}
+
 export function convertCurrencyAmount(
 	amount: number,
 	fromCurrency: CurrencyCode,
 	toCurrency: CurrencyCode,
 	settings: CurrencySettings,
 ) {
-	const fromRateToRub = getCurrencyRateToRub(settings, fromCurrency)
-	const toRateToRub = getCurrencyRateToRub(settings, toCurrency)
+	const fromRateToRub = getEffectiveCurrencyRateToRub(settings, fromCurrency)
+	const toRateToRub = getEffectiveCurrencyRateToRub(settings, toCurrency)
 	const rubAmount = amount * fromRateToRub
-	const converted = rubAmount / toRateToRub
-	const markupPercent = getCurrencyMarkup(settings, toCurrency)
 
-	return converted * (1 + markupPercent / 100)
+	return rubAmount / toRateToRub
 }
 
 export function mergeCurrencySettingsWithMarket(

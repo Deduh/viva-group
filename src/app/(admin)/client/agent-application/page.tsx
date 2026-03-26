@@ -36,7 +36,12 @@ export default function ClientAgentApplicationPage() {
 	const { showError, showSuccess } = useToast()
 	const { data: session, status, update } = useSession()
 	const user = session?.user
-	const sessionRefreshRequestedRef = useRef(false)
+	const role =
+		user && typeof user.role === "string" && user.role.length > 0
+			? user.role
+			: null
+	const roleRefreshAttemptedRef = useRef(false)
+	const [isRefreshingRole, setIsRefreshingRole] = useState(false)
 	const [localApplication, setLocalApplication] =
 		useState<AgentApplication | null>(null)
 	const [sessionConflictLocked, setSessionConflictLocked] = useState(false)
@@ -60,17 +65,37 @@ export default function ClientAgentApplicationPage() {
 	})
 
 	useEffect(() => {
-		if (status !== "authenticated") return
-		if (sessionRefreshRequestedRef.current) return
+		if (status === "loading" || status === "authenticated") return
 
-		sessionRefreshRequestedRef.current = true
-		void update()
-	}, [status, update])
+		router.replace(
+			`/login?callbackUrl=${encodeURIComponent(AGENT_APPLICATION_PATH)}`,
+		)
+	}, [router, status])
 
 	useEffect(() => {
-		if (status === "loading") return
+		if (status !== "authenticated") return
+		if (!user) return
+		if (role === "CLIENT") return
 
-		if (!user) {
+		if (role === "AGENT") {
+			router.replace("/agent/flights")
+
+			return
+		}
+
+		if (role === "ADMIN") {
+			router.replace("/admin/tours")
+
+			return
+		}
+
+		if (role === "MANAGER") {
+			router.replace("/manager/tours")
+
+			return
+		}
+
+		if (roleRefreshAttemptedRef.current) {
 			router.replace(
 				`/login?callbackUrl=${encodeURIComponent(AGENT_APPLICATION_PATH)}`,
 			)
@@ -78,22 +103,13 @@ export default function ClientAgentApplicationPage() {
 			return
 		}
 
-		if (user.role === "AGENT") {
-			router.replace("/agent/flights")
+		roleRefreshAttemptedRef.current = true
+		setIsRefreshingRole(true)
 
-			return
-		}
-
-		if (user.role === "ADMIN") {
-			router.replace("/admin/tours")
-
-			return
-		}
-
-		if (user.role === "MANAGER") {
-			router.replace("/manager/tours")
-		}
-	}, [router, status, user])
+		void update().finally(() => {
+			setIsRefreshingRole(false)
+		})
+	}, [role, router, status, update, user])
 
 	useEffect(() => {
 		if (!user) return
@@ -196,15 +212,15 @@ export default function ClientAgentApplicationPage() {
 		return null
 	}, [localApplication?.status, sessionConflictLocked])
 
-	if (status === "loading") {
+	if (status === "loading" || isRefreshingRole) {
 		return (
 			<div className={s.loadingShell}>
-				<LoadingSpinner fullScreen text="Загрузка сессии..." />
+				<LoadingSpinner fullScreen text="Проверяем доступ..." />
 			</div>
 		)
 	}
 
-	if (!user || user.role !== "CLIENT") {
+	if (status === "unauthenticated" || !user || role !== "CLIENT") {
 		return (
 			<div className={s.loadingShell}>
 				<LoadingSpinner fullScreen text="Перенаправление..." />

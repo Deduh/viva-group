@@ -5,7 +5,7 @@
 	flex-direction: column;
 	align-items: center;
 
-	padding: 4rem 2rem;
+	padding: 4rem 0;
 	gap: 3rem;
 	margin: 0 auto;
 }
@@ -13,7 +13,7 @@
 .search {
 	position: relative;
 
-	width: 100rem;
+	width: min(100%, 100rem);
 
 	@media (max-width: 768px) {
 		width: 100%;
@@ -100,7 +100,7 @@
 
 @media (max-width: 768px) {
 	.filters {
-		padding: 3.2rem 1.6rem;
+		padding: 3.2rem 0;
 		gap: 2rem;
 	}
 }

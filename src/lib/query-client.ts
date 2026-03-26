@@ -8,12 +8,17 @@ function getRetryDelay(attemptIndex: number): number {
 const queryCache = new QueryCache({
 	onError: (error, query) => {
 		const errorInfo = getErrorInfo(error)
-
-		console.error("[Query Error]", {
+		const payload = {
 			...errorInfo,
 			queryKey: query.queryKey,
-			error,
-		})
+		}
+
+		if (errorInfo.status === 401 || errorInfo.status === 403) {
+			console.warn("[Query Auth Error]", payload)
+			return
+		}
+
+		console.error("[Query Error]", payload)
 
 		// TODO: Здесь можно добавить отправку в систему мониторинга
 		// Например: Sentry.captureException(error, { tags: { queryKey: query.queryKey, errorType: errorInfo.type } })
@@ -23,12 +28,17 @@ const queryCache = new QueryCache({
 const mutationCache = new MutationCache({
 	onError: (error, _variables, _context, mutation) => {
 		const errorInfo = getErrorInfo(error)
-
-		console.error("[Mutation Error]", {
+		const payload = {
 			...errorInfo,
 			mutationKey: mutation.options.mutationKey,
-			error,
-		})
+		}
+
+		if (errorInfo.status === 401 || errorInfo.status === 403) {
+			console.warn("[Mutation Auth Error]", payload)
+			return
+		}
+
+		console.error("[Mutation Error]", payload)
 
 		// TODO: Здесь можно добавить отправку в систему мониторинга
 		// Например: Sentry.captureException(error, { tags: { mutationKey: mutation.options.mutationKey, errorType: errorInfo.type } })
