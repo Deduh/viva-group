@@ -49,6 +49,7 @@ import type {
 import { z } from "zod"
 import {
 	ApiCollectionSchema,
+	AgentApplicationCurrentSchema,
 	AgentApplicationSchema,
 	BookingSchema,
 	BookingOrderSchema,
@@ -579,6 +580,14 @@ export const api = {
 		return fetchAndValidate<ApiCollection<AgentApplication>>(
 			"/api/admin/agent-applications",
 			ApiCollectionSchema(AgentApplicationSchema),
+		)
+	},
+	getCurrentAgentApplication: async (): Promise<{
+		item: AgentApplication | null
+	}> => {
+		return fetchAndValidate<{ item: AgentApplication | null }>(
+			"/api/agent-applications/me",
+			AgentApplicationCurrentSchema,
 		)
 	},
 	createAgentApplication: async (

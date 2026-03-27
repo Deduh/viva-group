@@ -3,9 +3,11 @@
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { useAuth } from "@/hooks/useAuth"
+import { api } from "@/lib/api"
 import { AGENT_APPLICATION_PATH } from "@/lib/auth-redirect"
 import { ROLE_LABEL } from "@/lib/roles"
 import { useGSAP } from "@gsap/react"
+import { useQuery } from "@tanstack/react-query"
 import gsap from "gsap"
 import {
 	Compass,
@@ -17,7 +19,7 @@ import {
 	Settings,
 	UsersRound,
 } from "lucide-react"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -27,10 +29,34 @@ import s from "./AdminSidebar.module.scss"
 export function AdminSidebar() {
 	const pathname = usePathname()
 	const { user } = useAuth()
+	const { update } = useSession()
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isMenuVisible, setIsMenuVisible] = useState(false)
 	const navRef = useRef<HTMLElement | null>(null)
 	const menuButtonRef = useRef<HTMLButtonElement | null>(null)
+	const roleSyncAttemptedRef = useRef(false)
+
+	const currentAgentApplicationQuery = useQuery({
+		queryKey: ["agent-application", "me", user?.id],
+		queryFn: () => api.getCurrentAgentApplication(),
+		enabled: Boolean(user?.id) && user?.role === "CLIENT",
+		staleTime: 30_000,
+	})
+	const currentAgentApplication = currentAgentApplicationQuery.data?.item ?? null
+	const effectiveRole =
+		user?.role === "CLIENT" && currentAgentApplication?.status === "APPROVED"
+			? "AGENT"
+			: user?.role
+	const displayRole = effectiveRole ?? user?.role ?? "CLIENT"
+
+	useEffect(() => {
+		if (user?.role !== "CLIENT") return
+		if (currentAgentApplication?.status !== "APPROVED") return
+		if (roleSyncAttemptedRef.current) return
+
+		roleSyncAttemptedRef.current = true
+		void update()
+	}, [currentAgentApplication?.status, update, user?.role])
 
 	const navItems = [
 		// Клиент
@@ -142,7 +168,7 @@ export function AdminSidebar() {
 	]
 
 	const filteredNavItems = navItems.filter(item =>
-		user?.role ? item.roles.includes(user.role) : false,
+		user ? item.roles.includes(displayRole) : false,
 	)
 
 	const { setIsTransitionComplete } = usePageTransition()
@@ -336,9 +362,9 @@ export function AdminSidebar() {
 									<p className={s.userName}>{user.name || user.email}</p>
 
 									<div className={s.userMeta}>
-										<p className={s.userRole}>{ROLE_LABEL[user.role]}</p>
+										<p className={s.userRole}>{ROLE_LABEL[displayRole]}</p>
 
-										{user.role === "AGENT" && (
+										{displayRole === "AGENT" && (
 											<span className={s.agentBadge}>Агент</span>
 										)}
 									</div>

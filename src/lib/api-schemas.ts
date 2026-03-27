@@ -294,6 +294,10 @@ export const AgentApplicationSchema = z.object({
 		.transform(nullToUndefined),
 })
 
+export const AgentApplicationCurrentSchema = z.object({
+	item: AgentApplicationSchema.nullable(),
+})
+
 const CurrencyRateSchema = z.object({
 	currency: CurrencyCodeSchema,
 	rate: z.coerce.number().positive("Курс должен быть положительным"),

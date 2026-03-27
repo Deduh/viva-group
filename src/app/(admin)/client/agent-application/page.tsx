@@ -12,27 +12,17 @@ import {
 	agentApplicationCreateSchema,
 	type AgentApplicationCreateInput,
 } from "@/lib/validation"
-import type { AgentApplication } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import s from "./page.module.scss"
 
-type LocalAgentApplicationState = {
-	application: AgentApplication
-}
-
-const LOCAL_APPLICATION_KEY_PREFIX = "agent-application:"
-
-function getLocalStorageKey(userId: string) {
-	return `${LOCAL_APPLICATION_KEY_PREFIX}${userId}`
-}
-
 export default function ClientAgentApplicationPage() {
 	const router = useRouter()
+	const queryClient = useQueryClient()
 	const { showError, showSuccess } = useToast()
 	const { data: session, status, update } = useSession()
 	const user = session?.user
@@ -42,9 +32,16 @@ export default function ClientAgentApplicationPage() {
 			: null
 	const roleRefreshAttemptedRef = useRef(false)
 	const [isRefreshingRole, setIsRefreshingRole] = useState(false)
-	const [localApplication, setLocalApplication] =
-		useState<AgentApplication | null>(null)
-	const [sessionConflictLocked, setSessionConflictLocked] = useState(false)
+	const [submitConflictMessage, setSubmitConflictMessage] = useState<
+		string | null
+	>(null)
+
+	const currentApplicationQuery = useQuery({
+		queryKey: ["agent-application", "me", user?.id],
+		queryFn: () => api.getCurrentAgentApplication(),
+		enabled: status === "authenticated" && Boolean(user?.id),
+	})
+	const currentApplication = currentApplicationQuery.data?.item ?? null
 
 	const {
 		register,
@@ -75,7 +72,6 @@ export default function ClientAgentApplicationPage() {
 	useEffect(() => {
 		if (status !== "authenticated") return
 		if (!user) return
-		if (role === "CLIENT") return
 
 		if (role === "AGENT") {
 			router.replace("/agent/flights")
@@ -92,6 +88,10 @@ export default function ClientAgentApplicationPage() {
 		if (role === "MANAGER") {
 			router.replace("/manager/tours")
 
+			return
+		}
+
+		if (role === "CLIENT") {
 			return
 		}
 
@@ -112,6 +112,20 @@ export default function ClientAgentApplicationPage() {
 	}, [role, router, status, update, user])
 
 	useEffect(() => {
+		if (status !== "authenticated" || !user) return
+		if (role !== "CLIENT") return
+		if (currentApplication?.status !== "APPROVED") return
+		if (roleRefreshAttemptedRef.current) return
+
+		roleRefreshAttemptedRef.current = true
+		setIsRefreshingRole(true)
+
+		void update().finally(() => {
+			setIsRefreshingRole(false)
+		})
+	}, [currentApplication?.status, role, status, update, user])
+
+	useEffect(() => {
 		if (!user) return
 
 		reset({
@@ -125,49 +139,45 @@ export default function ClientAgentApplicationPage() {
 		})
 	}, [reset, user])
 
-	useEffect(() => {
-		if (!user?.id || typeof window === "undefined") return
-
-		try {
-			// Temporary session-only fallback until backend exposes a dedicated
-			// endpoint like GET /api/agent-applications/me for persisted status.
-			const rawValue = window.sessionStorage.getItem(getLocalStorageKey(user.id))
-
-			if (!rawValue) {
-				setLocalApplication(null)
-				return
-			}
-
-			const parsed = JSON.parse(rawValue) as LocalAgentApplicationState
-			setLocalApplication(parsed.application)
-		} catch {
-			setLocalApplication(null)
-		}
-	}, [user?.id])
-
-	const persistLocalApplication = (application: AgentApplication) => {
-		setLocalApplication(application)
-
-		if (!user?.id || typeof window === "undefined") return
-
-		window.sessionStorage.setItem(
-			getLocalStorageKey(user.id),
-			JSON.stringify({ application }),
-		)
-	}
-
 	const submitMutation = useMutation({
 		mutationFn: (values: AgentApplicationCreateInput) =>
 			api.createAgentApplication(values),
 		onSuccess: application => {
-			persistLocalApplication(application)
-			setSessionConflictLocked(false)
+			queryClient.setQueryData(["agent-application", "me", user?.id], {
+				item: application,
+			})
+			setSubmitConflictMessage(null)
 			showSuccess("Заявка на агентский доступ отправлена")
 		},
-		onError: error => {
+		onError: async error => {
 			if (error instanceof ApiError && error.statusCode === 409) {
-				setSessionConflictLocked(true)
-				showError("Сервер уже зафиксировал заявку или агентский статус")
+				const persisted = await queryClient
+					.fetchQuery({
+						queryKey: ["agent-application", "me", user?.id],
+						queryFn: () => api.getCurrentAgentApplication(),
+					})
+					.catch(() => null)
+
+				if (
+					error.code === "USER_ALREADY_AGENT" ||
+					persisted?.item?.status === "APPROVED"
+				) {
+					setSubmitConflictMessage(null)
+					setIsRefreshingRole(true)
+					await update().finally(() => {
+						setIsRefreshingRole(false)
+					})
+					return
+				}
+
+				setSubmitConflictMessage(
+					persisted?.item?.status === "PENDING"
+						? "Заявка уже отправлена и ожидает рассмотрения."
+						: persisted?.item?.status === "REJECTED"
+							? "Предыдущая заявка была отклонена. Проверьте причину ниже и подайте новую после корректировок."
+							: "Сервер уже зафиксировал заявку или активировал агентский доступ.",
+				)
+				showError("Повторная отправка не требуется: статус уже сохранён на сервере")
 				return
 			}
 
@@ -183,9 +193,17 @@ export default function ClientAgentApplicationPage() {
 		submitMutation.mutate(values)
 	}
 
-	const rejectionReason = localApplication?.rejectionReason?.trim()
+	const rejectionReason = currentApplication?.rejectionReason?.trim()
 	const statusCard = useMemo(() => {
-		if (localApplication?.status === "PENDING") {
+		if (currentApplication?.status === "APPROVED") {
+			return {
+				status: "APPROVED" as const,
+				title: "Агентский доступ одобрен",
+				text: "Доступ уже одобрен на сервере. Обновляем роль аккаунта и переключаем кабинет в режим агента.",
+			}
+		}
+
+		if (currentApplication?.status === "PENDING") {
 			return {
 				status: "PENDING" as const,
 				title: "Заявка на рассмотрении",
@@ -193,29 +211,40 @@ export default function ClientAgentApplicationPage() {
 			}
 		}
 
-		if (localApplication?.status === "REJECTED") {
+		if (currentApplication?.status === "REJECTED") {
 			return {
 				status: "REJECTED" as const,
 				title: "Заявка отклонена",
-				text: "Сейчас повторная подача автоматически не синхронизируется, потому что на фронте нет отдельного endpoint статуса моей заявки.",
+				text: "Заявка была отклонена. Исправьте данные с учётом причины ниже и отправьте новую заявку.",
 			}
 		}
 
-		if (sessionConflictLocked) {
+		if (submitConflictMessage) {
 			return {
 				status: "CONFLICT" as const,
 				title: "Повторная отправка заблокирована",
-				text: "Сервер сообщил, что заявка уже существует или агентский статус уже активирован. Без отдельного endpoint вида GET /api/agent-applications/me фронт не может надежно показать точный persisted-статус.",
+				text: submitConflictMessage,
 			}
 		}
 
 		return null
-	}, [localApplication?.status, sessionConflictLocked])
+	}, [currentApplication?.status, submitConflictMessage])
 
-	if (status === "loading" || isRefreshingRole) {
+	if (
+		status === "loading" ||
+		isRefreshingRole ||
+		(status === "authenticated" &&
+			role === "CLIENT" &&
+			currentApplicationQuery.isLoading)
+	) {
 		return (
 			<div className={s.loadingShell}>
-				<LoadingSpinner fullScreen text="Проверяем доступ..." />
+				<LoadingSpinner
+					fullScreen
+					text={
+						isRefreshingRole ? "Обновляем агентский доступ..." : "Проверяем доступ..."
+					}
+				/>
 			</div>
 		)
 	}
@@ -244,7 +273,9 @@ export default function ClientAgentApplicationPage() {
 				<section className={s.card}>
 					<div className={s.cardHeader}>
 						<span className={s.statusBadge} data-status={statusCard.status}>
-							{statusCard.status === "PENDING"
+							{statusCard.status === "APPROVED"
+								? "Одобрено"
+								: statusCard.status === "PENDING"
 								? "На рассмотрении"
 								: statusCard.status === "REJECTED"
 									? "Отклонено"
@@ -254,23 +285,23 @@ export default function ClientAgentApplicationPage() {
 						<p className={s.cardText}>{statusCard.text}</p>
 					</div>
 
-					{localApplication ? (
+					{currentApplication ? (
 						<div className={s.meta}>
 							<div className={s.metaItem}>
 								<span className={s.metaLabel}>Компания</span>
-								<span className={s.metaValue}>{localApplication.companyName}</span>
+								<span className={s.metaValue}>{currentApplication.companyName}</span>
 							</div>
 							<div className={s.metaItem}>
 								<span className={s.metaLabel}>Контакт</span>
-								<span className={s.metaValue}>{localApplication.contactName}</span>
+								<span className={s.metaValue}>{currentApplication.contactName}</span>
 							</div>
 							<div className={s.metaItem}>
 								<span className={s.metaLabel}>Email</span>
-								<span className={s.metaValue}>{localApplication.email}</span>
+								<span className={s.metaValue}>{currentApplication.email}</span>
 							</div>
 							<div className={s.metaItem}>
 								<span className={s.metaLabel}>Телефон</span>
-								<span className={s.metaValue}>{localApplication.phone}</span>
+								<span className={s.metaValue}>{currentApplication.phone}</span>
 							</div>
 						</div>
 					) : null}
@@ -282,9 +313,8 @@ export default function ClientAgentApplicationPage() {
 					) : null}
 
 					<p className={s.note}>
-						Если статус недавно менялся на backend, он может подтянуться не
-						сразу. В таком случае откройте страницу позже или заново войдите в
-						аккаунт, чтобы обновить роль и доступы.
+						Статус и роль подтягиваются с сервера. После одобрения кабинет
+						автоматически переключится в режим агента.
 					</p>
 
 					<div className={s.actions}>
