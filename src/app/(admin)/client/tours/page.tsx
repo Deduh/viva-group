@@ -1,11 +1,11 @@
 "use client"
 
 import {
-	BookingsSection,
+	OrdersSection,
 	ToursSection,
 } from "@/components/pages/ClientToursPage"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
-import { useBookings } from "@/hooks/useBookings"
+import { useBookingOrders } from "@/hooks/useBookingOrders"
 import { useTours } from "@/hooks/useTours"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
@@ -16,7 +16,7 @@ export default function ClientToursPage() {
 	const { data: session, status } = useSession()
 	const router = useRouter()
 	const { tours, isLoading: toursLoading } = useTours()
-	const { userBookings, isLoading: bookingsLoading } = useBookings()
+	const ordersQuery = useBookingOrders()
 
 	useEffect(() => {
 		if (status === "loading") return
@@ -59,7 +59,10 @@ export default function ClientToursPage() {
 
 	return (
 		<div className={s.shell}>
-			<BookingsSection bookings={userBookings} isLoading={bookingsLoading} />
+			<OrdersSection
+				orders={ordersQuery.data?.items ?? []}
+				isLoading={ordersQuery.isLoading}
+			/>
 
 			<ToursSection tours={tours} isLoading={toursLoading} />
 		</div>

@@ -9,10 +9,12 @@ export type FullDescriptionBlock = {
 export type CurrencyCode = "RUB" | "USD" | "EUR" | "CNY"
 
 export type TourHotel = {
+	id: string
 	name: string
 	stars: number
 	note?: string
-	basePrice: number
+	supplementPrice: number
+	agentSupplementPrice?: number
 	baseCurrency: CurrencyCode
 }
 
@@ -23,6 +25,7 @@ export type Tour = {
 	shortDescription: string // Краткое описание тура
 	fullDescriptionBlocks: FullDescriptionBlock[] // Полное описание тура (блоки)
 	price: number // Цена тура в рублях
+	agentPrice?: number // B2B цена для агентского кабинета
 	baseCurrency?: CurrencyCode // Базовая валюта цены тура
 	image: string // URL изображения тура
 	tags: string[] // Визуальные теги тура
@@ -41,14 +44,38 @@ export type Tour = {
 
 export type Participant = {
 	fullName: string
+	fullNameLatin: string
 	birthDate: string
 	gender: "male" | "female"
 	passportNumber: string
+	passportExpiresAt: string
+	selectedHotelId?: string
+	selectedHotelName?: string
+}
+
+export type ParticipantPricingSnapshot = Participant & {
+	baseTourPrice: number
+	hotelSupplement: number
+	total: number
+}
+
+export type BookingPricingSnapshot = {
+	roleSnapshot: Role
+	tour: {
+		id: string
+		publicId?: string | null
+		title: string
+		basePrice: number
+		baseCurrency: CurrencyCode
+	}
+	participants: ParticipantPricingSnapshot[]
+	totalAmount: number
 }
 
 export type Booking = {
 	id: string
 	publicId?: string // Публичный ID бронирования
+	orderId?: string
 	userId: string // ID пользователя, создавшего бронь
 	tourId: string // ID забронированного тура
 	tourPublicId?: string // Публичный ID тура (если отдается бэкендом)
@@ -59,6 +86,51 @@ export type Booking = {
 	updatedAt?: string // Дата обновления бронирования
 	paymentStatus?: PaymentStatus // Статус оплаты
 	totalAmount?: number // Сумма к оплате
+	pricingSnapshot?: BookingPricingSnapshot
+	tour?: Tour
+	user?: Pick<User, "id" | "email" | "name" | "role">
+}
+
+export type BookingOrder = {
+	id: string
+	publicId: string
+	userId: string
+	roleSnapshot: Role
+	currency: CurrencyCode
+	totalAmount: number
+	itemsCount: number
+	createdAt: string
+	updatedAt: string
+	bookings: Booking[]
+	user?: Pick<User, "id" | "email" | "name" | "role">
+}
+
+export type TourCartLeadItemSnapshot = {
+	tourId: string
+	tourPublicId?: string | null
+	title: string
+	shortDescription: string
+	price: number
+	agentPrice?: number | null
+	baseCurrency: CurrencyCode
+	hasHotelOptions: boolean
+	participantsCount: number
+	note?: string
+}
+
+export type TourCartLead = {
+	id: string
+	publicId: string
+	name: string
+	email: string
+	phone?: string | null
+	status: "new" | "handled"
+	cartSnapshot: {
+		items: TourCartLeadItemSnapshot[]
+		submittedAt: string
+	}
+	createdAt: string
+	updatedAt: string
 }
 
 export type Message = {
@@ -180,6 +252,29 @@ export type CreateBookingInput = {
 	participants: Participant[] // Список участников
 	notes?: string // Заметки
 	userId?: string // Для MANAGER/ADMIN
+}
+
+export type BookingOrderItemInput = {
+	tourId: string
+	participants: Participant[]
+	notes?: string
+}
+
+export type CreateBookingOrderInput = {
+	items: BookingOrderItemInput[]
+}
+
+export type TourCartLeadItemInput = {
+	tourId: string
+	participantsCount: number
+	note?: string
+}
+
+export type CreateTourCartLeadInput = {
+	name: string
+	email: string
+	phone?: string
+	items: TourCartLeadItemInput[]
 }
 
 export type UpdateBookingInput = {

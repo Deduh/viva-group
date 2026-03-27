@@ -6,6 +6,7 @@ import { TourBookingPanel } from "@/components/tours/TourBookingPanel/TourBookin
 import { BackButton } from "@/components/ui/BackButton/BackButton"
 import { ErrorMessage } from "@/components/ui/ErrorMessage/ErrorMessage"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
+import { useAuth } from "@/hooks/useAuth"
 import { api } from "@/lib/api"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
@@ -14,10 +15,13 @@ import s from "./page.module.scss"
 export default function PublicTourDetailPage() {
 	const params = useParams()
 	const tourId = params.id as string
+	const { user } = useAuth()
+	const audience = user?.role === "AGENT" ? "agent" : "public"
 
 	const tourQuery = useQuery({
-		queryKey: ["tours", tourId],
-		queryFn: () => api.getTour(tourId),
+		queryKey: ["tour", audience, tourId],
+		queryFn: () =>
+			user?.role === "AGENT" ? api.getAgentTour(tourId) : api.getTour(tourId),
 		enabled: !!tourId,
 	})
 

@@ -6,6 +6,7 @@ import { ClientPreloader } from "@/components/ui/Preloader/ClientPreloader"
 import { CurrencyProvider } from "@/context/CurrencyContext"
 import { PageTransitionProvider } from "@/context/PageTransitionContext"
 import { PreloaderProvider } from "@/context/PreloaderContext"
+import { TourCartProvider } from "@/context/TourCartContext"
 import { queryClient } from "@/lib/query-client"
 import { QueryClientProvider } from "@tanstack/react-query"
 import gsap from "gsap"
@@ -101,22 +102,24 @@ export function Providers({ children }: Props) {
 			<SessionExpiryGuard />
 
 			<QueryClientProvider client={queryClient}>
-				<CurrencyProvider>
-					<PreloaderProvider>
-						<PageTransitionProvider>
-							<ClientPreloader />
-							<PageTransition />
+				<TourCartProvider>
+					<CurrencyProvider>
+						<PreloaderProvider>
+							<PageTransitionProvider>
+								<ClientPreloader />
+								<PageTransition />
 
-							{enableSmoothScroll ? (
-								<ReactLenis ref={lenisRef} root options={lenisOptions}>
-									{appContent}
-								</ReactLenis>
-							) : (
-								appContent
-							)}
-						</PageTransitionProvider>
-					</PreloaderProvider>
-				</CurrencyProvider>
+								{enableSmoothScroll ? (
+									<ReactLenis ref={lenisRef} root options={lenisOptions}>
+										{appContent}
+									</ReactLenis>
+								) : (
+									appContent
+								)}
+							</PageTransitionProvider>
+						</PreloaderProvider>
+					</CurrencyProvider>
+				</TourCartProvider>
 			</QueryClientProvider>
 		</SessionProvider>
 	)

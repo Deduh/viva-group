@@ -1,10 +1,7 @@
 "use client"
 
-import { BookingForm } from "@/components/forms/BookingForm/BookingForm"
-import {
-	PriceCalculation,
-	TourInfo,
-} from "@/components/pages/ClientToursPage/TourDetail"
+import { TourInfo } from "@/components/pages/ClientToursPage/TourDetail"
+import { TourBookingPanel } from "@/components/tours/TourBookingPanel/TourBookingPanel"
 import { BackButton } from "@/components/ui/BackButton/BackButton"
 import { ErrorMessage } from "@/components/ui/ErrorMessage/ErrorMessage"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
@@ -12,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { api } from "@/lib/api"
 import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import s from "./page.module.scss"
 
 export default function ClientTourDetailPage() {
@@ -20,11 +17,12 @@ export default function ClientTourDetailPage() {
 	const router = useRouter()
 	const { user, isLoading: isAuthLoading } = useAuth()
 	const tourId = params.id as string
-	const [partySize, setPartySize] = useState(1)
+	const tourQueryKeyRole = user?.role === "AGENT" ? "agent" : "public"
 
 	const tourQuery = useQuery({
-		queryKey: ["tours", tourId],
-		queryFn: () => api.getTour(tourId),
+		queryKey: ["tour", tourQueryKeyRole, tourId],
+		queryFn: () =>
+			user?.role === "AGENT" ? api.getAgentTour(tourId) : api.getTour(tourId),
 		enabled: !!tourId,
 	})
 
@@ -45,10 +43,6 @@ export default function ClientTourDetailPage() {
 			return
 		}
 	}, [isAuthLoading, user, router])
-
-	const handleBookingSuccess = () => {
-		router.push("/client/tours")
-	}
 
 	if (isAuthLoading) {
 		return (
@@ -103,18 +97,7 @@ export default function ClientTourDetailPage() {
 				<TourInfo tour={tour} />
 
 				<div className={s.bookingSection}>
-					<BookingForm
-						tourId={tour.publicId ?? tour.id}
-						onSuccess={handleBookingSuccess}
-						onPartySizeChange={setPartySize}
-						isAvailable={tour.available}
-					/>
-
-					<PriceCalculation
-						partySize={partySize}
-						pricePerPerson={tour.price}
-						baseCurrency={tour.baseCurrency}
-					/>
+					<TourBookingPanel tour={tour} />
 				</div>
 			</div>
 		</div>

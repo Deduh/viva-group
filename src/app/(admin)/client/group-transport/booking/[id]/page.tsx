@@ -29,7 +29,7 @@ export default function GroupTransportBookingDetailPage() {
 			return
 		}
 
-		if (user && user.role !== "CLIENT") {
+		if (user && user.role !== "CLIENT" && user.role !== "AGENT") {
 			if (user.role === "ADMIN") {
 				router.push("/manager/group-transport")
 			} else if (user.role === "MANAGER") {
@@ -54,7 +54,7 @@ export default function GroupTransportBookingDetailPage() {
 		)
 	}
 
-	if (!user || user.role !== "CLIENT") {
+	if (!user || (user.role !== "CLIENT" && user.role !== "AGENT")) {
 		return null
 	}
 

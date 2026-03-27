@@ -60,12 +60,13 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 	} = useForm<TourFormValues>({
 		resolver: zodResolver(schema) as never,
 		defaultValues: tour
-			? ({
+				? ({
 					title: tour.title,
 					shortDescription: tour.shortDescription,
 					fullDescriptionBlocks: tour.fullDescriptionBlocks ?? [],
 					programText: tour.programText || "",
 					price: tour.price,
+					agentPrice: tour.agentPrice,
 					baseCurrency: tour.baseCurrency || "RUB",
 					image: formatImageUrlForDisplay(tour.image),
 					tags: tour.tags,
@@ -73,10 +74,12 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					hasHotelOptions: tour.hasHotelOptions ?? false,
 					hotels:
 						tour.hotels?.map(hotel => ({
+							id: hotel.id,
 							name: hotel.name,
 							stars: hotel.stars,
 							note: hotel.note || "",
-							basePrice: hotel.basePrice,
+							supplementPrice: hotel.supplementPrice,
+							agentSupplementPrice: hotel.agentSupplementPrice,
 							baseCurrency: hotel.baseCurrency,
 						})) ?? [],
 					dateFrom: tour.dateFrom || "",
@@ -85,12 +88,13 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					durationNights: tour.durationNights,
 					available: tour.available ?? true,
 				} as TourUpdateInput & TourFormValues)
-			: ({
+				: ({
 					title: "",
 					shortDescription: "",
 					fullDescriptionBlocks: [],
 					programText: "",
 					price: 0,
+					agentPrice: undefined,
 					baseCurrency: "RUB",
 					image: "",
 					tags: [],
@@ -166,22 +170,32 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 
 		const cleanedHotels = (data.hotels ?? [])
 			.map(hotel => ({
+				id: hotel.id,
 				name: hotel.name?.trim?.() ?? "",
 				stars:
 					hotel.stars === "" || hotel.stars === undefined
 						? 0
 						: Number(hotel.stars),
 				note: hotel.note?.trim?.() || undefined,
-				basePrice:
-					hotel.basePrice === "" || hotel.basePrice === undefined
+				supplementPrice:
+					hotel.supplementPrice === "" || hotel.supplementPrice === undefined
 						? 0
-						: Number(hotel.basePrice),
+						: Number(hotel.supplementPrice),
+				agentSupplementPrice:
+					hotel.agentSupplementPrice === "" ||
+					hotel.agentSupplementPrice === undefined
+						? undefined
+						: Number(hotel.agentSupplementPrice),
 				baseCurrency: hotel.baseCurrency,
 			}))
-			.filter(hotel => hotel.name.length > 0 && hotel.basePrice > 0)
+			.filter(hotel => hotel.name.length > 0 && hotel.supplementPrice > 0)
 
 		const cleanedData = {
 			...data,
+			agentPrice:
+				data.agentPrice === "" || data.agentPrice === undefined
+					? undefined
+					: Number(data.agentPrice),
 			fullDescriptionBlocks: cleanedBlocks,
 			programText: data.programText?.trim?.() || undefined,
 			hasHotelOptions: Boolean(data.hasHotelOptions),
@@ -323,6 +337,25 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 						{...register("price", { valueAsNumber: true })}
 					/>
 
+					<Input
+						label="Агентская цена"
+						type="number"
+						step="0.01"
+						min="0.01"
+						placeholder="0.00"
+						error={errors.agentPrice?.message}
+						disabled={isSubmitting}
+						{...register("agentPrice", {
+							setValueAs: value => {
+								if (value === "" || value === undefined || value === null) {
+									return undefined
+								}
+
+								return Number(value)
+							},
+						})}
+					/>
+
 					<div className={s.selectWrapper}>
 						<label className={s.selectLabel}>Валюта цены</label>
 						<select
@@ -448,15 +481,35 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 										/>
 
 										<Input
-											label="Цена"
+											label="Доплата B2C"
 											type="number"
 											step="0.01"
 											min="0.01"
-											error={errors.hotels?.[index]?.basePrice?.message}
+											error={errors.hotels?.[index]?.supplementPrice?.message}
 											disabled={isSubmitting}
-											{...register(`hotels.${index}.basePrice` as const, {
+											{...register(
+												`hotels.${index}.supplementPrice` as const,
+												{
 												setValueAs: v => (v === "" ? "" : Number(v)),
-											})}
+												},
+											)}
+										/>
+
+										<Input
+											label="Доплата B2B"
+											type="number"
+											step="0.01"
+											min="0.01"
+											error={
+												errors.hotels?.[index]?.agentSupplementPrice?.message
+											}
+											disabled={isSubmitting}
+											{...register(
+												`hotels.${index}.agentSupplementPrice` as const,
+												{
+													setValueAs: v => (v === "" ? "" : Number(v)),
+												},
+											)}
 										/>
 
 										<div className={s.selectWrapper}>
@@ -491,10 +544,12 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 							className={s.addItemButton}
 							onClick={() =>
 								hotelFieldsArray.append({
+									id: undefined,
 									name: "",
 									stars: "",
 									note: "",
-									basePrice: "",
+									supplementPrice: "",
+									agentSupplementPrice: "",
 									baseCurrency: "RUB",
 								})
 							}

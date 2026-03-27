@@ -1,60 +1,139 @@
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { useDebounce } from "@/hooks/useDebounce"
-import type { Booking } from "@/types"
+import { useUpdateTourCartLeadStatus } from "@/hooks/useBookingOrders"
+import type { BookingOrder, TourCartLead } from "@/types"
 import { useMemo, useState } from "react"
 import s from "./ManagerBookingsSection.module.scss"
 import { ManagerBookingCard } from "./ui/ManagerBookingCard/ManagerBookingCard"
 import { ManagerBookingsSearch } from "./ui/ManagerBookingsSearch/ManagerBookingsSearch"
 
 interface ManagerBookingsSectionProps {
-	bookings: Booking[]
+	orders: BookingOrder[]
+	leads: TourCartLead[]
 	isLoading: boolean
+	leadsLoading: boolean
 }
 
 export function ManagerBookingsSection({
-	bookings,
+	orders,
+	leads,
 	isLoading,
+	leadsLoading,
 }: ManagerBookingsSectionProps) {
 	const [search, setSearch] = useState("")
 	const debouncedSearch = useDebounce(search, 300)
+	const updateLeadStatus = useUpdateTourCartLeadStatus()
 
-	const filtered = useMemo(() => {
-		if (!debouncedSearch.trim()) return bookings
+	const filteredOrders = useMemo(() => {
+		if (!debouncedSearch.trim()) return orders
 
 		const q = debouncedSearch.toLowerCase().trim()
 
-		return bookings.filter(
-			b =>
-				b.id.toLowerCase().includes(q) ||
-				(b.publicId || "").toLowerCase().includes(q) ||
-				b.tourId.toLowerCase().includes(q) ||
-				(b.tourPublicId || "").toLowerCase().includes(q) ||
-				(b.notes || "").toLowerCase().includes(q),
+		return orders.filter(
+			order =>
+				order.id.toLowerCase().includes(q) ||
+				order.publicId.toLowerCase().includes(q) ||
+				(order.user?.email || "").toLowerCase().includes(q) ||
+				(order.user?.name || "").toLowerCase().includes(q) ||
+				order.bookings.some(
+					booking =>
+						booking.tourId.toLowerCase().includes(q) ||
+						(booking.tourPublicId || "").toLowerCase().includes(q) ||
+						(booking.notes || "").toLowerCase().includes(q),
+				),
 		)
-	}, [bookings, debouncedSearch])
+	}, [orders, debouncedSearch])
+
+	const filteredLeads = useMemo(() => {
+		if (!debouncedSearch.trim()) return leads
+
+		const q = debouncedSearch.toLowerCase().trim()
+
+		return leads.filter(
+			lead =>
+				lead.publicId.toLowerCase().includes(q) ||
+				lead.name.toLowerCase().includes(q) ||
+				lead.email.toLowerCase().includes(q) ||
+				(lead.phone || "").toLowerCase().includes(q),
+		)
+	}, [leads, debouncedSearch])
 
 	return (
 		<section className={s.section}>
 			<div className={s.header}>
-				<h2 className={s.title}>Брони туров</h2>
+				<h2 className={s.title}>Заказы туров</h2>
 
-				{bookings.length > 0 && (
-					<span className={s.cardMeta}>Всего: {bookings.length}</span>
+				{orders.length > 0 && (
+					<span className={s.cardMeta}>Всего заказов: {orders.length}</span>
 				)}
 			</div>
 
-			<ManagerBookingsSearch value={search} onChange={setSearch} />
+			<ManagerBookingsSearch
+				value={search}
+				onChange={setSearch}
+				placeholder="Поиск по ID заказа, клиенту или туру..."
+			/>
 
 			{isLoading ? (
 				<div className={s.empty}>
-					<LoadingSpinner text="Загрузка бронирований..." />
+					<LoadingSpinner text="Загрузка заказов..." />
 				</div>
-			) : filtered.length === 0 ? (
-				<div className={s.empty}>Бронирований пока нет</div>
+			) : filteredOrders.length === 0 ? (
+				<div className={s.empty}>Заказов пока нет</div>
 			) : (
 				<div className={s.list}>
-					{filtered.map(booking => (
-						<ManagerBookingCard key={booking.id} booking={booking} />
+					{filteredOrders.map(order => (
+						<ManagerBookingCard key={order.id} order={order} />
+					))}
+				</div>
+			)}
+
+			<div className={s.header} id="guest-leads">
+				<h2 className={s.title}>Guest leads по турам</h2>
+				{leads.length > 0 && <span className={s.cardMeta}>Всего лидов: {leads.length}</span>}
+			</div>
+
+			{leadsLoading ? (
+				<div className={s.empty}>
+					<LoadingSpinner text="Загрузка лидов..." />
+				</div>
+			) : filteredLeads.length === 0 ? (
+				<div className={s.empty}>Лидов пока нет</div>
+			) : (
+				<div className={s.list}>
+					{filteredLeads.map(lead => (
+						<div key={lead.id} className={s.leadCard}>
+							<div>
+								<p className={s.leadId}>#{lead.publicId}</p>
+								<h3 className={s.leadTitle}>{lead.name}</h3>
+								<p className={s.leadMeta}>
+									{lead.email}
+									{lead.phone ? ` · ${lead.phone}` : ""}
+								</p>
+							</div>
+
+							<div className={s.leadAside}>
+								<span className={s.leadStatus} data-status={lead.status}>
+									{lead.status === "new" ? "Новый lead" : "Обработан"}
+								</span>
+								<p className={s.leadMeta}>
+									Позиций: {lead.cartSnapshot.items.length}
+								</p>
+								<button
+									type="button"
+									className={s.leadAction}
+									onClick={() =>
+										updateLeadStatus.mutate({
+											id: lead.publicId,
+											status: lead.status === "new" ? "handled" : "new",
+										})
+									}
+									disabled={updateLeadStatus.isPending}
+								>
+									{lead.status === "new" ? "Отметить обработанным" : "Вернуть в new"}
+								</button>
+							</div>
+						</div>
 					))}
 				</div>
 			)}

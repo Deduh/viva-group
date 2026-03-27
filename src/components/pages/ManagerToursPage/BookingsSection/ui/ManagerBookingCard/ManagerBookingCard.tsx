@@ -1,39 +1,53 @@
 "use client"
 
+import { useCurrency } from "@/context/CurrencyContext"
 import { BOOKING_STATUS_LABEL } from "@/lib/booking-status"
 import { formatDate } from "@/lib/format"
-import type { Booking } from "@/types"
+import type { BookingOrder } from "@/types"
 import Link from "next/link"
 import s from "./ManagerBookingCard.module.scss"
 
 interface ManagerBookingCardProps {
-	booking: Booking
+	order: BookingOrder
 }
 
-export function ManagerBookingCard({ booking }: ManagerBookingCardProps) {
-	const displayBookingId = booking.publicId ?? booking.id
-	const displayTourId = booking.tourPublicId ?? booking.tourId
-	const guestsCount = booking.participants?.length ?? 0
+export function ManagerBookingCard({ order }: ManagerBookingCardProps) {
+	const { formatPrice } = useCurrency()
+	const displayOrderId = order.publicId ?? order.id
+	const customer = order.user?.name || order.user?.email || "Клиент без имени"
+	const statuses = Array.from(new Set(order.bookings.map(booking => booking.status)))
 
 	return (
 		<Link
-			href={`/manager/tours/booking/${displayBookingId}`}
+			href={`/manager/tours/booking/${displayOrderId}`}
 			className={s.card}
 		>
 			<div className={s.cardInfo}>
-				<p className={s.cardId}>#{displayBookingId}</p>
+				<div className={s.summaryRow}>
+					<div>
+						<p className={s.cardId}>#{displayOrderId}</p>
+						<h3 className={s.cardTitle}>{customer}</h3>
+					</div>
 
-				<h3 className={s.cardTitle}>Тур {displayTourId}</h3>
+					<div className={s.totalBox}>
+						<span className={s.totalLabel}>Сумма заказа</span>
+						<strong className={s.totalValue}>
+							{formatPrice(order.totalAmount, order.currency)}
+						</strong>
+					</div>
+				</div>
 
 				<p className={s.cardMeta}>
-					Гостей: {guestsCount}
-					{booking.createdAt
-						? ` · Создано: ${formatDate(booking.createdAt)}`
-						: ""}
+					{order.createdAt ? `Создано: ${formatDate(order.createdAt)} · ` : ""}
+					Позиций: {order.itemsCount}
 				</p>
 
-				<div className={s.status} data-status={booking.status}>
-					{BOOKING_STATUS_LABEL[booking.status]}
+				<div className={s.statusGroup}>
+					{statuses.slice(0, 3).map(status => (
+						<div key={status} className={s.status} data-status={status}>
+							{BOOKING_STATUS_LABEL[status]}
+						</div>
+					))}
 				</div>
 			</div>
 		</Link>

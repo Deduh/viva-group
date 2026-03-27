@@ -184,6 +184,29 @@
 	letter-spacing: 0%;
 }
 
+.agentPrice {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	margin-top: 0.8rem;
+}
+
+.agentPriceLabel {
+	color: rgba(7, 82, 92, 1);
+	font-size: 1.1rem;
+	font-weight: 700;
+	line-height: 1.4rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.agentPriceValue {
+	color: rgba(7, 151, 166, 1);
+	font-size: 1.8rem;
+	font-weight: 700;
+	line-height: 2.4rem;
+}
+
 .actions {
 	display: flex;
 	gap: 0.8rem;

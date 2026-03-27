@@ -44,9 +44,13 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 	}
 
 	const tourLookupId = booking.tourPublicId ?? booking.tourId
+	const audience = user?.role === "AGENT" ? "agent" : "public"
 	const tourQuery = useQuery({
-		queryKey: ["tours", tourLookupId],
-		queryFn: () => api.getTour(tourLookupId),
+		queryKey: ["tour", audience, tourLookupId],
+		queryFn: () =>
+			user?.role === "AGENT"
+				? api.getAgentTour(tourLookupId)
+				: api.getTour(tourLookupId),
 		enabled: !!tourLookupId,
 	})
 

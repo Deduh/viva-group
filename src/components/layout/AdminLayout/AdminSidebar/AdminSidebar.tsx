@@ -4,6 +4,7 @@ import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { useAuth } from "@/hooks/useAuth"
 import { AGENT_APPLICATION_PATH } from "@/lib/auth-redirect"
+import { ROLE_LABEL } from "@/lib/roles"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import {
@@ -12,6 +13,7 @@ import {
 	Package,
 	PlaneTakeoff,
 	Power,
+	ShoppingCart,
 	Settings,
 	UsersRound,
 } from "lucide-react"
@@ -57,16 +59,40 @@ export function AdminSidebar() {
 			roles: ["CLIENT"],
 		},
 		{
+			href: "/cart",
+			label: "Корзина",
+			icon: ShoppingCart,
+			roles: ["CLIENT", "AGENT"],
+		},
+		{
 			href: "/agent/flights",
-			label: "Агентские чартеры",
+			label: "Авиабилеты",
 			icon: PlaneTakeoff,
+			roles: ["AGENT"],
+		},
+		{
+			href: "/client/tours",
+			label: "Туры",
+			icon: Compass,
+			roles: ["AGENT"],
+		},
+		{
+			href: "/client/group-transport",
+			label: "Групповые перевозки",
+			icon: UsersRound,
 			roles: ["AGENT"],
 		},
 		// Менеджер и Админ
 		{
 			href: "/manager/tours",
-			label: "Заявки по турам",
+			label: "Заказы по турам",
 			icon: Compass,
+			roles: ["MANAGER", "ADMIN"],
+		},
+		{
+			href: "/manager/tours#guest-leads",
+			label: "Лиды туров",
+			icon: ShoppingCart,
 			roles: ["MANAGER", "ADMIN"],
 		},
 		{
@@ -122,8 +148,7 @@ export function AdminSidebar() {
 	const { setIsTransitionComplete } = usePageTransition()
 
 	const handleSignOut = useCallback(
-		async (e: React.MouseEvent<HTMLAnchorElement>) => {
-			e.preventDefault()
+		async () => {
 			setIsMenuOpen(false)
 			setIsMenuVisible(false)
 
@@ -166,7 +191,7 @@ export function AdminSidebar() {
 	const handleNavClick = (event: React.MouseEvent<HTMLElement>) => {
 		const target = event.target as HTMLElement
 
-		if (target.closest("a")) {
+		if (target.closest("a, button")) {
 			setIsMenuOpen(false)
 		}
 	}
@@ -307,13 +332,19 @@ export function AdminSidebar() {
 								{user.name && user.name.charAt(0)}
 							</div>
 
-							<div className={s.userInfoWrapper}>
-								<p className={s.userName}>{user.name || user.email}</p>
+								<div className={s.userInfoWrapper}>
+									<p className={s.userName}>{user.name || user.email}</p>
 
-								<p className={s.userRole}>{user.role}</p>
+									<div className={s.userMeta}>
+										<p className={s.userRole}>{ROLE_LABEL[user.role]}</p>
+
+										{user.role === "AGENT" && (
+											<span className={s.agentBadge}>Агент</span>
+										)}
+									</div>
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 				</div>
 
 				<nav
@@ -348,15 +379,15 @@ export function AdminSidebar() {
 						<span>Публичный сайт</span>
 					</TransitionLink>
 
-					<TransitionLink
-						href="/login"
+					<button
+						type="button"
 						onClick={handleSignOut}
 						className={`${s.navItem} ${s.logout} ${s.navItemMobile}`}
 					>
 						<Power className={s.icon} strokeWidth={3} />
 
 						<span>Выйти</span>
-					</TransitionLink>
+					</button>
 				</nav>
 			</div>
 
@@ -367,15 +398,15 @@ export function AdminSidebar() {
 					<span>Публичный сайт</span>
 				</TransitionLink>
 
-				<TransitionLink
-					href="/login"
+				<button
+					type="button"
 					onClick={handleSignOut}
 					className={`${s.navItem} ${s.logout}`}
 				>
 					<Power className={s.icon} strokeWidth={3} />
 
 					<span>Выйти</span>
-				</TransitionLink>
+				</button>
 			</div>
 
 			<button

@@ -18,6 +18,8 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: 1rem;
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .item {
@@ -46,10 +48,12 @@
 }
 
 .meta {
+	flex: 0 0 auto;
 	font-size: 1.3rem;
 	font-weight: 500;
 	line-height: 1.8rem;
 	color: rgba(255, 255, 255, 0.75);
+	white-space: nowrap;
 }
 
 @media (max-width: 768px) {

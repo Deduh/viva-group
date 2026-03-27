@@ -16,19 +16,23 @@ import type {
 	ApiCollection,
 	AgentApplication,
 	Booking,
+	BookingOrder,
 	CharterBooking,
 	CharterBookingsFilters,
 	CharterFlight,
 	CharterFlightsFilters,
 	CreateAgentApplicationInput,
 	CreateBookingInput,
+	CreateBookingOrderInput,
 	CreateCharterBookingInput,
 	CreateCharterFlightInput,
 	CreateManagerInput,
+	CreateTourCartLeadInput,
 	CurrencySettings,
 	CurrencySettingsUpdateInput,
 	Message,
 	Tour,
+	TourCartLead,
 	UpdateAgentApplicationStatusInput,
 	UpdateBookingInput,
 	UpdateCharterFlightInput,
@@ -47,11 +51,13 @@ import {
 	ApiCollectionSchema,
 	AgentApplicationSchema,
 	BookingSchema,
+	BookingOrderSchema,
 	CharterBookingSchema,
 	CharterFlightSchema,
 	CurrencySettingsSchema,
 	MessageSchema,
 	TourSchema,
+	TourCartLeadSchema,
 	UserSchema,
 } from "./api-schemas"
 import { env as publicEnv } from "./env/client"
@@ -526,8 +532,22 @@ export const api = {
 			"/api/tours",
 			ApiCollectionSchema(TourSchema),
 		),
+	getToursAdmin: () =>
+		fetchAndValidate<ApiCollection<Tour>>(
+			"/api/tours/admin",
+			ApiCollectionSchema(TourSchema),
+		),
+	getAgentTours: () =>
+		fetchAndValidate<ApiCollection<Tour>>(
+			"/api/tours/agent",
+			ApiCollectionSchema(TourSchema),
+		),
 	getTour: (id: string) =>
 		fetchAndValidate<Tour>(`/api/tours/${id}`, TourSchema),
+	getTourAdmin: (id: string) =>
+		fetchAndValidate<Tour>(`/api/tours/admin/${id}`, TourSchema),
+	getAgentTour: (id: string) =>
+		fetchAndValidate<Tour>(`/api/tours/agent/${id}`, TourSchema),
 	getManagers: async (): Promise<ApiCollection<User>> => {
 		return fetchAndValidate<ApiCollection<User>>(
 			"/api/admin/managers",
@@ -633,6 +653,26 @@ export const api = {
 		fetchAndValidate<ApiCollection<Booking>>(
 			"/api/bookings",
 			ApiCollectionSchema(BookingSchema),
+		),
+	getBookingOrders: () =>
+		fetchAndValidate<ApiCollection<BookingOrder>>(
+			"/api/booking-orders",
+			ApiCollectionSchema(BookingOrderSchema),
+		),
+	getBookingOrder: (id: string) =>
+		fetchAndValidate<BookingOrder>(
+			`/api/booking-orders/${id}`,
+			BookingOrderSchema,
+		),
+	getTourCartLeads: () =>
+		fetchAndValidate<ApiCollection<TourCartLead>>(
+			"/api/admin/tour-cart-leads",
+			ApiCollectionSchema(TourCartLeadSchema),
+		),
+	getTourCartLead: (id: string) =>
+		fetchAndValidate<TourCartLead>(
+			`/api/admin/tour-cart-leads/${id}`,
+			TourCartLeadSchema,
 		),
 	getCharterFlights: (filters: CharterFlightsFilters = {}) => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1101,6 +1141,51 @@ export const api = {
 			body: JSON.stringify(data),
 		})
 	},
+	createBookingOrder: async (data: CreateBookingOrderInput) => {
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"TOUR_BOOKING",
+		)
+
+		return fetchAndValidate<BookingOrder>(
+			"/api/booking-orders",
+			BookingOrderSchema,
+			{
+				method: "POST",
+				headers,
+				body: JSON.stringify(data),
+			},
+		)
+	},
+	createTourCartLead: async (data: CreateTourCartLeadInput) => {
+		const headers = await buildHeaders(
+			{ "Content-Type": "application/json" },
+			"CONTACT",
+		)
+
+		return fetchAndValidate<TourCartLead>(
+			"/api/booking-orders/guest",
+			TourCartLeadSchema,
+			{
+				method: "POST",
+				headers,
+				body: JSON.stringify(data),
+			},
+		)
+	},
+	updateTourCartLeadStatus: async (
+		id: string,
+		status: TourCartLead["status"],
+	) =>
+		fetchAndValidate<TourCartLead>(
+			`/api/admin/tour-cart-leads/${id}/status`,
+			TourCartLeadSchema,
+			{
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ status }),
+			},
+		),
 	updateBooking: async (id: string, data: UpdateBookingInput) => {
 		return fetchJson<Booking>(`/api/bookings/${id}`, {
 			method: "PATCH",

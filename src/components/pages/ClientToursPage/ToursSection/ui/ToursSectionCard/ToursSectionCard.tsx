@@ -1,7 +1,10 @@
 "use client"
 
 import { useCurrency } from "@/context/CurrencyContext"
+import { useTourCart } from "@/context/TourCartContext"
 import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
+import { useAuth } from "@/hooks/useAuth"
+import { useToast } from "@/hooks/useToast"
 import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
@@ -9,11 +12,11 @@ import {
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
-import { getPublicTourHref } from "@/lib/tours"
+import { getPublicTourHref, getTourAudiencePrice } from "@/lib/tours"
 import type { Tour } from "@/types"
 import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
+import { TransitionLink } from "@/components/ui/PageTransition"
 import s from "./ToursSectionCard.module.scss"
 
 interface ToursSectionCardProps {
@@ -23,34 +26,48 @@ interface ToursSectionCardProps {
 
 export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 	const { formatPrice } = useCurrency()
+	const { user } = useAuth()
+	const { addItem } = useTourCart()
+	const { showSuccess } = useToast()
 	const isAvailable = tour.available !== false
+	const displayPrice = getTourAudiencePrice(tour, user?.role)
+	const detailHref = getPublicTourHref(tour)
+
+	const handleAddToCart = () => {
+		addItem({
+			tourId: tour.id,
+			tourPublicId: tour.publicId,
+		})
+		showSuccess("Тур добавлен в корзину.")
+	}
 
 	return (
-		<Link
-			href={getPublicTourHref(tour)}
-			className={`${s.tourCard} ${!isAvailable ? s.tourCardUnavailable : ""}`}
-		>
+		<article className={`${s.tourCard} ${!isAvailable ? s.tourCardUnavailable : ""}`}>
 			<div className={s.cardImage}>
-				<Image
-					src={tour.image}
-					alt={getTourImageAlt(tour.title)}
-					fill
-					sizes={getImageSizes({
-						mobile: "100vw",
-						tablet: "50vw",
-						desktop: "33vw",
-					})}
-					priority={shouldUsePriority(index)}
-					placeholder="blur"
-					blurDataURL={BLUR_PLACEHOLDER}
-				/>
+				<TransitionLink href={detailHref} className={s.imageLink}>
+					<Image
+						src={tour.image}
+						alt={getTourImageAlt(tour.title)}
+						fill
+						sizes={getImageSizes({
+							mobile: "100vw",
+							tablet: "50vw",
+							desktop: "33vw",
+						})}
+						priority={shouldUsePriority(index)}
+						placeholder="blur"
+						blurDataURL={BLUR_PLACEHOLDER}
+					/>
+				</TransitionLink>
 			</div>
 
 			<div className={s.cardContent}>
 				<div className={s.top}>
 					<div className={s.description}>
 						<div className={s.descriptionWrapper}>
-							<h3 className={s.cardTitle}>{tour.title}</h3>
+							<TransitionLink href={detailHref} className={s.titleLink}>
+								<h3 className={s.cardTitle}>{tour.title}</h3>
+							</TransitionLink>
 						</div>
 
 						<p className={s.text}>{tour.shortDescription}</p>
@@ -102,13 +119,26 @@ export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 						<span className={s.pricePlaceholder}>Цена за человека</span>
 
 						<span className={s.priceText}>
-							{formatPrice(tour.price, tour.baseCurrency)}
+							{formatPrice(displayPrice, tour.baseCurrency)}
 						</span>
 					</div>
 
-					<button className={s.bottomButton}>Подробнее</button>
+					<div className={s.bottomActions}>
+						<button
+							type="button"
+							className={s.secondaryButton}
+							onClick={handleAddToCart}
+							disabled={!isAvailable}
+						>
+							В корзину
+						</button>
+
+						<TransitionLink href={detailHref} className={s.bottomButton}>
+							Подробнее
+						</TransitionLink>
+					</div>
 				</div>
 			</div>
-		</Link>
+		</article>
 	)
 }

@@ -2,19 +2,17 @@
 
 import { ManagerBookingsSection } from "@/components/pages/ManagerToursPage"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
-import { useBookings } from "@/hooks/useBookings"
+import { useBookingOrders, useTourCartLeads } from "@/hooks/useBookingOrders"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import s from "./page.module.scss"
 
-export default function ManagerToursPage() {
+	export default function ManagerToursPage() {
 	const { data: session, status } = useSession()
 	const router = useRouter()
-	const { bookings, isLoading: bookingsLoading } = useBookings({
-		enableAutoFetch: true,
-		showToasts: false,
-	})
+	const ordersQuery = useBookingOrders(true)
+	const leadsQuery = useTourCartLeads(true)
 
 	useEffect(() => {
 		if (status === "loading") return
@@ -55,7 +53,12 @@ export default function ManagerToursPage() {
 
 	return (
 		<div className={s.shell}>
-			<ManagerBookingsSection bookings={bookings} isLoading={bookingsLoading} />
+			<ManagerBookingsSection
+				orders={ordersQuery.data?.items ?? []}
+				leads={leadsQuery.data?.items ?? []}
+				isLoading={ordersQuery.isLoading}
+				leadsLoading={leadsQuery.isLoading}
+			/>
 		</div>
 	)
 }

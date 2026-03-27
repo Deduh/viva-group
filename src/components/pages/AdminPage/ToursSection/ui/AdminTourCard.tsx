@@ -101,11 +101,20 @@ export function AdminTourCard({
 
 				<div className={s.bottom}>
 					<div className={s.price}>
-						<span className={s.pricePlaceholder}>Цена за человека</span>
+						<span className={s.pricePlaceholder}>Цена B2C</span>
 
 						<span className={s.priceText}>
 							{formatPrice(tour.price, tour.baseCurrency)}
 						</span>
+
+						{typeof tour.agentPrice === "number" && (
+							<div className={s.agentPrice}>
+								<span className={s.agentPriceLabel}>Цена B2B</span>
+								<span className={s.agentPriceValue}>
+									{formatPrice(tour.agentPrice, tour.baseCurrency)}
+								</span>
+							</div>
+						)}
 					</div>
 
 					<div className={s.actions}>

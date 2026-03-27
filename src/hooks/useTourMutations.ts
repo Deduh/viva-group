@@ -14,9 +14,11 @@ export function useCreateTour() {
 	return useMutation({
 		mutationFn: (data: TourCreateInput) => api.createTour(data),
 		onSuccess: (newTour: Tour) => {
-			queryClient.invalidateQueries({ queryKey: ["tours"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "public"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "agent"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "admin"] })
 
-			queryClient.setQueryData<{ items: Tour[] }>(["tours"], old => {
+			queryClient.setQueryData<{ items: Tour[] }>(["tours", "admin"], old => {
 				if (!old) return { items: [newTour] }
 				return { items: [...old.items, newTour] }
 			})
@@ -38,9 +40,11 @@ export function useUpdateTour() {
 		mutationFn: ({ id, data }: { id: string; data: TourUpdateInput }) =>
 			api.updateTour(id, data),
 		onSuccess: (updatedTour: Tour) => {
-			queryClient.invalidateQueries({ queryKey: ["tours"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "public"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "agent"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "admin"] })
 
-			queryClient.setQueryData<{ items: Tour[] }>(["tours"], old => {
+			queryClient.setQueryData<{ items: Tour[] }>(["tours", "admin"], old => {
 				if (!old) return { items: [updatedTour] }
 				return {
 					items: old.items.map(tour =>
@@ -49,7 +53,10 @@ export function useUpdateTour() {
 				}
 			})
 
-			queryClient.setQueryData<Tour>(["tours", updatedTour.id], updatedTour)
+			queryClient.setQueryData<Tour>(
+				["tour", "admin", updatedTour.id],
+				updatedTour,
+			)
 
 			showSuccess("Тур успешно обновлен!")
 		},
@@ -67,16 +74,20 @@ export function useDeleteTour() {
 	return useMutation({
 		mutationFn: (id: string) => api.deleteTour(id),
 		onSuccess: (_, deletedId) => {
-			queryClient.invalidateQueries({ queryKey: ["tours"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "public"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "agent"] })
+			queryClient.invalidateQueries({ queryKey: ["tours", "admin"] })
 
-			queryClient.setQueryData<{ items: Tour[] }>(["tours"], old => {
+			queryClient.setQueryData<{ items: Tour[] }>(["tours", "admin"], old => {
 				if (!old) return { items: [] }
 				return {
 					items: old.items.filter(tour => tour.id !== deletedId),
 				}
 			})
 
-			queryClient.removeQueries({ queryKey: ["tours", deletedId] })
+			queryClient.removeQueries({ queryKey: ["tour", "admin", deletedId] })
+			queryClient.removeQueries({ queryKey: ["tour", "public", deletedId] })
+			queryClient.removeQueries({ queryKey: ["tour", "agent", deletedId] })
 
 			showSuccess("Тур успешно удален!")
 		},

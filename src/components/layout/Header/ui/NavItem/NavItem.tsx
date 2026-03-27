@@ -15,6 +15,7 @@ export type SubLink = { href: string; label: string }
 export type LinkItem = {
 	href?: string
 	label: string
+	desktopLabel?: string
 	subLinks?: SubLink[]
 	isMenuOnly?: boolean
 	icon?: LucideIcon
@@ -91,7 +92,14 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 				<button
 					type="button"
 					className={`${s.linkWrapper} ${isActive ? s.active : ""}`}
-					onClick={() => setIsMobileSubMenuOpen(true)}
+					onClick={() => {
+						if (
+							typeof window !== "undefined" &&
+							window.matchMedia("(max-width: 1279px)").matches
+						) {
+							setIsMobileSubMenuOpen(true)
+						}
+					}}
 				>
 					{Icon && (
 						<span className={s.linkIcon}>
@@ -170,21 +178,25 @@ export function NavItem({ item, isMenuOpen, onCloseMenu }: NavItemProps) {
 						<span>Назад</span>
 					</button>
 
-					{item.subLinks!.map(sub => (
-						<Link
-							key={sub.href}
-							href={sub.href}
-							className={s.mobileLink}
-							target="_blank"
-							rel="noreferrer"
-							onClick={() => {
-								setIsMobileSubMenuOpen(false)
-								onCloseMenu?.()
-							}}
-						>
-							{sub.label}
-						</Link>
-					))}
+					{item.subLinks!.map(sub => {
+						const isExternal = sub.href.startsWith("http")
+
+						return (
+							<Link
+								key={sub.href}
+								href={sub.href}
+								className={s.mobileLink}
+								target={isExternal ? "_blank" : undefined}
+								rel={isExternal ? "noreferrer" : undefined}
+								onClick={() => {
+									setIsMobileSubMenuOpen(false)
+									onCloseMenu?.()
+								}}
+							>
+								{sub.label}
+							</Link>
+						)
+					})}
 				</div>
 			)}
 		</div>

@@ -1,0 +1,181 @@
+.shell {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.hero,
+.card {
+	padding: 2.4rem;
+	border-radius: 2.4rem;
+	background: rgba(255, 255, 255, 0.96);
+	border: 0.1rem solid rgba(226, 232, 240, 1);
+	box-shadow: 0 2rem 4rem -3rem rgba(15, 23, 42, 0.28);
+}
+
+.hero {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 2rem;
+}
+
+.kicker,
+.meta,
+.bookingId,
+.cardMeta,
+.participantMeta {
+	margin: 0;
+}
+
+.kicker {
+	color: rgba(7, 151, 166, 1);
+	font-size: 1.2rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.title {
+	margin: 0.8rem 0 0;
+	font-size: 3.2rem;
+	color: rgba(15, 23, 42, 1);
+}
+
+.meta {
+	margin-top: 0.8rem;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+}
+
+.totalCard {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+	min-width: 24rem;
+	padding: 1.6rem 1.8rem;
+	border-radius: 2rem;
+	background: rgba(241, 245, 249, 0.9);
+}
+
+.totalCard span {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.3rem;
+}
+
+.totalCard strong {
+	color: rgba(15, 23, 42, 1);
+	font-size: 2.8rem;
+	line-height: 1;
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: 1.6rem;
+}
+
+.cardHeader {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 2rem;
+}
+
+.bookingId {
+	color: rgba(7, 151, 166, 1);
+	font-size: 1.2rem;
+	font-weight: 700;
+}
+
+.cardTitle {
+	margin: 0.8rem 0 0;
+	color: rgba(15, 23, 42, 1);
+	font-size: 2.2rem;
+}
+
+.cardMeta {
+	margin-top: 0.8rem;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+}
+
+.cardAside {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 1rem;
+}
+
+.itemTotal {
+	color: rgba(15, 23, 42, 1);
+	font-size: 2rem;
+	font-weight: 700;
+}
+
+.detailLink {
+	color: rgba(7, 151, 166, 1);
+	font-size: 1.4rem;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.participants {
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+	margin-top: 1.8rem;
+}
+
+.participant {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.6rem;
+	padding: 1.6rem;
+	border-radius: 1.8rem;
+	background: rgba(248, 250, 252, 0.95);
+}
+
+.participantName {
+	margin: 0;
+	color: rgba(15, 23, 42, 1);
+	font-size: 1.7rem;
+}
+
+.participantMeta {
+	margin-top: 0.6rem;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.35rem;
+}
+
+.breakdown {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.4rem;
+}
+
+.breakdown span {
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.3rem;
+}
+
+.breakdown strong {
+	color: rgba(15, 23, 42, 1);
+	font-size: 1.7rem;
+}
+
+@media (max-width: 768px) {
+	.hero,
+	.cardHeader,
+	.participant {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.cardAside,
+	.breakdown {
+		align-items: flex-start;
+	}
+}

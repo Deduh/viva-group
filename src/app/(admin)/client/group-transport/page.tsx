@@ -25,7 +25,7 @@ export default function ClientGroupTransportPage() {
 			return
 		}
 
-		if (session.user.role !== "CLIENT") {
+		if (session.user.role !== "CLIENT" && session.user.role !== "AGENT") {
 			if (session.user.role === "ADMIN") {
 				router.push("/manager/group-transport")
 			} else if (session.user.role === "MANAGER") {
@@ -44,7 +44,10 @@ export default function ClientGroupTransportPage() {
 		)
 	}
 
-	if (!session?.user || session.user.role !== "CLIENT") {
+	if (
+		!session?.user ||
+		(session.user.role !== "CLIENT" && session.user.role !== "AGENT")
+	) {
 		return (
 			<div className={styles.shell}>
 				<LoadingSpinner fullScreen text="Перенаправление..." />

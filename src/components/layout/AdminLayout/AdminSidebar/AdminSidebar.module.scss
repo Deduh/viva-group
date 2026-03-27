@@ -126,6 +126,13 @@
 	}
 }
 
+.userMeta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.8rem;
+}
+
 .userName {
 	color: rgba(30, 41, 59, 1);
 	font-size: 1.4rem;
@@ -140,6 +147,22 @@
 	font-weight: 500;
 	line-height: 1.2rem;
 	letter-spacing: 0%;
+	text-transform: uppercase;
+}
+
+.agentBadge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.4rem 0.8rem;
+	border-radius: 99.9rem;
+	background: rgba(7, 151, 166, 0.12);
+	border: 1px solid rgba(7, 151, 166, 0.18);
+	color: rgba(7, 82, 92, 1);
+	font-size: 1.1rem;
+	font-weight: 700;
+	line-height: 1;
+	letter-spacing: 0.06em;
 	text-transform: uppercase;
 }
 
@@ -270,6 +293,9 @@
 .logout {
 	display: flex;
 	justify-content: center;
+	border: 1px solid transparent;
+	cursor: pointer;
+	appearance: none;
 
 	background: none;
 

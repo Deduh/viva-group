@@ -6,10 +6,12 @@ export type TourFormBlock = {
 }
 
 export type TourHotelFormValue = {
+	id?: string
 	name: string
 	stars: number | ""
 	note?: string
-	basePrice: number | ""
+	supplementPrice: number | ""
+	agentSupplementPrice?: number | ""
 	baseCurrency: CurrencyCode
 }
 
@@ -19,6 +21,7 @@ export type TourFormValues = {
 	fullDescriptionBlocks: TourFormBlock[]
 	programText?: string
 	price: number
+	agentPrice?: number | ""
 	baseCurrency: CurrencyCode
 	image: string
 	tags: string[]

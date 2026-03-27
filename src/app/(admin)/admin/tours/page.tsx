@@ -27,8 +27,8 @@ export default function AdminToursPage() {
 	const [deletingTour, setDeletingTour] = useState<Tour | null>(null)
 
 	const toursQuery = useQuery({
-		queryKey: ["tours"],
-		queryFn: api.getTours,
+		queryKey: ["tours", "admin"],
+		queryFn: api.getToursAdmin,
 	})
 
 	const createTourMutation = useCreateTour()

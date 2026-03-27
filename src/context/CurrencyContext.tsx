@@ -72,7 +72,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 		[data, market],
 	)
 
-	const quotes = useMemo(() => buildCurrencyQuotes(market), [market])
+	const quotes = useMemo(() => buildCurrencyQuotes(settings), [settings])
 
 	useEffect(() => {
 		if (typeof window === "undefined") return

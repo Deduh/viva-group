@@ -1,9 +1,11 @@
 "use client"
 
 import { api } from "@/lib/api"
+import { getTourAudiencePrice } from "@/lib/tours"
 import type { Tour, TourFilters } from "@/types"
 import { useQuery } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
+import { useAuth } from "./useAuth"
 import { useDebounce } from "./useDebounce"
 
 type SortOption = "price" | "createdAt" | "title"
@@ -16,10 +18,13 @@ export type UseToursOptions = {
 
 export function useTours(options: UseToursOptions = {}) {
 	const { initialFilters = {}, enableAutoFetch = true } = options
+	const { user } = useAuth()
+	const audience = user?.role === "AGENT" ? "agent" : "public"
+	const getDisplayPrice = (tour: Tour) => getTourAudiencePrice(tour, user?.role)
 
 	const { data, isLoading, error, refetch } = useQuery({
-		queryKey: ["tours"],
-		queryFn: api.getTours,
+		queryKey: ["tours", audience],
+		queryFn: () => (audience === "agent" ? api.getAgentTours() : api.getTours()),
 		enabled: enableAutoFetch,
 	})
 
@@ -56,11 +61,11 @@ export function useTours(options: UseToursOptions = {}) {
 		}
 
 		if (filters.minPrice !== undefined) {
-			result = result.filter(tour => tour.price >= filters.minPrice!)
+			result = result.filter(tour => getDisplayPrice(tour) >= filters.minPrice!)
 		}
 
 		if (filters.maxPrice !== undefined) {
-			result = result.filter(tour => tour.price <= filters.maxPrice!)
+			result = result.filter(tour => getDisplayPrice(tour) <= filters.maxPrice!)
 		}
 
 		if (filters.search) {
@@ -78,7 +83,7 @@ export function useTours(options: UseToursOptions = {}) {
 
 			switch (sortBy) {
 				case "price":
-					compareValue = a.price - b.price
+					compareValue = getDisplayPrice(a) - getDisplayPrice(b)
 					break
 				case "title":
 					compareValue = a.title.localeCompare(b.title)
@@ -95,7 +100,7 @@ export function useTours(options: UseToursOptions = {}) {
 		})
 
 		return result
-	}, [tours, debouncedSearch, filters, sortBy, sortOrder])
+	}, [tours, debouncedSearch, filters, sortBy, sortOrder, user?.role])
 
 	const totalPages = Math.ceil(filteredAndSortedTours.length / itemsPerPage)
 
@@ -159,13 +164,13 @@ export function useTours(options: UseToursOptions = {}) {
 	const priceRange = useMemo(() => {
 		if (tours.length === 0) return { min: 0, max: 0 }
 
-		const prices = tours.map(t => t.price)
+		const prices = tours.map(getDisplayPrice)
 
 		return {
 			min: Math.min(...prices),
 			max: Math.max(...prices),
 		}
-	}, [tours])
+	}, [tours, user?.role])
 
 	return {
 		// Данные

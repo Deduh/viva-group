@@ -26,8 +26,7 @@ export function TourProgramSection({ tour }: TourProgramSectionProps) {
 				<div>
 					<h2 className={s.title}>Программа тура</h2>
 					<p className={s.text}>
-						Маршрут автоматически собран из текста менеджера и приведен к
-						удобному виду.
+						Маршрут Вашей поездки по дням.
 					</p>
 				</div>
 			</div>

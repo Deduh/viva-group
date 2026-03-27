@@ -1,9 +1,11 @@
 "use client"
 
 import { ManagerBookingDetail } from "@/components/bookings/BookingDetail/ManagerBookingDetail"
+import { OrderDetailView } from "@/components/bookings/OrderDetailView"
 import { ErrorMessage } from "@/components/ui/ErrorMessage/ErrorMessage"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { useAuth } from "@/hooks/useAuth"
+import { useBookingOrder } from "@/hooks/useBookingOrders"
 import { api } from "@/lib/api"
 import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
@@ -15,12 +17,14 @@ export default function ManagerBookingDetailPage() {
 	const router = useRouter()
 	const { user, isLoading: isAuthLoading } = useAuth()
 	const bookingId = params.id as string
+	const isOrderRoute = bookingId.startsWith("VIVA-ORDER")
 
 	const bookingQuery = useQuery({
 		queryKey: ["bookings", bookingId],
 		queryFn: () => api.getBooking(bookingId),
-		enabled: !!bookingId,
+		enabled: !!bookingId && !isOrderRoute,
 	})
+	const orderQuery = useBookingOrder(bookingId, !!bookingId && isOrderRoute)
 
 	useEffect(() => {
 		if (!isAuthLoading && !user) {
@@ -53,21 +57,35 @@ export default function ManagerBookingDetailPage() {
 		)
 	}
 
-	if (bookingQuery.isLoading) {
+	if (bookingQuery.isLoading || orderQuery.isLoading) {
 		return (
 			<div className={s.shell}>
-				<LoadingSpinner fullScreen text="Загрузка бронирования..." />
+				<LoadingSpinner fullScreen text="Загрузка деталей..." />
 			</div>
 		)
 	}
 
-	if (bookingQuery.error) {
+	if (bookingQuery.error || orderQuery.error) {
 		return (
 			<div className={s.shell}>
 				<ErrorMessage
-					title="Ошибка загрузки бронирования"
-					message="Не удалось загрузить информацию о бронировании."
-					error={bookingQuery.error as Error}
+					title="Ошибка загрузки"
+					message="Не удалось загрузить информацию по туру."
+					error={(bookingQuery.error || orderQuery.error) as Error}
+				/>
+			</div>
+		)
+	}
+
+	if (isOrderRoute && orderQuery.data) {
+		return (
+			<div className={s.shell}>
+				<OrderDetailView
+					order={orderQuery.data}
+					backHref="/manager/tours"
+					backLabel="Назад к заказам"
+					bookingHrefBuilder={id => `/manager/tours/booking/${id}`}
+					showCustomer
 				/>
 			</div>
 		)
@@ -77,8 +95,8 @@ export default function ManagerBookingDetailPage() {
 		return (
 			<div className={s.shell}>
 				<ErrorMessage
-					title="Бронирование не найдено"
-					message="Бронирование с указанным ID не существует."
+					title="Запись не найдена"
+					message="Не удалось найти бронирование или заказ с указанным ID."
 				/>
 			</div>
 		)

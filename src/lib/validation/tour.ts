@@ -3,6 +3,7 @@ import { z } from "zod"
 const currencyCodeSchema = z.enum(["RUB", "USD", "EUR", "CNY"])
 
 const tourHotelInputSchema = z.object({
+	id: z.string().optional(),
 	name: z
 		.string()
 		.min(1, "Название отеля обязательно")
@@ -17,10 +18,15 @@ const tourHotelInputSchema = z.object({
 		.max(300, "Комментарий к отелю слишком длинный")
 		.optional()
 		.or(z.literal("")),
-	basePrice: z
+	supplementPrice: z
 		.number()
-		.positive("Цена отеля должна быть положительной")
-		.min(0.01, "Цена отеля должна быть больше 0"),
+		.positive("Доплата по отелю должна быть положительной")
+		.min(0.01, "Доплата по отелю должна быть больше 0"),
+	agentSupplementPrice: z
+		.number()
+		.positive("Агентская доплата должна быть положительной")
+		.min(0.01, "Агентская доплата должна быть больше 0")
+		.optional(),
 	baseCurrency: currencyCodeSchema.default("RUB"),
 })
 
@@ -50,6 +56,12 @@ export const tourCreateInputSchema = z.object({
 		.number()
 		.positive("Цена должна быть положительным числом")
 		.min(0.01, "Цена должна быть больше 0"),
+	agentPrice: z
+		.number()
+		.positive("Агентская цена должна быть положительным числом")
+		.min(0.01, "Агентская цена должна быть больше 0")
+		.optional()
+		.or(z.literal("")),
 	baseCurrency: currencyCodeSchema.default("RUB"),
 	image: z
 		.string()
@@ -107,6 +119,12 @@ export const tourUpdateInputSchema = z.object({
 		.positive("Цена должна быть положительным числом")
 		.min(0.01, "Цена должна быть больше 0")
 		.optional(),
+	agentPrice: z
+		.number()
+		.positive("Агентская цена должна быть положительным числом")
+		.min(0.01, "Агентская цена должна быть больше 0")
+		.optional()
+		.or(z.literal("")),
 	baseCurrency: currencyCodeSchema.optional(),
 	image: z
 		.string()

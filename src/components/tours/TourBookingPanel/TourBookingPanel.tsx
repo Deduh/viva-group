@@ -1,10 +1,11 @@
 "use client"
 
-import { BookingForm } from "@/components/forms/BookingForm/BookingForm"
 import { PriceCalculation } from "@/components/pages/ClientToursPage/TourDetail"
 import { TransitionLink } from "@/components/ui/PageTransition"
+import { useTourCart } from "@/context/TourCartContext"
 import { useAuth } from "@/hooks/useAuth"
-import { getPublicTourHref } from "@/lib/tours"
+import { useToast } from "@/hooks/useToast"
+import { getPublicTourHref, getTourAudiencePrice } from "@/lib/tours"
 import type { Tour } from "@/types"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -17,68 +18,96 @@ interface TourBookingPanelProps {
 export function TourBookingPanel({ tour }: TourBookingPanelProps) {
 	const pathname = usePathname()
 	const { user, isLoading } = useAuth()
+	const { addItem } = useTourCart()
+	const { showSuccess } = useToast()
 	const [partySize, setPartySize] = useState(1)
+
 	const callbackUrl = pathname || getPublicTourHref(tour)
 	const canBookAsTraveler = user?.role === "CLIENT" || user?.role === "AGENT"
 
+	const handleAddToCart = () => {
+		addItem({
+			tourId: tour.id,
+			tourPublicId: tour.publicId,
+			participantsCount: partySize,
+		})
+		showSuccess("Тур добавлен в корзину.")
+	}
+
 	return (
 		<div className={s.wrapper}>
-			{isLoading ? (
-				<div className={s.infoCard}>
-					<h2 className={s.title}>Проверяем доступ</h2>
-					<p className={s.text}>Подготавливаем форму бронирования тура.</p>
-				</div>
-			) : !user ? (
-				<div className={s.infoCard}>
-					<h2 className={s.title}>Бронирование доступно после входа</h2>
-					<p className={s.text}>
-						Сначала ознакомьтесь с программой и отелями, затем войдите в аккаунт
-						и отправьте заявку на бронирование.
-					</p>
+			<div className={s.infoCard}>
+				<h2 className={s.title}>Cart-first бронирование</h2>
+				<p className={s.text}>
+					Добавьте программу в корзину, затем в checkout выберите отель как
+					отдельную доплату по каждому участнику и заполните паспортные данные.
+				</p>
 
-					<div className={s.actions}>
-						<TransitionLink
-							href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-							className={s.primary}
-						>
-							Войти
-						</TransitionLink>
-
-						<TransitionLink
-							href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-							className={s.secondary}
-						>
-							Зарегистрироваться
-						</TransitionLink>
-					</div>
-				</div>
-			) : canBookAsTraveler ? (
-				<>
-					<BookingForm
-						tourId={tour.publicId ?? tour.id}
-						onPartySizeChange={setPartySize}
-						isAvailable={tour.available}
+				<label className={s.counterField}>
+					<span>Количество участников</span>
+					<input
+						type="number"
+						min="1"
+						value={partySize}
+						disabled={isLoading || tour.available === false}
+						onChange={event => setPartySize(Math.max(1, Number(event.target.value) || 1))}
 					/>
+				</label>
 
-					<PriceCalculation
-						partySize={partySize}
-						pricePerPerson={tour.price}
-						baseCurrency={tour.baseCurrency}
-					/>
-				</>
-			) : (
-				<div className={s.infoCard}>
-					<h2 className={s.title}>Управление турами доступно из кабинета</h2>
-					<p className={s.text}>
-						Для бронирования используйте клиентский или агентский аккаунт. Ваша
-						текущая роль открывает раздел управления.
-					</p>
+				<div className={s.actions}>
+					<button
+						type="button"
+						className={s.primary}
+						onClick={handleAddToCart}
+						disabled={isLoading || tour.available === false}
+					>
+						Добавить в корзину
+					</button>
 
-					<TransitionLink href="/manager/tours" className={s.primary}>
-						Открыть кабинет
+					<TransitionLink href="/cart" className={s.secondary}>
+						Открыть корзину
 					</TransitionLink>
 				</div>
-			)}
+
+				{!isLoading && !user && (
+					<div className={s.authBox}>
+						<p className={s.authText}>
+							Без входа можно отправить быстрый lead. Для полноценного заказа
+							система попросит войти и вернет вас прямо в корзину.
+						</p>
+
+						<div className={s.actions}>
+							<TransitionLink
+								href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+								className={s.secondary}
+							>
+								Войти
+							</TransitionLink>
+
+							<TransitionLink
+								href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+								className={s.secondary}
+							>
+								Регистрация
+							</TransitionLink>
+						</div>
+					</div>
+				)}
+
+				{!isLoading && canBookAsTraveler && (
+					<p className={s.helper}>
+						{user?.role === "AGENT"
+							? "В checkout будут применены агентские B2B цены."
+							: "В checkout будут применены клиентские B2C цены."}
+					</p>
+				)}
+			</div>
+
+			<PriceCalculation
+				partySize={partySize}
+				pricePerPerson={getTourAudiencePrice(tour, user?.role)}
+				baseCurrency={tour.baseCurrency}
+			/>
 		</div>
 	)
 }

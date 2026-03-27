@@ -15,6 +15,7 @@ import {
 	LogIn,
 	Phone,
 	PlaneTakeoff,
+	ShoppingCart,
 	User,
 	UsersRound,
 } from "lucide-react"
@@ -24,6 +25,8 @@ import s from "./Header.module.scss"
 import { LinkItem, NavItem } from "./ui/NavItem/NavItem"
 
 gsap.registerPlugin(ScrollTrigger)
+
+const DESKTOP_HEADER_BREAKPOINT = "(min-width: 1280px)"
 
 const links: LinkItem[] = [
 	{ href: "/", label: "Главная", icon: House },
@@ -39,8 +42,19 @@ const links: LinkItem[] = [
 	},
 	{ href: "/contacts", label: "Контакты", icon: Phone },
 	{ href: "/tours", label: "Туры", icon: PlaneTakeoff },
-	{ href: "/group", label: "Групповые перевозки", icon: UsersRound },
-	{ href: "/for-agents", label: "Для турагентов", icon: User },
+	{ href: "/cart", label: "Корзина", icon: ShoppingCart },
+	{
+		href: "/group",
+		label: "Групповые перевозки",
+		desktopLabel: "Группы",
+		icon: UsersRound,
+	},
+	{
+		href: "/for-agents",
+		label: "Для турагентов",
+		desktopLabel: "Агентам",
+		icon: User,
+	},
 ]
 
 export function Header() {
@@ -61,8 +75,9 @@ export function Header() {
 			return "/login"
 		}
 
-		if (user?.role === "ADMIN" || user?.role === "MANAGER")
+		if (user?.role === "ADMIN" || user?.role === "MANAGER") {
 			return "/manager/tours"
+		}
 
 		if (user?.role === "AGENT") return "/agent/flights"
 
@@ -92,8 +107,9 @@ export function Header() {
 			if (!headerRef.current) return
 
 			const scrollAnimation = gsap.to(headerRef.current, {
-				backgroundColor: "rgba(20, 20, 20, 0.7)",
-				backdropFilter: "blur(1.2rem)",
+				"--shell-bg": "rgba(20, 20, 20, 0.76)",
+				"--shell-border": "rgba(255, 255, 255, 0.12)",
+				"--shell-shadow": "0 1rem 3rem rgba(0, 0, 0, 0.5)",
 				"--menu-bg": "rgba(20, 20, 20, 0.85)",
 				"--menu-border": "rgba(255, 255, 255, 0.1)",
 				"--menu-shadow": "0 1rem 3rem rgba(0, 0, 0, 0.5)",
@@ -108,10 +124,7 @@ export function Header() {
 			})
 
 			return () => {
-				if (scrollAnimation.scrollTrigger) {
-					scrollAnimation.scrollTrigger.kill()
-				}
-
+				scrollAnimation.scrollTrigger?.kill()
 				scrollAnimation.kill()
 			}
 		},
@@ -124,10 +137,10 @@ export function Header() {
 
 			const arrowMain = buttonRef.current.querySelector(
 				`[data-header-arrow-main]`,
-			) as HTMLElement
+			) as HTMLElement | null
 			const arrowSecondary = buttonRef.current.querySelector(
 				`[data-header-arrow-secondary]`,
-			) as HTMLElement
+			) as HTMLElement | null
 
 			if (!arrowMain || !arrowSecondary) return
 
@@ -151,10 +164,8 @@ export function Header() {
 				)
 
 			return () => {
-				if (tl.current) {
-					tl.current.kill()
-					tl.current = null
-				}
+				tl.current?.kill()
+				tl.current = null
 			}
 		},
 		{ scope: buttonRef },
@@ -162,21 +173,25 @@ export function Header() {
 
 	const handleMouseEnter = () => tl.current?.play()
 	const handleMouseLeave = () => tl.current?.reverse()
+
 	const handleOpenMenu = () => {
 		if (isMenuOpen) return
 
 		setIsMenuVisible(true)
 		setIsMenuOpen(true)
 	}
+
 	const handleCloseMenu = () => setIsMenuOpen(false)
 
 	const handleToggleMenu = () => {
 		if (isMenuOpen) {
 			handleCloseMenu()
-		} else {
-			handleOpenMenu()
+			return
 		}
+
+		handleOpenMenu()
 	}
+
 	const handleNavClick = (event: React.MouseEvent<HTMLElement>) => {
 		const target = event.target as HTMLElement
 
@@ -212,7 +227,7 @@ export function Header() {
 				return
 			}
 
-			if (window.matchMedia("(min-width: 769px)").matches) {
+			if (window.matchMedia(DESKTOP_HEADER_BREAKPOINT).matches) {
 				setIsMenuVisible(false)
 				return
 			}
@@ -228,6 +243,30 @@ export function Header() {
 			})
 		}
 	}, [isMenuOpen, isMenuVisible])
+
+	useEffect(() => {
+		if (typeof window === "undefined") return
+
+		const media = window.matchMedia(DESKTOP_HEADER_BREAKPOINT)
+
+		const handleViewportChange = (event: MediaQueryListEvent) => {
+			if (!event.matches) return
+
+			setIsMenuOpen(false)
+			setIsMenuVisible(false)
+		}
+
+		if (media.matches) {
+			setIsMenuOpen(false)
+			setIsMenuVisible(false)
+		}
+
+		media.addEventListener("change", handleViewportChange)
+
+		return () => {
+			media.removeEventListener("change", handleViewportChange)
+		}
+	}, [])
 
 	useGSAP(
 		() => {
@@ -277,7 +316,7 @@ export function Header() {
 	useGSAP(
 		() => {
 			if (!navRef.current || !isMenuOpen || !isMenuVisible) return
-			if (window.matchMedia("(min-width: 769px)").matches) return
+			if (window.matchMedia(DESKTOP_HEADER_BREAKPOINT).matches) return
 
 			gsap.killTweensOf(navRef.current)
 			gsap.fromTo(
@@ -286,7 +325,7 @@ export function Header() {
 					scale: 0.92,
 					y: -8,
 					autoAlpha: 0,
-					transformOrigin: "top right",
+					transformOrigin: "top center",
 				},
 				{
 					scale: 1,
@@ -300,80 +339,99 @@ export function Header() {
 		{ dependencies: [isMenuOpen, isMenuVisible], scope: navRef },
 	)
 
+	const renderNavItems = (variant: "desktop" | "mobile") =>
+		links.map(link => (
+			<NavItem
+				key={`${variant}-${link.href || link.label}`}
+				item={
+					variant === "desktop" && link.desktopLabel
+						? { ...link, label: link.desktopLabel }
+						: link
+				}
+				isMenuOpen={isMenuOpen}
+				onCloseMenu={handleCloseMenu}
+			/>
+		))
+
 	return (
 		<header ref={headerRef} className={s.header}>
-			<TransitionLink href="/" className={s.logo}>
-				<Image
-					className={s.logoImage}
-					src="/viva-logo.webp"
-					alt="Viva Tour Logo"
-					fill
-				/>
-			</TransitionLink>
+			<div className={s.shell}>
+				<div className={s.logoSlot}>
+					<TransitionLink href="/" className={s.logo}>
+						<Image
+							className={s.logoImage}
+							src="/viva-logo.webp"
+							alt="Viva Tour Logo"
+							fill
+						/>
+					</TransitionLink>
+				</div>
+
+				<nav className={s.desktopNav}>{renderNavItems("desktop")}</nav>
+
+				<div className={s.buttonWrapper}>
+					<div className={s.currencyWrap}>
+						<CurrencySelector compact />
+					</div>
+
+					<TransitionLink
+						href={dashboardHref}
+						className={s.button}
+						ref={buttonRef}
+						onMouseEnter={handleMouseEnter}
+						onMouseLeave={handleMouseLeave}
+					>
+						<div className={s.buttonText}>Личный кабинет</div>
+
+						<div className={s.buttonIcon}>
+							<div className={s.arrowMain} data-header-arrow-main>
+								<ArrowUpRight size={"2rem"} color="#ffffff" />
+							</div>
+
+							<div className={s.arrowSecondary} data-header-arrow-secondary>
+								<ArrowUpRight size={"2rem"} color="#ffffff" />
+							</div>
+						</div>
+					</TransitionLink>
+				</div>
+
+				<div className={s.compactControls}>
+					<div className={s.compactCurrency}>
+						<CurrencySelector compact />
+					</div>
+
+					<button
+						className={s.menu}
+						type="button"
+						onClick={handleToggleMenu}
+						aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
+						aria-expanded={isMenuOpen}
+						ref={menuButtonRef}
+					>
+						<div className={s.menuLine} />
+						<div className={s.menuLine} />
+						<div className={s.menuLine} />
+					</button>
+				</div>
+			</div>
 
 			<nav
 				ref={navRef}
-				className={`${s.nav} ${isMenuVisible ? s.navActive : ""}`}
+				className={`${s.mobileNav} ${isMenuVisible ? s.navActive : ""}`}
 				onClick={handleNavClick}
 			>
-				{links.map(link => (
-					<NavItem
-						key={link.href || link.label}
-						item={link}
-						isMenuOpen={isMenuOpen}
-						onCloseMenu={handleCloseMenu}
-					/>
-				))}
+				<div className={s.mobileNavInner}>
+					{renderNavItems("mobile")}
 
-				<div className={s.buttonMobile}>
-					<NavItem
-						item={{ href: dashboardHref, label: "Личный кабинет", icon: LogIn }}
-						isMenuOpen={isMenuOpen}
-						onCloseMenu={handleCloseMenu}
-					/>
+					<div className={s.buttonMobile}>
+						<NavItem
+							item={{ href: dashboardHref, label: "Личный кабинет", icon: LogIn }}
+							isMenuOpen={isMenuOpen}
+							onCloseMenu={handleCloseMenu}
+						/>
+					</div>
 				</div>
 			</nav>
-
-			<div className={s.buttonWrapper}>
-				<div className={s.currencyWrap}>
-					<CurrencySelector compact />
-				</div>
-
-				<TransitionLink
-					href={dashboardHref}
-					className={s.button}
-					ref={buttonRef}
-					onMouseEnter={handleMouseEnter}
-					onMouseLeave={handleMouseLeave}
-				>
-					<div className={s.buttonText}>Личный кабинет</div>
-
-					<div className={s.buttonIcon}>
-						<div className={s.arrowMain} data-header-arrow-main>
-							<ArrowUpRight size={"2rem"} color="#ffffff" />
-						</div>
-
-						<div className={s.arrowSecondary} data-header-arrow-secondary>
-							<ArrowUpRight size={"2rem"} color="#ffffff" />
-						</div>
-					</div>
-				</TransitionLink>
-			</div>
-
-			<button
-				className={s.menu}
-				type="button"
-				onClick={handleToggleMenu}
-				aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
-				aria-expanded={isMenuOpen}
-				ref={menuButtonRef}
-			>
-				<div className={s.menuLine} />
-
-				<div className={s.menuLine} />
-
-				<div className={s.menuLine} />
-			</button>
 		</header>
 	)
 }

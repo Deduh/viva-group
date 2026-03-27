@@ -70,6 +70,26 @@ const optionalPositiveNumberSchema = z.preprocess(value => {
 	return value
 }, z.number().positive().optional())
 
+const optionalNonNegativeNumberSchema = z.preprocess(value => {
+	if (value === "" || value === null || value === undefined) return undefined
+
+	if (typeof value === "number") {
+		return Number.isNaN(value) ? undefined : value
+	}
+
+	if (typeof value === "string") {
+		const trimmed = value.trim()
+
+		if (!trimmed) return undefined
+
+		const numeric = Number(trimmed)
+
+		return Number.isNaN(numeric) ? undefined : numeric
+	}
+
+	return value
+}, z.number().min(0).optional())
+
 const booleanLikeSchema = z.preprocess(value => {
 	if (value === null || value === undefined) return value
 
@@ -99,12 +119,35 @@ const PaymentStatusInputSchema = z.preprocess(value => {
 
 const CurrencyCodeSchema = z.enum(["RUB", "USD", "EUR", "CNY"])
 
-const ParticipantSchema = z.object({
+const ParticipantBaseSchema = z.object({
 	fullName: z.string(),
+	fullNameLatin: z.string().optional(),
 	birthDate: z.string(),
 	gender: z.enum(["male", "female"]),
 	passportNumber: z.string(),
+	passportExpiresAt: z.string().optional(),
+	selectedHotelId: z.string().optional(),
+	selectedHotelName: z.string().optional(),
 })
+
+const ParticipantSchema = ParticipantBaseSchema.transform(raw => ({
+	...raw,
+	fullNameLatin: raw.fullNameLatin ?? raw.fullName,
+	passportExpiresAt: raw.passportExpiresAt ?? "9999-12-31",
+}))
+
+const ParticipantPricingSnapshotSchema = ParticipantBaseSchema.extend({
+	baseTourPrice: z.coerce.number().nonnegative(),
+	hotelSupplement: z.coerce.number().nonnegative(),
+	total: z.coerce.number().nonnegative(),
+}).transform(raw => ({
+		...raw,
+		fullNameLatin: raw.fullNameLatin ?? raw.fullName,
+		passportExpiresAt: raw.passportExpiresAt ?? "9999-12-31",
+	baseTourPrice: raw.baseTourPrice,
+	hotelSupplement: raw.hotelSupplement,
+	total: raw.total,
+}))
 
 const attachmentsSchema = z.preprocess(
 	value => {
@@ -140,13 +183,27 @@ const fullDescriptionBlockSchema = z.object({
 	items: z.array(z.string()).default([]),
 })
 
-const TourHotelSchema = z.object({
-	name: z.string().min(1, "Название отеля обязательно"),
-	stars: z.coerce.number().int().min(1).max(5),
-	note: nullableStringSchema.optional(),
-	basePrice: z.coerce.number().positive("Цена отеля должна быть положительной"),
-	baseCurrency: CurrencyCodeSchema.default("RUB"),
-})
+const TourHotelSchema = z
+	.object({
+		id: z.string().min(1, "ID отеля обязателен"),
+		name: z.string().min(1, "Название отеля обязательно"),
+		stars: z.coerce.number().int().min(1).max(5),
+		note: nullableStringSchema.optional(),
+		supplementPrice: optionalPositiveNumberSchema.optional(),
+		basePrice: optionalPositiveNumberSchema.optional(),
+		agentSupplementPrice: optionalPositiveNumberSchema.optional(),
+		agentPrice: optionalPositiveNumberSchema.optional(),
+		baseCurrency: CurrencyCodeSchema.default("RUB"),
+	})
+	.transform(raw => ({
+		id: raw.id,
+		name: raw.name,
+		stars: raw.stars,
+		note: raw.note,
+		supplementPrice: raw.supplementPrice ?? raw.basePrice ?? 0,
+		agentSupplementPrice: raw.agentSupplementPrice ?? raw.agentPrice,
+		baseCurrency: raw.baseCurrency,
+	}))
 
 export const TourSchema = z.object({
 	id: z.string().min(1, "ID тура обязателен"),
@@ -155,6 +212,7 @@ export const TourSchema = z.object({
 	shortDescription: z.string().min(1, "Краткое описание обязательно"),
 	fullDescriptionBlocks: z.array(fullDescriptionBlockSchema).default([]),
 	price: z.coerce.number().positive("Цена должна быть положительным числом"),
+	agentPrice: optionalPositiveNumberSchema.optional(),
 	baseCurrency: CurrencyCodeSchema.default("RUB"),
 	image: z
 		.string()
@@ -202,9 +260,11 @@ export const CharterFlightSchema = z.object({
 	hasComfortClass: z.coerce.boolean(),
 	isActive: booleanLikeSchema.default(true),
 	price: optionalPositiveNumberSchema.optional(),
-	priceCurrency: CurrencyCodeSchema.optional(),
+	priceCurrency: z
+		.preprocess(value => (value === null ? undefined : value), CurrencyCodeSchema)
+		.optional(),
 	agentPrice: optionalPositiveNumberSchema.optional(),
-	agentCommission: optionalPositiveNumberSchema.optional(),
+	agentCommission: optionalNonNegativeNumberSchema.optional(),
 	createdAt: z.iso.datetime().optional(),
 	updatedAt: z.iso.datetime().optional(),
 })
@@ -270,6 +330,7 @@ export const CharterBookingSchema = z.object({
 export const BookingSchema = z.object({
 	id: z.string().min(1, "ID бронирования обязателен"),
 	publicId: z.string().min(1).optional(),
+	orderId: z.string().min(1).optional(),
 	userId: z.string().min(1, "ID пользователя обязателен"),
 	tourId: z.string().min(1, "ID тура обязателен"),
 	tourPublicId: z.string().min(1).optional(),
@@ -279,7 +340,67 @@ export const BookingSchema = z.object({
 	createdAt: z.iso.datetime("Некорректная дата создания"),
 	updatedAt: z.iso.datetime().nullable().optional().transform(nullToUndefined),
 	paymentStatus: PaymentStatusInputSchema.optional(),
-	totalAmount: optionalPositiveNumberSchema.optional(),
+	totalAmount: optionalNonNegativeNumberSchema.optional(),
+	pricingSnapshot: z
+		.object({
+			roleSnapshot: RoleSchema,
+			tour: z.object({
+				id: z.string().min(1),
+				publicId: z.string().nullable().optional(),
+				title: z.string().min(1),
+				basePrice: z.coerce.number().nonnegative(),
+				baseCurrency: CurrencyCodeSchema,
+			}),
+			participants: z.array(ParticipantPricingSnapshotSchema),
+			totalAmount: z.coerce.number().nonnegative(),
+		})
+		.optional(),
+	tour: TourSchema.optional(),
+	user: z.lazy(() => UserSchema).optional(),
+})
+
+export const BookingOrderSchema = z.object({
+	id: z.string().min(1),
+	publicId: z.string().min(1),
+	userId: z.string().min(1),
+	roleSnapshot: RoleSchema,
+	currency: CurrencyCodeSchema,
+	totalAmount: z.coerce.number().nonnegative(),
+	itemsCount: z.coerce.number().int().nonnegative(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
+	bookings: z.array(BookingSchema).default([]),
+	user: z.lazy(() => UserSchema).optional(),
+})
+
+export const TourCartLeadSchema = z.object({
+	id: z.string().min(1),
+	publicId: z.string().min(1),
+	name: z.string().min(1),
+	email: z.email(),
+	phone: z.string().nullable().optional().transform(nullToUndefined),
+	status: z.enum(["new", "handled"]),
+	cartSnapshot: z.object({
+		items: z
+			.array(
+				z.object({
+					tourId: z.string().min(1),
+					tourPublicId: z.string().nullable().optional(),
+					title: z.string().min(1),
+					shortDescription: z.string().min(1),
+					price: z.coerce.number().nonnegative(),
+					agentPrice: optionalPositiveNumberSchema.nullable().optional(),
+					baseCurrency: CurrencyCodeSchema,
+					hasHotelOptions: z.coerce.boolean(),
+					participantsCount: z.coerce.number().int().positive(),
+					note: z.string().nullable().optional().transform(nullToUndefined),
+				}),
+			)
+			.default([]),
+		submittedAt: z.string(),
+	}),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
 })
 
 const RawMessageSchema = z.object({

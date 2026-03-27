@@ -1,6 +1,8 @@
 "use client"
 
 import { useCurrency } from "@/context/CurrencyContext"
+import { useAuth } from "@/hooks/useAuth"
+import { getTourHotelAudienceSupplement } from "@/lib/tours"
 import type { Tour } from "@/types"
 import { Building2, MessageCircleMore, Star } from "lucide-react"
 import s from "./TourHotelOptionsSection.module.scss"
@@ -13,6 +15,7 @@ export function TourHotelOptionsSection({
 	tour,
 }: TourHotelOptionsSectionProps) {
 	const { formatPrice } = useCurrency()
+	const { user } = useAuth()
 
 	if (!tour.hasHotelOptions || !tour.hotels.length) return null
 
@@ -25,8 +28,8 @@ export function TourHotelOptionsSection({
 				</div>
 
 				<p className={s.note}>
-					Отель не выбирается в форме бронирования. После заявки менеджер
-					подтвердит подходящий вариант в чате.
+					Отель выбирается в корзине по каждому участнику. Ниже показана именно
+					доплата к базовой программе, а не замена цены тура.
 				</p>
 			</div>
 
@@ -55,9 +58,12 @@ export function TourHotelOptionsSection({
 							</div>
 
 							<div className={s.priceWrap}>
-								<span className={s.priceLabel}>Цена за человека</span>
+								<span className={s.priceLabel}>Доплата за человека</span>
 								<span className={s.price}>
-									{formatPrice(hotel.basePrice, hotel.baseCurrency)}
+									{formatPrice(
+										getTourHotelAudienceSupplement(hotel, user?.role),
+										hotel.baseCurrency,
+									)}
 								</span>
 							</div>
 						</div>
@@ -66,7 +72,7 @@ export function TourHotelOptionsSection({
 
 						<div className={s.cardFooter}>
 							<MessageCircleMore size={"1.4rem"} />
-							<span>Финальный выбор и подтверждение отеля идут в переписке</span>
+							<span>Финальный выбор отеля фиксируется при checkout</span>
 						</div>
 					</article>
 				))}

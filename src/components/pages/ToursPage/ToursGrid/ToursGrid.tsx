@@ -3,7 +3,10 @@
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { useCurrency } from "@/context/CurrencyContext"
+import { useTourCart } from "@/context/TourCartContext"
 import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
+import { useAuth } from "@/hooks/useAuth"
+import { useToast } from "@/hooks/useToast"
 import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
@@ -11,7 +14,7 @@ import {
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
-import { getPublicTourHref } from "@/lib/tours"
+import { getPublicTourHref, getTourAudiencePrice } from "@/lib/tours"
 import type { Tour } from "@/types"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
@@ -32,6 +35,9 @@ export const ToursGrid = memo(
 	function ToursGrid({ tours, isLoading = false }: ToursGridProps) {
 		const gridRef = useRef<HTMLDivElement>(null)
 		const { formatPrice } = useCurrency()
+		const { user } = useAuth()
+		const { addItem } = useTourCart()
+		const { showSuccess } = useToast()
 
 		useGSAP(
 			() => {
@@ -96,35 +102,48 @@ export const ToursGrid = memo(
 			<div ref={gridRef} className={s.grid}>
 				{tours.map((tour, index) => {
 					const isAvailable = tour.available !== false
+					const detailHref = getPublicTourHref(tour)
+					const displayPrice = getTourAudiencePrice(tour, user?.role)
+
+					const handleAddToCart = () => {
+						addItem({
+							tourId: tour.id,
+							tourPublicId: tour.publicId,
+						})
+						showSuccess("Тур добавлен в корзину.")
+					}
 
 					return (
-						<TransitionLink
+						<article
 							key={tour.id}
-							href={getPublicTourHref(tour)}
 							className={`${s.card} ${!isAvailable ? s.cardUnavailable : ""}`}
 							data-tours-grid-card
 						>
 							<div className={s.cardImage}>
-								<Image
-									src={tour.image}
-									alt={getTourImageAlt(tour.title)}
-									fill
-									sizes={getImageSizes({
-										mobile: "100vw",
-										tablet: "50vw",
-										desktop: "33vw",
-									})}
-									priority={shouldUsePriority(index)}
-									placeholder="blur"
-									blurDataURL={BLUR_PLACEHOLDER}
-								/>
+								<TransitionLink href={detailHref} className={s.imageLink}>
+									<Image
+										src={tour.image}
+										alt={getTourImageAlt(tour.title)}
+										fill
+										sizes={getImageSizes({
+											mobile: "100vw",
+											tablet: "50vw",
+											desktop: "33vw",
+										})}
+										priority={shouldUsePriority(index)}
+										placeholder="blur"
+										blurDataURL={BLUR_PLACEHOLDER}
+									/>
+								</TransitionLink>
 							</div>
 
 							<div className={s.cardContent}>
 								<div className={s.top}>
 									<div className={s.description}>
 										<div className={s.descriptionWrapper}>
-											<h3 className={s.cardTitle}>{tour.title}</h3>
+											<TransitionLink href={detailHref} className={s.titleLink}>
+												<h3 className={s.cardTitle}>{tour.title}</h3>
+											</TransitionLink>
 										</div>
 
 										<p className={s.text}>{tour.shortDescription}</p>
@@ -184,14 +203,27 @@ export const ToursGrid = memo(
 										<span className={s.pricePlaceholder}>Цена за человека</span>
 
 										<span className={s.priceText}>
-											{formatPrice(tour.price, tour.baseCurrency)}
+											{formatPrice(displayPrice, tour.baseCurrency)}
 										</span>
 									</div>
 
-									<button className={s.bottomButton}>Подробнее</button>
+									<div className={s.bottomActions}>
+										<button
+											type="button"
+											className={s.secondaryButton}
+											onClick={handleAddToCart}
+											disabled={!isAvailable}
+										>
+											В корзину
+										</button>
+
+										<TransitionLink href={detailHref} className={s.bottomButton}>
+											Подробнее
+										</TransitionLink>
+									</div>
 								</div>
 							</div>
-						</TransitionLink>
+						</article>
 					)
 				})}
 			</div>

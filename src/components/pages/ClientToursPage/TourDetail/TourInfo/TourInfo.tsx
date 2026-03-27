@@ -1,12 +1,14 @@
 "use client"
 
 import { useCurrency } from "@/context/CurrencyContext"
+import { useAuth } from "@/hooks/useAuth"
 import { formatDate } from "@/lib/format"
 import {
 	BLUR_PLACEHOLDER,
 	getDetailPageImageSizes,
 	getTourImageAlt,
 } from "@/lib/image-utils"
+import { getTourAudiencePrice } from "@/lib/tours"
 import { TourHotelOptionsSection } from "@/components/tours/TourHotelOptionsSection/TourHotelOptionsSection"
 import { TourProgramSection } from "@/components/tours/TourProgramSection/TourProgramSection"
 import type { Tour } from "@/types"
@@ -20,6 +22,8 @@ interface TourInfoProps {
 
 export function TourInfo({ tour }: TourInfoProps) {
 	const { formatPrice } = useCurrency()
+	const { user } = useAuth()
+	const displayPrice = getTourAudiencePrice(tour, user?.role)
 
 	return (
 		<div className={s.tourInfo}>
@@ -85,10 +89,10 @@ export function TourInfo({ tour }: TourInfoProps) {
 				<div className={s.programPriceCard}>
 					<span className={s.programPriceLabel}>Базовая цена программы</span>
 					<span className={s.programPriceValue}>
-						{formatPrice(tour.price, tour.baseCurrency)}
+						{formatPrice(displayPrice, tour.baseCurrency)}
 					</span>
 					<p className={s.programPriceHint}>
-						Стоимость отелей показывается отдельно ниже и не заменяет цену тура.
+						Отели выбираются в корзине и считаются отдельной доплатой к программе.
 					</p>
 				</div>
 

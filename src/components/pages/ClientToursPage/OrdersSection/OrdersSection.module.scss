@@ -1,0 +1,153 @@
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 1.8rem;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.title {
+	margin: 0;
+	font-size: 3rem;
+	color: rgba(15, 23, 42, 1);
+}
+
+.counter {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 3.2rem;
+	height: 3.2rem;
+	padding: 0 1rem;
+	border-radius: 999px;
+	background: rgba(7, 151, 166, 0.12);
+	color: rgba(7, 82, 92, 1);
+	font-size: 1.4rem;
+	font-weight: 700;
+}
+
+.list {
+	display: grid;
+	gap: 1.4rem;
+}
+
+.card {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 1.6rem;
+	padding: 2rem;
+	border-radius: 2rem;
+	background: rgba(255, 255, 255, 0.96);
+	border: 0.1rem solid rgba(226, 232, 240, 1);
+	text-decoration: none;
+	box-shadow: 0 2rem 4rem -3rem rgba(15, 23, 42, 0.25);
+}
+
+.cardMain,
+.cardAside {
+	display: flex;
+	flex-direction: column;
+}
+
+.orderId,
+.meta {
+	margin: 0;
+}
+
+.orderId {
+	color: rgba(7, 151, 166, 1);
+	font-size: 1.2rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.cardTitle {
+	margin: 0.8rem 0 0;
+	color: rgba(15, 23, 42, 1);
+	font-size: 2rem;
+}
+
+.meta {
+	margin-top: 0.8rem;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.4rem;
+}
+
+.cardAside {
+	align-items: flex-end;
+	gap: 1.2rem;
+}
+
+.totalBox {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.4rem;
+}
+
+.totalLabel {
+	color: rgba(100, 116, 139, 1);
+	font-size: 1.2rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.totalValue {
+	color: rgba(15, 23, 42, 1);
+	font-size: 2rem;
+	line-height: 1.1;
+}
+
+.statuses {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	justify-content: flex-end;
+	gap: 0.8rem;
+}
+
+.status {
+	padding: 0.8rem 1rem;
+	border-radius: 999px;
+	background: rgba(241, 245, 249, 1);
+	color: rgba(51, 65, 85, 1);
+	font-size: 1.2rem;
+	font-weight: 600;
+}
+
+.loading,
+.empty {
+	padding: 2rem;
+	border-radius: 2rem;
+	background: rgba(255, 255, 255, 0.94);
+	border: 0.1rem solid rgba(226, 232, 240, 1);
+}
+
+.emptyText {
+	margin: 0;
+	color: rgba(71, 85, 105, 1);
+	font-size: 1.5rem;
+	line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+	.card {
+		grid-template-columns: 1fr;
+	}
+
+	.cardAside,
+	.statuses {
+		justify-content: flex-start;
+		align-items: flex-start;
+	}
+
+	.totalBox {
+		align-items: flex-start;
+	}
+}

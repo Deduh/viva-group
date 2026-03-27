@@ -43,10 +43,16 @@ export type CurrencyMarketSnapshot = {
 }
 
 export type CurrencyQuote = {
-	id: "USD" | "CNY"
+	id: "USD" | "EUR" | "CNY"
 	label: string
 	symbol: string
 	value: number
+}
+
+function isCurrencySettings(
+	source: Pick<CurrencySettings, "rates"> | CurrencyMarketSnapshot,
+): source is Pick<CurrencySettings, "rates"> {
+	return source.rates.some(rate => "markupPercent" in rate)
 }
 
 export const DEFAULT_CURRENCY_SETTINGS: CurrencySettings = {
@@ -127,14 +133,14 @@ export function getCurrencyRateToRub(
 }
 
 export function getCurrencyMarkup(
-	settings: CurrencySettings,
+	settings: Pick<CurrencySettings, "rates">,
 	currency: CurrencyCode,
 ) {
 	return settings.rates.find(rate => rate.currency === currency)?.markupPercent ?? 0
 }
 
 export function getEffectiveCurrencyRateToRub(
-	settings: CurrencySettings,
+	settings: Pick<CurrencySettings, "rates">,
 	currency: CurrencyCode,
 ) {
 	if (currency === "RUB") return 1
@@ -188,18 +194,29 @@ export function mergeCurrencySettingsWithMarket(
 export function buildCurrencyQuotes(
 	source: Pick<CurrencySettings, "rates"> | CurrencyMarketSnapshot,
 ): CurrencyQuote[] {
+	const getQuoteValue = (currency: CurrencyQuote["id"]) =>
+		isCurrencySettings(source)
+			? getEffectiveCurrencyRateToRub(source, currency)
+			: getCurrencyRateToRub(source, currency)
+
 	return [
 		{
 			id: "USD",
 			label: "USD",
 			symbol: "$",
-			value: getCurrencyRateToRub(source, "USD"),
+			value: getQuoteValue("USD"),
+		},
+		{
+			id: "EUR",
+			label: "EUR",
+			symbol: "€",
+			value: getQuoteValue("EUR"),
 		},
 		{
 			id: "CNY",
 			label: "CNY",
 			symbol: "¥",
-			value: getCurrencyRateToRub(source, "CNY"),
+			value: getQuoteValue("CNY"),
 		},
 	]
 }
