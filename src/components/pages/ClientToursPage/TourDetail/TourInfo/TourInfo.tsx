@@ -1,5 +1,7 @@
 "use client"
 
+import { TourHotelOptionsSection } from "@/components/tours/TourHotelOptionsSection/TourHotelOptionsSection"
+import { TourProgramSection } from "@/components/tours/TourProgramSection/TourProgramSection"
 import { useCurrency } from "@/context/CurrencyContext"
 import { useAuth } from "@/hooks/useAuth"
 import { formatDate } from "@/lib/format"
@@ -8,9 +10,7 @@ import {
 	getDetailPageImageSizes,
 	getTourImageAlt,
 } from "@/lib/image-utils"
-import { getTourAudiencePrice } from "@/lib/tours"
-import { TourHotelOptionsSection } from "@/components/tours/TourHotelOptionsSection/TourHotelOptionsSection"
-import { TourProgramSection } from "@/components/tours/TourProgramSection/TourProgramSection"
+import { getTourAudiencePrice, getTourDisplayDateRange } from "@/lib/tours"
 import type { Tour } from "@/types"
 import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
@@ -24,6 +24,7 @@ export function TourInfo({ tour }: TourInfoProps) {
 	const { formatPrice } = useCurrency()
 	const { user } = useAuth()
 	const displayPrice = getTourAudiencePrice(tour, user?.role)
+	const { dateFrom, dateTo } = getTourDisplayDateRange(tour)
 
 	return (
 		<div className={s.tourInfo}>
@@ -56,12 +57,11 @@ export function TourInfo({ tour }: TourInfoProps) {
 				)}
 
 				<div className={s.metaBadges}>
-					{tour.dateFrom && tour.dateTo && (
+					{dateFrom && dateTo && (
 						<div className={`${s.metaBadge} ${s.metaBadgeDate}`}>
 							<CalendarDays size={"1.8rem"} />
-
 							<span>
-								{formatDate(tour.dateFrom)} — {formatDate(tour.dateTo)}
+								{formatDate(dateFrom)} - {formatDate(dateTo)}
 							</span>
 						</div>
 					)}
@@ -70,7 +70,6 @@ export function TourInfo({ tour }: TourInfoProps) {
 						<div className={`${s.metaBadge} ${s.metaBadgeDuration}`}>
 							<div className={s.metaIconGroup}>
 								<Sun size={"1.6rem"} />
-
 								<Moon size={"1.6rem"} />
 							</div>
 
@@ -92,7 +91,8 @@ export function TourInfo({ tour }: TourInfoProps) {
 						{formatPrice(displayPrice, tour.baseCurrency)}
 					</span>
 					<p className={s.programPriceHint}>
-						Отели выбираются в корзине и считаются отдельной доплатой к программе.
+						Отели выбираются в корзине и считаются отдельной доплатой к
+						программе.
 					</p>
 				</div>
 
@@ -125,7 +125,7 @@ export function TourInfo({ tour }: TourInfoProps) {
 								</div>
 							))}
 						</div>
-				)}
+					)}
 			</div>
 		</div>
 	)

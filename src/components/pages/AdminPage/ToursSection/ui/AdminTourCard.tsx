@@ -8,6 +8,11 @@ import {
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
+import {
+	getTourAudiencePrice,
+	getTourDisplayDateRange,
+	getTourPrimaryDeparture,
+} from "@/lib/tours"
 import type { Tour } from "@/types"
 import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
@@ -27,6 +32,9 @@ export function AdminTourCard({
 	onDelete,
 }: AdminTourCardProps) {
 	const { formatPrice } = useCurrency()
+	const { dateFrom, dateTo } = getTourDisplayDateRange(tour)
+	const displayPrice = getTourAudiencePrice(tour)
+	const primaryDeparture = getTourPrimaryDeparture(tour)
 
 	return (
 		<div className={s.tourCard}>
@@ -56,9 +64,10 @@ export function AdminTourCard({
 				</div>
 
 				{(tour.tags.length > 0 ||
-					(tour.dateFrom && tour.dateTo) ||
+					(dateFrom && dateTo) ||
 					tour.durationDays ||
-					tour.durationNights) && (
+					tour.durationNights ||
+					primaryDeparture?.label) && (
 					<ul className={s.list}>
 						{tour.tags.map((tag, tagIndex) => (
 							<li key={`${tag}-${tagIndex}`} className={s.listItem}>
@@ -66,13 +75,19 @@ export function AdminTourCard({
 							</li>
 						))}
 
-						{tour.dateFrom && tour.dateTo && (
+						{dateFrom && dateTo && (
 							<li className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}>
 								<CalendarDays size={"1.6rem"} />
-
 								<span>
-									{formatDate(tour.dateFrom)} — {formatDate(tour.dateTo)}
+									{formatDate(dateFrom)} - {formatDate(dateTo)}
 								</span>
+							</li>
+						)}
+
+						{primaryDeparture?.label && (
+							<li className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}>
+								<CalendarDays size={"1.6rem"} />
+								<span>{primaryDeparture.label}</span>
 							</li>
 						)}
 
@@ -82,7 +97,6 @@ export function AdminTourCard({
 							>
 								<span className={s.metaIconGroup}>
 									<Sun size={"1.4rem"} />
-
 									<Moon size={"1.4rem"} />
 								</span>
 
@@ -104,17 +118,24 @@ export function AdminTourCard({
 						<span className={s.pricePlaceholder}>Цена B2C</span>
 
 						<span className={s.priceText}>
-							{formatPrice(tour.price, tour.baseCurrency)}
+							{formatPrice(displayPrice, tour.baseCurrency)}
 						</span>
 
-						{typeof tour.agentPrice === "number" && (
+						{typeof primaryDeparture?.agentPrice === "number" ? (
+							<div className={s.agentPrice}>
+								<span className={s.agentPriceLabel}>Цена B2B</span>
+								<span className={s.agentPriceValue}>
+									{formatPrice(primaryDeparture.agentPrice, tour.baseCurrency)}
+								</span>
+							</div>
+						) : typeof tour.agentPrice === "number" ? (
 							<div className={s.agentPrice}>
 								<span className={s.agentPriceLabel}>Цена B2B</span>
 								<span className={s.agentPriceValue}>
 									{formatPrice(tour.agentPrice, tour.baseCurrency)}
 								</span>
 							</div>
-						)}
+						) : null}
 					</div>
 
 					<div className={s.actions}>

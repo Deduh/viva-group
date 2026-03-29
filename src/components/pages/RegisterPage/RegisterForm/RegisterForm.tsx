@@ -27,7 +27,7 @@ export function RegisterForm() {
 	const callbackUrl =
 		resolveSafeCallbackPath(
 			callbackUrlParam,
-			typeof window === "undefined" ? "http://localhost:3001" : window.location.origin,
+			typeof window === "undefined" ? "http://localhost:3003" : window.location.origin,
 		) || "/client/tours"
 	const { showError, showSuccess } = useToast()
 	const { setIsTransitionComplete } = usePageTransition()

@@ -1,5 +1,6 @@
 "use client"
 
+import { TourHotelOptionsSection } from "@/components/tours/TourHotelOptionsSection/TourHotelOptionsSection"
 import { DateInput } from "@/components/ui/Form/DateInput/DateInput"
 import { Input } from "@/components/ui/Form/Input/Input"
 import { TextArea } from "@/components/ui/Form/TextArea/TextArea"
@@ -15,12 +16,17 @@ import {
 import { useToast } from "@/hooks/useToast"
 import { useTours } from "@/hooks/useTours"
 import { CURRENCY_LOCALE } from "@/lib/currency"
-import { formatCurrency as formatCurrencyValue } from "@/lib/format"
+import {
+	formatCurrency as formatCurrencyValue,
+	formatDate,
+} from "@/lib/format"
 import {
 	calculateTourCartLineTotal,
+	getTourAvailableDepartures,
+	getTourDepartureById,
 	getSelectedHotelSupplement,
 	getTourAudiencePrice,
-	getTourHotelAudienceSupplement,
+	tourHasDepartures,
 } from "@/lib/tours"
 import type { Participant, Tour } from "@/types"
 import { ArrowRight, ShoppingCart, Trash2, UserRound } from "lucide-react"
@@ -70,6 +76,7 @@ export default function CartPage() {
 		Record<string, CheckoutItemDraft>
 	>({})
 	const [isCheckoutHydrated, setIsCheckoutHydrated] = useState(false)
+	const [participantsInputs, setParticipantsInputs] = useState<Record<string, string>>({})
 	const [leadForm, setLeadForm] = useState({
 		name: "",
 		email: "",
@@ -159,6 +166,18 @@ export default function CartPage() {
 	}, [cartEntries])
 
 	useEffect(() => {
+		setParticipantsInputs(current => {
+			const next: Record<string, string> = {}
+
+			for (const { item } of cartEntries) {
+				next[item.id] = current[item.id] ?? String(item.participantsCount)
+			}
+
+			return next
+		})
+	}, [cartEntries])
+
+	useEffect(() => {
 		if (!isCheckoutHydrated || typeof window === "undefined") return
 
 		if (Object.keys(checkoutState).length === 0) {
@@ -179,6 +198,7 @@ export default function CartPage() {
 				tour,
 				user?.role,
 				checkoutItem?.participants ?? item.participantsCount,
+				item.departureId,
 			)
 
 			return sum + convertPrice(lineTotal, tour.baseCurrency)
@@ -186,6 +206,17 @@ export default function CartPage() {
 	}, [cartEntries, checkoutState, convertPrice, user?.role])
 
 	const callbackUrl = "/cart"
+
+	const commitParticipantsCount = (itemId: string, rawValue: string) => {
+		const parsed = Number.parseInt(rawValue, 10)
+		const nextValue = Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+
+		updateItem(itemId, { participantsCount: nextValue })
+		setParticipantsInputs(current => ({
+			...current,
+			[itemId]: String(nextValue),
+		}))
+	}
 
 	const updateParticipant = (
 		itemId: string,
@@ -211,6 +242,49 @@ export default function CartPage() {
 				),
 			},
 		}))
+	}
+
+	const updateItemHotel = (itemId: string, hotelId: string) => {
+		setCheckoutState(current => {
+			const existing = current[itemId]
+
+			if (!existing) return current
+
+			return {
+				...current,
+				[itemId]: {
+					...existing,
+					participants: existing.participants.map(participant => ({
+						...participant,
+						selectedHotelId: hotelId,
+					})),
+				},
+			}
+		})
+	}
+
+	const updateItemDeparture = (itemId: string, departureId: string) => {
+		updateItem(itemId, { departureId })
+	}
+
+	const validateDepartureSelection = (tour: Tour, departureId?: string) => {
+		if (!tourHasDepartures(tour)) return null
+
+		if (!departureId) {
+			return "Выберите дату выезда для тура в корзине."
+		}
+
+		const departure = getTourDepartureById(tour, departureId)
+
+		if (!departure) {
+			return "Выбранный выезд больше не найден. Обновите выбор даты."
+		}
+
+		if (departure.available === false) {
+			return "Этот выезд больше недоступен. Выберите другую дату."
+		}
+
+		return null
 	}
 
 	const validateParticipant = (
@@ -253,6 +327,12 @@ export default function CartPage() {
 
 		for (const { item, tour } of cartEntries) {
 			const checkoutItem = checkoutState[item.id]
+			const departureError = validateDepartureSelection(tour, item.departureId)
+
+			if (departureError) {
+				showError(departureError)
+				return
+			}
 
 			if (
 				!checkoutItem ||
@@ -276,7 +356,8 @@ export default function CartPage() {
 
 		const order = await createOrder.mutateAsync({
 			items: cartEntries.map(({ item, tour }) => ({
-				tourId: tour.publicId ?? tour.id,
+				tourId: tour.id,
+				departureId: item.departureId,
 				notes: checkoutState[item.id]?.notes?.trim() || item.note || undefined,
 				participants: checkoutState[item.id]!.participants.map<Participant>(
 					participant => ({
@@ -305,12 +386,22 @@ export default function CartPage() {
 		}
 
 		try {
+			for (const { item, tour } of cartEntries) {
+				const departureError = validateDepartureSelection(tour, item.departureId)
+
+				if (departureError) {
+					showError(departureError)
+					return
+				}
+			}
+
 			await createLead.mutateAsync({
 				name: leadForm.name.trim(),
 				email: leadForm.email.trim(),
 				phone: leadForm.phone.trim() || undefined,
 				items: cartEntries.map(({ item, tour }) => ({
-					tourId: tour.publicId ?? tour.id,
+					tourId: tour.id,
+					departureId: item.departureId,
 					participantsCount: item.participantsCount,
 					note: item.note,
 				})),
@@ -361,7 +452,17 @@ export default function CartPage() {
 					<div className={s.items}>
 						{cartEntries.map(({ item, tour }) => {
 							const checkoutItem = checkoutState[item.id]
-							const pricePerTraveler = getTourAudiencePrice(tour, user?.role)
+							const availableDepartures = getTourAvailableDepartures(tour)
+							const selectedDeparture = item.departureId
+								? getTourDepartureById(tour, item.departureId)
+								: undefined
+							const previewDeparture =
+								selectedDeparture ?? availableDepartures[0]
+							const pricePerTraveler = getTourAudiencePrice(
+								tour,
+								user?.role,
+								selectedDeparture?.id,
+							)
 
 							return (
 								<section key={item.id} className={s.card}>
@@ -387,19 +488,34 @@ export default function CartPage() {
 									</div>
 
 									<div className={s.cardMeta}>
-										<label className={s.counter}>
-											<span>Участников</span>
-											<input
-												type="number"
-												min="1"
-												value={item.participantsCount}
-												onChange={event =>
-													updateItem(item.id, {
-														participantsCount: Number(event.target.value) || 1,
-													})
+										<div className={s.counter}>
+											<Input
+												label="Участников"
+												type="text"
+												inputMode="numeric"
+												value={participantsInputs[item.id] ?? String(item.participantsCount)}
+												onChange={event => {
+													const nextValue = event.target.value.replace(/[^\d]/g, "")
+													setParticipantsInputs(current => ({
+														...current,
+														[item.id]: nextValue,
+													}))
+												}}
+												onBlur={event =>
+													commitParticipantsCount(item.id, event.target.value)
 												}
+												onKeyDown={event => {
+													if (event.key === "Enter") {
+														event.preventDefault()
+														commitParticipantsCount(
+															item.id,
+															(event.target as HTMLInputElement).value,
+														)
+														;(event.target as HTMLInputElement).blur()
+													}
+												}}
 											/>
-										</label>
+										</div>
 
 										<div className={s.priceBox}>
 											<span>База за человека</span>
@@ -408,6 +524,88 @@ export default function CartPage() {
 											</strong>
 										</div>
 									</div>
+
+									{tourHasDepartures(tour) && (
+										<div className={s.departureSection}>
+											<div className={s.departureHeader}>
+												<div>
+													<h3 className={s.departureTitle}>Дата тура</h3>
+													<p className={s.departureHint}>
+														Выберите конкретный выезд. Именно он определяет даты и базовую цену.
+													</p>
+												</div>
+
+												{previewDeparture && (
+													<div className={s.departureSummary}>
+														{selectedDeparture?.label && (
+															<span>{selectedDeparture.label}</span>
+														)}
+														<strong>
+															{formatDate(previewDeparture.dateFrom)} -{" "}
+															{formatDate(previewDeparture.dateTo)}
+														</strong>
+														<span>
+															{formatPrice(pricePerTraveler, tour.baseCurrency)} за человека
+														</span>
+													</div>
+												)}
+											</div>
+
+											<div className={s.departureGrid}>
+												{availableDepartures.map(departure => {
+													const isSelected = item.departureId === departure.id
+													const departurePrice = getTourAudiencePrice(
+														tour,
+														user?.role,
+														departure.id,
+													)
+
+													return (
+														<button
+															key={departure.id}
+															type="button"
+															className={`${s.departureCard} ${
+																isSelected ? s.departureCardSelected : ""
+															}`}
+															onClick={() =>
+																updateItemDeparture(item.id, departure.id)
+															}
+														>
+															<span className={s.departureCardLabel}>
+																{departure.label || "Выезд"}
+															</span>
+															<strong className={s.departureCardDates}>
+																{formatDate(departure.dateFrom)} -{" "}
+																{formatDate(departure.dateTo)}
+															</strong>
+															<span className={s.departureCardPrice}>
+																{formatPrice(departurePrice, tour.baseCurrency)}
+															</span>
+														</button>
+													)
+												})}
+											</div>
+
+											{!selectedDeparture && (
+												<p className={s.departureWarning}>
+													Для продолжения нужно выбрать дату выезда.
+												</p>
+											)}
+										</div>
+									)}
+
+									{tour.hasHotelOptions && tour.hotels.length > 0 && (
+										<div className={s.hotelSection}>
+											<TourHotelOptionsSection
+												tour={tour}
+												selectedHotelId={
+													checkoutItem?.participants[0]?.selectedHotelId
+												}
+												onSelectHotel={hotelId => updateItemHotel(item.id, hotelId)}
+												note="Нажмите на карточку отеля, чтобы выбрать его для всей позиции в корзине. Доплата сразу попадет в итоговую стоимость."
+											/>
+										</div>
+									)}
 
 									<TextArea
 										label="Комментарий к позиции"
@@ -514,31 +712,15 @@ export default function CartPage() {
 															</div>
 
 															{tour.hasHotelOptions ? (
-																<div className={s.selectField}>
-																	<label>Отель для участника</label>
-																	<select
-																		value={participant.selectedHotelId ?? ""}
-																		onChange={event =>
-																			updateParticipant(item.id, index, {
-																				selectedHotelId:
-																					event.target.value || undefined,
-																			})
-																		}
-																	>
-																		<option value="">Выберите отель</option>
-																		{tour.hotels.map(hotel => (
-																			<option key={hotel.id} value={hotel.id}>
-																				{hotel.name} · +
-																				{formatPrice(
-																					getTourHotelAudienceSupplement(
-																						hotel,
-																						user?.role,
-																					),
-																					hotel.baseCurrency,
-																				)}
-																			</option>
-																		))}
-																	</select>
+																<div className={s.inlinePrice}>
+																	<span>Отель для участника</span>
+																	<strong>
+																		{participant.selectedHotelId
+																			? tour.hotels.find(
+																					hotel => hotel.id === participant.selectedHotelId,
+																				)?.name ?? "Выбран"
+																			: "Не выбран"}
+																	</strong>
 																</div>
 															) : (
 																<div className={s.inlinePrice}>

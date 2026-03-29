@@ -15,12 +15,22 @@ export type TourHotelFormValue = {
 	baseCurrency: CurrencyCode
 }
 
+export type TourDepartureFormValue = {
+	id?: string
+	label?: string
+	dateFrom: string
+	dateTo: string
+	price: number | ""
+	agentPrice?: number | ""
+	available: boolean
+}
+
 export type TourFormValues = {
 	title: string
 	shortDescription: string
 	fullDescriptionBlocks: TourFormBlock[]
 	programText?: string
-	price: number
+	price: number | ""
 	agentPrice?: number | ""
 	baseCurrency: CurrencyCode
 	image: string
@@ -30,6 +40,7 @@ export type TourFormValues = {
 	hotels: TourHotelFormValue[]
 	dateFrom?: string
 	dateTo?: string
+	departures: TourDepartureFormValue[]
 	durationDays?: number | ""
 	durationNights?: number | ""
 	available: boolean

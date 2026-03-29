@@ -16,6 +16,23 @@ export function ManagerBookingCard({ order }: ManagerBookingCardProps) {
 	const displayOrderId = order.publicId ?? order.id
 	const customer = order.user?.name || order.user?.email || "Клиент без имени"
 	const statuses = Array.from(new Set(order.bookings.map(booking => booking.status)))
+	const firstBooking = order.bookings[0]
+	const snapshotTour = firstBooking?.pricingSnapshot?.tour
+	const tripTitle =
+		firstBooking?.tour?.title ||
+		snapshotTour?.title ||
+		firstBooking?.tourPublicId ||
+		firstBooking?.tourId
+	const departureLabel =
+		snapshotTour?.departureLabel ?? firstBooking?.departureLabel
+	const dateFrom =
+		snapshotTour?.dateFrom ??
+		firstBooking?.departureDateFrom ??
+		firstBooking?.tour?.dateFrom
+	const dateTo =
+		snapshotTour?.dateTo ??
+		firstBooking?.departureDateTo ??
+		firstBooking?.tour?.dateTo
 
 	return (
 		<Link
@@ -41,6 +58,16 @@ export function ManagerBookingCard({ order }: ManagerBookingCardProps) {
 					{order.createdAt ? `Создано: ${formatDate(order.createdAt)} · ` : ""}
 					Позиций: {order.itemsCount}
 				</p>
+
+				{tripTitle && (
+					<p className={s.cardMeta}>
+						{tripTitle}
+						{departureLabel ? ` · ${departureLabel}` : ""}
+						{dateFrom && dateTo
+							? ` · ${formatDate(dateFrom)} - ${formatDate(dateTo)}`
+							: ""}
+					</p>
+				)}
 
 				<div className={s.statusGroup}>
 					{statuses.slice(0, 3).map(status => (

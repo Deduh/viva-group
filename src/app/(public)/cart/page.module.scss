@@ -150,13 +150,8 @@
 .counter {
 	display: flex;
 	flex-direction: column;
-	gap: 0.8rem;
-	color: rgba(51, 65, 85, 1);
-	font-size: 1.3rem;
-	font-weight: 600;
 }
 
-.counter input,
 .selectField select {
 	width: 100%;
 	min-height: 4.8rem;
@@ -180,6 +175,14 @@
 	color: rgba(30, 41, 59, 1);
 }
 
+.priceBox {
+	min-height: 5.2rem;
+	padding-block: 1.2rem;
+	border: 0.1rem solid rgba(226, 232, 240, 1);
+	background: rgba(255, 255, 255, 1);
+	box-sizing: border-box;
+}
+
 .priceBox span,
 .inlinePrice span,
 .participantTotal span {
@@ -191,6 +194,128 @@
 .inlinePrice strong,
 .participantTotal strong {
 	font-size: 1.7rem;
+}
+
+.hotelSection {
+	margin-top: 2rem;
+}
+
+.hotelSection :global(section) {
+	padding: 2rem;
+	border-radius: 2rem;
+	background: rgba(248, 250, 252, 0.95);
+	border: 0.1rem solid rgba(226, 232, 240, 0.92);
+}
+
+.departureSection {
+	margin-top: 2rem;
+	padding: 1.8rem;
+	border-radius: 2rem;
+	background: rgba(248, 250, 252, 0.95);
+	border: 0.1rem solid rgba(226, 232, 240, 0.92);
+}
+
+.departureHeader {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1.6rem;
+}
+
+.departureTitle {
+	margin: 0;
+	font-size: 1.8rem;
+	color: rgba(15, 23, 42, 1);
+}
+
+.departureHint {
+	margin: 0.6rem 0 0;
+	font-size: 1.4rem;
+	line-height: 1.5;
+	color: rgba(71, 85, 105, 1);
+}
+
+.departureSummary {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.4rem;
+	padding: 1.2rem 1.4rem;
+	border-radius: 1.6rem;
+	background: rgba(255, 255, 255, 0.9);
+	border: 0.1rem solid rgba(226, 232, 240, 1);
+}
+
+.departureSummary strong {
+	font-size: 1.4rem;
+	color: rgba(15, 23, 42, 1);
+}
+
+.departureSummary span {
+	font-size: 1.3rem;
+	color: rgba(71, 85, 105, 1);
+}
+
+.departureGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1.2rem;
+	margin-top: 1.6rem;
+}
+
+.departureCard {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.6rem;
+	padding: 1.4rem;
+	border-radius: 1.6rem;
+	border: 0.1rem solid rgba(203, 213, 225, 1);
+	background: rgba(255, 255, 255, 1);
+	text-align: left;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease,
+		transform 0.2s ease;
+
+	&:hover {
+		transform: translateY(-0.1rem);
+		border-color: rgba(7, 151, 166, 0.38);
+		box-shadow: 0 1.6rem 2.8rem -2.2rem rgba(15, 23, 42, 0.35);
+	}
+}
+
+.departureCardSelected {
+	border-color: rgba(7, 151, 166, 0.75);
+	box-shadow: 0 0 0 0.2rem rgba(7, 151, 166, 0.12);
+	background: rgba(240, 253, 250, 0.95);
+}
+
+.departureCardLabel {
+	font-size: 1.2rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: rgba(7, 151, 166, 1);
+}
+
+.departureCardDates {
+	font-size: 1.6rem;
+	color: rgba(15, 23, 42, 1);
+}
+
+.departureCardPrice {
+	font-size: 1.4rem;
+	color: rgba(51, 65, 85, 1);
+}
+
+.departureWarning {
+	margin: 1.2rem 0 0;
+	padding: 1.2rem 1.4rem;
+	border-radius: 1.4rem;
+	background: rgba(255, 247, 237, 0.88);
+	color: rgba(154, 52, 18, 1);
+	font-size: 1.4rem;
 }
 
 .participantsBlock {
@@ -383,6 +508,16 @@
 
 	.formGrid {
 		grid-template-columns: 1fr;
+	}
+
+	.departureHeader,
+	.departureGrid {
+		grid-template-columns: 1fr;
+		display: grid;
+	}
+
+	.departureSummary {
+		align-items: flex-start;
 	}
 
 	.card,

@@ -11,6 +11,7 @@ export const participantSchema = z.object({
 })
 
 export const bookingSchema = z.object({
+	departureId: z.string().optional(),
 	tourId: z.string().min(1, "Выберите тур"),
 	participants: z.array(participantSchema).min(1, "Минимум 1 участник"),
 	notes: z

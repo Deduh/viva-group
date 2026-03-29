@@ -25,9 +25,7 @@ export function TourProgramSection({ tour }: TourProgramSectionProps) {
 
 				<div>
 					<h2 className={s.title}>Программа тура</h2>
-					<p className={s.text}>
-						Маршрут Вашей поездки по дням.
-					</p>
+					<p className={s.text}>Маршрут Вашей поездки по дням.</p>
 				</div>
 			</div>
 
@@ -37,7 +35,9 @@ export function TourProgramSection({ tour }: TourProgramSectionProps) {
 						<article key={day.id} className={s.dayCard}>
 							<div className={s.dayTop}>
 								<h3 className={s.dayTitle}>{day.title}</h3>
-								{day.subtitle && <p className={s.daySubtitle}>{day.subtitle}</p>}
+								{day.subtitle && (
+									<p className={s.daySubtitle}>{day.subtitle}</p>
+								)}
 							</div>
 
 							<ul className={s.items}>
@@ -54,7 +54,9 @@ export function TourProgramSection({ tour }: TourProgramSectionProps) {
 				<div className={s.fallbackList}>
 					{parsed.fallbackSections.map(section => (
 						<article key={section.id} className={s.fallbackCard}>
-							<h3 className={s.fallbackTitle}>{section.title}</h3>
+							{section.title && (
+								<h3 className={s.fallbackTitle}>{section.title}</h3>
+							)}
 
 							<ul className={s.items}>
 								{section.items.map(item => (

@@ -205,6 +205,18 @@ const TourHotelSchema = z
 		baseCurrency: raw.baseCurrency,
 	}))
 
+const TourDepartureSchema = z.object({
+	id: z.string().min(1, "ID выезда обязателен"),
+	label: z.string().nullable().optional().transform(nullToUndefined),
+	dateFrom: z.string().min(1),
+	dateTo: z.string().min(1),
+	price: z.coerce.number().positive("Цена выезда должна быть положительным числом"),
+	agentPrice: optionalPositiveNumberSchema.nullable().optional(),
+	available: booleanLikeSchema.default(true),
+	createdAt: z.iso.datetime().optional(),
+	updatedAt: z.iso.datetime().optional(),
+})
+
 export const TourSchema = z.object({
 	id: z.string().min(1, "ID тура обязателен"),
 	publicId: z.string().min(1, "Публичный ID тура обязателен").optional(),
@@ -231,6 +243,7 @@ export const TourSchema = z.object({
 	hotels: z.array(TourHotelSchema).default([]),
 	dateFrom: nullableDateSchema.optional(),
 	dateTo: nullableDateSchema.optional(),
+	departures: z.array(TourDepartureSchema).default([]),
 	durationDays: optionalPositiveNumberSchema.optional(),
 	durationNights: optionalPositiveNumberSchema.optional(),
 	available: z.coerce.boolean().optional(),
@@ -332,6 +345,10 @@ export const CharterBookingSchema = z.object({
 })
 
 export const BookingSchema = z.object({
+	departureId: z.string().nullable().optional().transform(nullToUndefined),
+	departureLabel: z.string().nullable().optional().transform(nullToUndefined),
+	departureDateFrom: nullableDateSchema.optional(),
+	departureDateTo: nullableDateSchema.optional(),
 	id: z.string().min(1, "ID бронирования обязателен"),
 	publicId: z.string().min(1).optional(),
 	orderId: z.string().min(1).optional(),
@@ -349,6 +366,10 @@ export const BookingSchema = z.object({
 		.object({
 			roleSnapshot: RoleSchema,
 			tour: z.object({
+				departureId: z.string().nullable().optional(),
+				departureLabel: z.string().nullable().optional(),
+				dateFrom: nullableDateSchema.optional(),
+				dateTo: nullableDateSchema.optional(),
 				id: z.string().min(1),
 				publicId: z.string().nullable().optional(),
 				title: z.string().min(1),
@@ -388,6 +409,10 @@ export const TourCartLeadSchema = z.object({
 		items: z
 			.array(
 				z.object({
+					departureId: z.string().nullable().optional(),
+					departureLabel: z.string().nullable().optional(),
+					dateFrom: nullableDateSchema.optional(),
+					dateTo: nullableDateSchema.optional(),
 					tourId: z.string().min(1),
 					tourPublicId: z.string().nullable().optional(),
 					title: z.string().min(1),

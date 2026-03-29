@@ -9,7 +9,7 @@ export type ParsedProgramDay = {
 
 export type ParsedProgramFallbackSection = {
 	id: string
-	title: string
+	title?: string
 	items: string[]
 }
 
@@ -21,8 +21,9 @@ export type ParsedTourProgram = {
 
 const DAY_REGEX =
 	/^\s*(?:(?:день)\s*(\d+)|(\d+)\s*д(?:е|ё)нь|day\s*(\d+))[\s.:,-]*(.*)$/i
-
 const BULLET_REGEX = /^\s*(?:[-*•●▪◦–—]|\d+[.)])\s+/
+const SPLIT_ITEMS_REGEX = /\s*(?:[;•●▪◦])\s*/g
+const GENERIC_SECTION_TITLE_REGEX = /^(?:block|блок)\s*#?\s*\d+$/i
 
 function normalizeLine(line: string) {
 	return line.replace(/\s+/g, " ").trim()
@@ -32,12 +33,21 @@ function splitToItems(lines: string[]) {
 	return lines
 		.flatMap(line =>
 			line
-				.split(/\s*(?:[;•●▪◦])\s*/g)
+				.split(SPLIT_ITEMS_REGEX)
 				.map(item => normalizeLine(item))
 				.filter(Boolean),
 		)
 		.map(item => item.replace(BULLET_REGEX, "").trim())
 		.filter(Boolean)
+}
+
+function normalizeSectionTitle(value?: string) {
+	const normalized = normalizeLine(value || "")
+
+	if (!normalized) return undefined
+	if (GENERIC_SECTION_TITLE_REGEX.test(normalized)) return undefined
+
+	return normalized
 }
 
 export function parseTourProgram(
@@ -108,10 +118,22 @@ export function parseTourProgram(
 
 				if (lines.length === 0) return null
 
+				const extractedTitle =
+					lines.length > 1 &&
+					!BULLET_REGEX.test(lines[0]) &&
+					lines[0].length <= 80 &&
+					!/[.!?;:]$/.test(lines[0])
+						? lines[0]
+						: undefined
+				const contentLines = extractedTitle ? lines.slice(1) : lines
+				const items = splitToItems(contentLines)
+
+				if (items.length === 0) return null
+
 				return {
 					id: `program-${index + 1}`,
-					title: index === 0 ? "Программа тура" : `Блок ${index + 1}`,
-					items: splitToItems(lines),
+					title: normalizeSectionTitle(extractedTitle),
+					items,
 				}
 			})
 			.filter(Boolean) as ParsedProgramFallbackSection[]
@@ -123,11 +145,13 @@ export function parseTourProgram(
 		}
 	}
 
-	const fallbackSections = legacyBlocks.map((block, index) => ({
-		id: `legacy-${index + 1}`,
-		title: block.title,
-		items: block.items.filter(Boolean),
-	}))
+	const fallbackSections = legacyBlocks
+		.map((block, index) => ({
+			id: `legacy-${index + 1}`,
+			title: normalizeSectionTitle(block.title),
+			items: block.items.filter(Boolean),
+		}))
+		.filter(section => section.items.length > 0)
 
 	return {
 		days: [],

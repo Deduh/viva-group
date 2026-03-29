@@ -2,7 +2,7 @@
 
 .grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 70rem));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 36rem), 70rem));
 	justify-content: center;
 
 	gap: 3rem;

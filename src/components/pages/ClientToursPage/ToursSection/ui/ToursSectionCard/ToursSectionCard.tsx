@@ -1,8 +1,9 @@
 "use client"
 
+import { TransitionLink } from "@/components/ui/PageTransition"
+import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
 import { useCurrency } from "@/context/CurrencyContext"
 import { useTourCart } from "@/context/TourCartContext"
-import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
 import { useAuth } from "@/hooks/useAuth"
 import { useToast } from "@/hooks/useToast"
 import { formatDate } from "@/lib/format"
@@ -12,11 +13,14 @@ import {
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
-import { getPublicTourHref, getTourAudiencePrice } from "@/lib/tours"
+import {
+	getPublicTourHref,
+	getTourAudiencePrice,
+	getTourDisplayDateRange,
+} from "@/lib/tours"
 import type { Tour } from "@/types"
 import { CalendarDays, Moon, Sun } from "lucide-react"
 import Image from "next/image"
-import { TransitionLink } from "@/components/ui/PageTransition"
 import s from "./ToursSectionCard.module.scss"
 
 interface ToursSectionCardProps {
@@ -32,6 +36,7 @@ export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 	const isAvailable = tour.available !== false
 	const displayPrice = getTourAudiencePrice(tour, user?.role)
 	const detailHref = getPublicTourHref(tour)
+	const { dateFrom, dateTo } = getTourDisplayDateRange(tour)
 
 	const handleAddToCart = () => {
 		addItem({
@@ -76,17 +81,17 @@ export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 					<TourHotelPreview tour={tour} />
 
 					<ul className={s.list}>
-						{tour.tags.map((tag, index) => (
-							<li key={`${tag}-${index}`} className={s.listItem}>
+						{tour.tags.map((tag, tagIndex) => (
+							<li key={`${tag}-${tagIndex}`} className={s.listItem}>
 								{tag}
 							</li>
 						))}
 
-						{tour.dateFrom && tour.dateTo && (
+						{dateFrom && dateTo && (
 							<li className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}>
 								<CalendarDays size={"1.4rem"} />
 								<span>
-									{formatDate(tour.dateFrom)} — {formatDate(tour.dateTo)}
+									{formatDate(dateFrom)} - {formatDate(dateTo)}
 								</span>
 							</li>
 						)}
@@ -97,7 +102,6 @@ export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 							>
 								<span className={s.metaIconGroup}>
 									<Sun size={"1.2rem"} />
-
 									<Moon size={"1.2rem"} />
 								</span>
 
@@ -117,7 +121,6 @@ export function ToursSectionCard({ tour, index }: ToursSectionCardProps) {
 				<div className={s.bottom}>
 					<div className={s.price}>
 						<span className={s.pricePlaceholder}>Цена за человека</span>
-
 						<span className={s.priceText}>
 							{formatPrice(displayPrice, tour.baseCurrency)}
 						</span>

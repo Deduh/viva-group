@@ -4,8 +4,8 @@ import { DateInput } from "@/components/ui/Form/DateInput/DateInput"
 import { Input } from "@/components/ui/Form/Input/Input"
 import { TextArea } from "@/components/ui/Form/TextArea/TextArea"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
-import { SUPPORTED_CURRENCIES } from "@/lib/currency"
 import { api } from "@/lib/api"
+import { SUPPORTED_CURRENCIES } from "@/lib/currency"
 import { formatImageUrlForDisplay } from "@/lib/url"
 import {
 	tourCreateInputSchema,
@@ -20,7 +20,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Image as ImageIcon, Loader2, Trash2 } from "lucide-react"
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
-import { useFieldArray, useForm } from "react-hook-form"
+import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { DescriptionBlockFields } from "./DescriptionBlockFields/DescriptionBlockFields"
 import s from "./TourForm.module.scss"
 
@@ -37,6 +37,70 @@ interface TourFormPropsUpdate {
 }
 
 type TourFormProps = TourFormPropsCreate | TourFormPropsUpdate
+
+function getDefaultValues(tour?: Tour): TourFormValues {
+	if (!tour) {
+		return {
+			title: "",
+			shortDescription: "",
+			fullDescriptionBlocks: [],
+			programText: "",
+			price: "",
+			agentPrice: undefined,
+			baseCurrency: "RUB",
+			image: "",
+			tags: [],
+			categories: [],
+			hasHotelOptions: false,
+			hotels: [],
+			dateFrom: "",
+			dateTo: "",
+			departures: [],
+			durationDays: undefined,
+			durationNights: undefined,
+			available: true,
+		}
+	}
+
+	return {
+		title: tour.title,
+		shortDescription: tour.shortDescription,
+		fullDescriptionBlocks: tour.fullDescriptionBlocks ?? [],
+		programText: tour.programText || "",
+		price: tour.price,
+		agentPrice: tour.agentPrice,
+		baseCurrency: tour.baseCurrency || "RUB",
+		image: formatImageUrlForDisplay(tour.image),
+		tags: tour.tags,
+		categories: tour.categories,
+		hasHotelOptions: tour.hasHotelOptions ?? false,
+		hotels:
+			tour.hotels?.map(hotel => ({
+				id: hotel.id,
+				name: hotel.name,
+				stars: hotel.stars,
+				note: hotel.note || "",
+				supplementPrice: hotel.supplementPrice,
+				agentSupplementPrice: hotel.agentSupplementPrice,
+				baseCurrency: hotel.baseCurrency,
+			})) ?? [],
+		dateFrom: tour.dateFrom || "",
+		dateTo: tour.dateTo || "",
+		departures:
+			tour.departures?.map(departure => ({
+				id: departure.id,
+				label: departure.label || "",
+				dateFrom: departure.dateFrom?.slice(0, 10) || "",
+				dateTo: departure.dateTo?.slice(0, 10) || "",
+				price: departure.price,
+				agentPrice: departure.agentPrice ?? undefined,
+				available: departure.available ?? true,
+			})) ?? [],
+		durationDays: tour.durationDays,
+		durationNights: tour.durationNights,
+		available: tour.available ?? true,
+	}
+}
 
 export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 	const isEditMode = !!tour
@@ -55,58 +119,12 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 		handleSubmit,
 		formState: { errors, isSubmitting },
 		setValue,
+		reset,
 		control,
 		watch,
 	} = useForm<TourFormValues>({
 		resolver: zodResolver(schema) as never,
-		defaultValues: tour
-				? ({
-					title: tour.title,
-					shortDescription: tour.shortDescription,
-					fullDescriptionBlocks: tour.fullDescriptionBlocks ?? [],
-					programText: tour.programText || "",
-					price: tour.price,
-					agentPrice: tour.agentPrice,
-					baseCurrency: tour.baseCurrency || "RUB",
-					image: formatImageUrlForDisplay(tour.image),
-					tags: tour.tags,
-					categories: tour.categories,
-					hasHotelOptions: tour.hasHotelOptions ?? false,
-					hotels:
-						tour.hotels?.map(hotel => ({
-							id: hotel.id,
-							name: hotel.name,
-							stars: hotel.stars,
-							note: hotel.note || "",
-							supplementPrice: hotel.supplementPrice,
-							agentSupplementPrice: hotel.agentSupplementPrice,
-							baseCurrency: hotel.baseCurrency,
-						})) ?? [],
-					dateFrom: tour.dateFrom || "",
-					dateTo: tour.dateTo || "",
-					durationDays: tour.durationDays,
-					durationNights: tour.durationNights,
-					available: tour.available ?? true,
-				} as TourUpdateInput & TourFormValues)
-				: ({
-					title: "",
-					shortDescription: "",
-					fullDescriptionBlocks: [],
-					programText: "",
-					price: 0,
-					agentPrice: undefined,
-					baseCurrency: "RUB",
-					image: "",
-					tags: [],
-					categories: [],
-					hasHotelOptions: false,
-					hotels: [],
-					dateFrom: "",
-					dateTo: "",
-					durationDays: undefined,
-					durationNights: undefined,
-					available: true,
-				} as TourCreateInput & TourFormValues),
+		defaultValues: getDefaultValues(tour),
 	})
 
 	const imageField = register("image")
@@ -119,6 +137,10 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 	const hotelFieldsArray = useFieldArray({
 		control,
 		name: "hotels",
+	})
+	const departureFieldsArray = useFieldArray({
+		control,
+		name: "departures",
 	})
 
 	const blockSortableIds = blockFieldsArray.fields.map(field => field.id)
@@ -158,6 +180,14 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 		setValue("categories", categories)
 	}, [categoriesInput, setValue])
 
+	useEffect(() => {
+		const nextValues = getDefaultValues(tour)
+
+		reset(nextValues)
+		setTagsInput(nextValues.tags.join(", "))
+		setCategoriesInput(nextValues.categories.join(", "))
+	}, [tour, reset])
+
 	const handleFormSubmit = async (data: TourFormValues) => {
 		const cleanedBlocks = (data.fullDescriptionBlocks ?? [])
 			.map(block => ({
@@ -190,8 +220,47 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 			}))
 			.filter(hotel => hotel.name.length > 0 && hotel.supplementPrice > 0)
 
+		const cleanedDepartures = (data.departures ?? [])
+			.map(departure => ({
+				id: departure.id,
+				label: departure.label?.trim?.() || undefined,
+				dateFrom: departure.dateFrom,
+				dateTo: departure.dateTo,
+				price:
+					departure.price === "" || departure.price === undefined
+						? undefined
+						: Number(departure.price),
+				agentPrice:
+					departure.agentPrice === "" || departure.agentPrice === undefined
+						? undefined
+						: Number(departure.agentPrice),
+				available: departure.available ?? true,
+			}))
+			.filter(departure =>
+				Boolean(
+					departure.dateFrom &&
+					departure.dateTo &&
+					typeof departure.price === "number" &&
+					departure.price > 0,
+				),
+			) as Array<{
+			id?: string
+			label?: string
+			dateFrom: string
+			dateTo: string
+			price: number
+			agentPrice?: number
+			available: boolean
+		}>
+
 		const cleanedData = {
 			...data,
+			price:
+				data.price === "" ||
+				data.price === undefined ||
+				(typeof data.price === "number" && Number.isNaN(data.price))
+					? undefined
+					: Number(data.price),
 			agentPrice:
 				data.agentPrice === "" || data.agentPrice === undefined
 					? undefined
@@ -202,6 +271,7 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 			hotels: data.hasHotelOptions ? cleanedHotels : [],
 			dateFrom: data.dateFrom === "" ? undefined : data.dateFrom,
 			dateTo: data.dateTo === "" ? undefined : data.dateTo,
+			departures: cleanedDepartures,
 			durationDays:
 				data.durationDays === "" || data.durationDays === undefined
 					? undefined
@@ -273,7 +343,9 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					{...register("programText")}
 				/>
 
-				<p className={s.blocksLabel}>Дополнительные блоки (legacy, опционально)</p>
+				<p className={s.blocksLabel}>
+					Дополнительные блоки (legacy, опционально)
+				</p>
 
 				<div className={s.blocksContainer}>
 					{blockFieldsArray.fields.length === 0 ? (
@@ -333,8 +405,15 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 						placeholder="0.00"
 						error={errors.price?.message}
 						disabled={isSubmitting}
-						required
-						{...register("price", { valueAsNumber: true })}
+						{...register("price", {
+							setValueAs: value => {
+								if (value === "" || value === undefined || value === null) {
+									return ""
+								}
+
+								return Number(value)
+							},
+						})}
 					/>
 
 					<Input
@@ -487,12 +566,9 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 											min="0.01"
 											error={errors.hotels?.[index]?.supplementPrice?.message}
 											disabled={isSubmitting}
-											{...register(
-												`hotels.${index}.supplementPrice` as const,
-												{
+											{...register(`hotels.${index}.supplementPrice` as const, {
 												setValueAs: v => (v === "" ? "" : Number(v)),
-												},
-											)}
+											})}
 										/>
 
 										<Input
@@ -560,7 +636,8 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 					</div>
 				) : (
 					<p className={s.helperText}>
-						Если тур без выбора отелей, карточки отелей на сайте не показываются.
+						Если тур без выбора отелей, карточки отелей на сайте не
+						показываются.
 					</p>
 				)}
 			</div>
@@ -569,18 +646,32 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 				<h3 className={s.sectionTitle}>Даты и длительность</h3>
 
 				<div className={s.row}>
-					<DateInput
-						label="Дата начала"
-						error={errors.dateFrom?.message}
-						disabled={isSubmitting}
-						{...register("dateFrom")}
+					<Controller
+						control={control}
+						name="dateFrom"
+						render={({ field }) => (
+							<DateInput
+								label="Дата начала"
+								error={errors.dateFrom?.message}
+								disabled={isSubmitting}
+								{...field}
+								value={field.value ?? ""}
+							/>
+						)}
 					/>
 
-					<DateInput
-						label="Дата окончания"
-						error={errors.dateTo?.message}
-						disabled={isSubmitting}
-						{...register("dateTo")}
+					<Controller
+						control={control}
+						name="dateTo"
+						render={({ field }) => (
+							<DateInput
+								label="Дата окончания"
+								error={errors.dateTo?.message}
+								disabled={isSubmitting}
+								{...field}
+								value={field.value ?? ""}
+							/>
+						)}
 					/>
 				</div>
 
@@ -654,6 +745,139 @@ export function TourForm({ tour, onSubmit, onCancel }: TourFormProps) {
 
 					<span className={s.switchLabel}>Тур доступен для бронирования</span>
 				</label>
+			</div>
+
+			<div className={s.section}>
+				<h3 className={s.sectionTitle}>Выезды и цены</h3>
+
+				<p className={s.helperText}>
+					Если для тура нужно несколько дат с разными ценами, добавьте их ниже.
+					Корзина будет выбирать конкретный выезд именно из этого списка.
+				</p>
+
+				<div className={s.hotelList}>
+					{departureFieldsArray.fields.length === 0 ? (
+						<div className={s.blocksEmpty}>
+							Выездов пока нет. Тогда фронт продолжит использовать legacy-цену и
+							верхние даты тура.
+						</div>
+					) : (
+						departureFieldsArray.fields.map((field, index) => (
+							<div key={field.id} className={s.hotelCard}>
+								<div className={s.hotelCardHeader}>
+									<h4 className={s.hotelCardTitle}>Выезд #{index + 1}</h4>
+
+									<button
+										type="button"
+										className={s.removeHotelButton}
+										onClick={() => departureFieldsArray.remove(index)}
+										disabled={isSubmitting}
+									>
+										<Trash2 size={"1.6rem"} />
+									</button>
+								</div>
+
+								<div className={s.hotelGrid}>
+									<Input
+										label="Название группы"
+										placeholder="Например: Июнь"
+										error={errors.departures?.[index]?.label?.message}
+										disabled={isSubmitting}
+										{...register(`departures.${index}.label` as const)}
+									/>
+
+									<Controller
+										control={control}
+										name={`departures.${index}.dateFrom` as const}
+										render={({ field }) => (
+											<DateInput
+												label="Дата начала"
+												error={errors.departures?.[index]?.dateFrom?.message}
+												disabled={isSubmitting}
+												{...field}
+												value={field.value ?? ""}
+											/>
+										)}
+									/>
+
+									<Controller
+										control={control}
+										name={`departures.${index}.dateTo` as const}
+										render={({ field }) => (
+											<DateInput
+												label="Дата окончания"
+												error={errors.departures?.[index]?.dateTo?.message}
+												disabled={isSubmitting}
+												{...field}
+												value={field.value ?? ""}
+											/>
+										)}
+									/>
+
+									<label className={s.switchField}>
+										<input
+											type="checkbox"
+											disabled={isSubmitting}
+											{...register(`departures.${index}.available` as const)}
+											className={s.switchInput}
+										/>
+
+										<span className={s.switchTrack}>
+											<span className={s.switchThumb} />
+										</span>
+
+										<span className={s.selectLabel}>Доступен для выбора</span>
+									</label>
+								</div>
+
+								<div className={s.row}>
+									<Input
+										label="Цена B2C"
+										type="number"
+										step="0.01"
+										min="0.01"
+										error={errors.departures?.[index]?.price?.message}
+										disabled={isSubmitting}
+										{...register(`departures.${index}.price` as const, {
+											setValueAs: v => (v === "" ? "" : Number(v)),
+										})}
+									/>
+
+									<Input
+										label="Цена B2B"
+										type="number"
+										step="0.01"
+										min="0.01"
+										error={errors.departures?.[index]?.agentPrice?.message}
+										disabled={isSubmitting}
+										{...register(`departures.${index}.agentPrice` as const, {
+											setValueAs: v => (v === "" ? "" : Number(v)),
+										})}
+									/>
+								</div>
+							</div>
+						))
+					)}
+
+					<button
+						type="button"
+						className={s.addItemButton}
+						onClick={() =>
+							departureFieldsArray.append({
+								id: undefined,
+								label: "",
+								dateFrom: "",
+								dateTo: "",
+								price: "",
+								agentPrice: "",
+								available: true,
+							})
+						}
+						disabled={isSubmitting}
+					>
+						Добавить выезд
+					</button>
+				</div>
 			</div>
 
 			<div className={s.actions}>

@@ -1,4 +1,4 @@
-import type { Role, Tour } from "@/types"
+import type { Role, Tour, TourDeparture } from "@/types"
 
 export function getPublicTourHref(tour: Pick<Tour, "id" | "publicId">) {
 	return `/tours/${tour.publicId ?? tour.id}`
@@ -10,10 +10,59 @@ export function getTourHotelsPreview(tour: Pick<Tour, "hasHotelOptions" | "hotel
 	return tour.hotels.slice(0, 3).map(hotel => `${hotel.name} ${hotel.stars}*`)
 }
 
-export function getTourAudiencePrice(
-	tour: Pick<Tour, "price" | "agentPrice">,
-	role?: Role | null,
+export function getTourAvailableDepartures(
+	tour: Pick<Tour, "departures">,
+): TourDeparture[] {
+	return (tour.departures ?? []).filter(departure => departure.available !== false)
+}
+
+export function getTourPrimaryDeparture(
+	tour: Pick<Tour, "departures">,
+): TourDeparture | undefined {
+	const availableDepartures = getTourAvailableDepartures(tour)
+
+	return availableDepartures[0] ?? tour.departures?.[0]
+}
+
+export function getTourDisplayDateRange(
+	tour: Pick<Tour, "departures" | "dateFrom" | "dateTo">,
 ) {
+	const primaryDeparture = getTourPrimaryDeparture(tour)
+
+	return {
+		dateFrom: primaryDeparture?.dateFrom ?? tour.dateFrom,
+		dateTo: primaryDeparture?.dateTo ?? tour.dateTo,
+	}
+}
+
+export function getTourDepartureById(
+	tour: Pick<Tour, "departures">,
+	departureId?: string,
+): TourDeparture | undefined {
+	if (!departureId) return getTourPrimaryDeparture(tour)
+
+	return tour.departures?.find(departure => departure.id === departureId)
+}
+
+export function tourHasDepartures(tour: Pick<Tour, "departures">) {
+	return Array.isArray(tour.departures) && tour.departures.length > 0
+}
+
+export function getTourAudiencePrice(
+	tour: Pick<Tour, "price" | "agentPrice" | "departures">,
+	role?: Role | null,
+	departureId?: string,
+) {
+	const departure =
+		getTourDepartureById(tour, departureId) ??
+		(tourHasDepartures(tour) ? getTourPrimaryDeparture(tour) : undefined)
+
+	if (departure) {
+		return role === "AGENT"
+			? departure.agentPrice ?? departure.price
+			: departure.price
+	}
+
 	return role === "AGENT" ? tour.agentPrice ?? tour.price : tour.price
 }
 
@@ -41,15 +90,16 @@ export function getSelectedHotelSupplement(
 }
 
 export function calculateTourCartLineTotal(
-	tour: Pick<Tour, "price" | "agentPrice" | "hotels">,
+	tour: Pick<Tour, "price" | "agentPrice" | "departures" | "hotels">,
 	role: Role | null | undefined,
 	participants:
 		| number
 		| Array<{
 				selectedHotelId?: string
 		  }>,
+	departureId?: string,
 ) {
-	const basePrice = getTourAudiencePrice(tour, role)
+	const basePrice = getTourAudiencePrice(tour, role, departureId)
 
 	if (typeof participants === "number") {
 		return basePrice * Math.max(1, participants)
@@ -57,7 +107,9 @@ export function calculateTourCartLineTotal(
 
 	return participants.reduce(
 		(sum, participant) =>
-			sum + basePrice + getSelectedHotelSupplement(tour, participant.selectedHotelId, role),
+			sum +
+			basePrice +
+			getSelectedHotelSupplement(tour, participant.selectedHotelId, role),
 		0,
 	)
 }

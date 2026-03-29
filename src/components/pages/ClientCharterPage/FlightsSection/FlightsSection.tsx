@@ -10,8 +10,8 @@ import type { CharterFlightsSearchInput } from "@/lib/validation"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { CharterFlightResultCard } from "./ui/CharterFlightResultCard/CharterFlightResultCard"
 import s from "./FlightsSection.module.scss"
+import { CharterFlightResultCard } from "./ui/CharterFlightResultCard/CharterFlightResultCard"
 
 interface FlightsSectionProps {
 	mode?: "client" | "agent"
@@ -168,7 +168,9 @@ export function FlightsSection({ mode = "client" }: FlightsSectionProps) {
 							? "Не удалось загрузить список рейсов. Попробуйте обновить страницу."
 							: undefined
 					}
-					submitLabel={isAgentMode ? "Оформить агентскую заявку" : "Забронировать"}
+					submitLabel={
+						isAgentMode ? "Оформить агентскую заявку" : "Забронировать"
+					}
 					submitDisabled={isSubmitting}
 					onSubmit={values => createBookingFromValues(values)}
 				/>
@@ -179,7 +181,8 @@ export function FlightsSection({ mode = "client" }: FlightsSectionProps) {
 					<div className={s.resultsHeader}>
 						<h3 className={s.resultsTitle}>Агентские тарифы</h3>
 						<p className={s.resultsText}>
-							На этом экране агент видит отдельную цену и свою комиссию по рейсу.
+							На этом экране агент видит отдельную цену и свою комиссию по
+							рейсу.
 						</p>
 					</div>
 

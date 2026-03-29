@@ -6,6 +6,7 @@ import {
 	TourFormModal,
 } from "@/components/pages/AdminPage"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
+import { Modal } from "@/components/ui/Modal/Modal"
 import { useAuth } from "@/hooks/useAuth"
 import {
 	useCreateTour,
@@ -23,12 +24,17 @@ export default function AdminToursPage() {
 	const { user, isLoading, requireRole } = useAuth()
 
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-	const [editingTour, setEditingTour] = useState<Tour | null>(null)
+	const [editingTourId, setEditingTourId] = useState<string | null>(null)
 	const [deletingTour, setDeletingTour] = useState<Tour | null>(null)
 
 	const toursQuery = useQuery({
 		queryKey: ["tours", "admin"],
 		queryFn: api.getToursAdmin,
+	})
+	const editingTourQuery = useQuery({
+		queryKey: ["tour", "admin", editingTourId],
+		queryFn: () => api.getTourAdmin(editingTourId as string),
+		enabled: !!editingTourId,
 	})
 
 	const createTourMutation = useCreateTour()
@@ -44,14 +50,14 @@ export default function AdminToursPage() {
 	}
 
 	const handleUpdateSubmit = async (data: TourUpdateInput) => {
-		if (!editingTour) return
+		if (!editingTourId) return
 
 		await updateTourMutation.mutateAsync({
-			id: editingTour.id,
+			id: editingTourId,
 			data,
 		})
 
-		setEditingTour(null)
+		setEditingTourId(null)
 	}
 
 	const handleDeleteConfirm = async () => {
@@ -63,7 +69,7 @@ export default function AdminToursPage() {
 	}
 
 	const handleEdit = (tour: Tour) => {
-		setEditingTour(tour)
+		setEditingTourId(tour.id)
 	}
 
 	const handleDelete = (tour: Tour) => {
@@ -100,14 +106,24 @@ export default function AdminToursPage() {
 				/>
 			)}
 
-			{editingTour && (
-				<TourFormModal
-					isOpen={!!editingTour}
-					onClose={() => setEditingTour(null)}
-					tour={editingTour}
-					onSubmit={handleUpdateSubmit}
-				/>
-			)}
+			{editingTourId &&
+				(editingTourQuery.data ? (
+					<TourFormModal
+						isOpen={!!editingTourId}
+						onClose={() => setEditingTourId(null)}
+						tour={editingTourQuery.data}
+						onSubmit={handleUpdateSubmit}
+					/>
+				) : (
+					<Modal
+						isOpen={!!editingTourId}
+						onClose={() => setEditingTourId(null)}
+						title="Редактировать тур"
+						size="large"
+					>
+						<LoadingSpinner text="Загружаем данные тура..." />
+					</Modal>
+				))}
 
 			<TourDeleteConfirm
 				isOpen={!!deletingTour}

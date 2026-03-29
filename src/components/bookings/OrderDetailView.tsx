@@ -52,11 +52,22 @@ export function OrderDetailView({
 			<div className={s.list}>
 				{order.bookings.map(booking => {
 					const snapshot = booking.pricingSnapshot
+					const snapshotTour = snapshot?.tour
 					const title =
 						booking.tour?.title ||
-						snapshot?.tour.title ||
+						snapshotTour?.title ||
 						booking.tourPublicId ||
 						booking.tourId
+					const departureLabel =
+						snapshotTour?.departureLabel ?? booking.departureLabel
+					const dateFrom =
+						snapshotTour?.dateFrom ??
+						booking.departureDateFrom ??
+						booking.tour?.dateFrom
+					const dateTo =
+						snapshotTour?.dateTo ??
+						booking.departureDateTo ??
+						booking.tour?.dateTo
 
 					return (
 						<article key={booking.id} className={s.card}>
@@ -67,6 +78,14 @@ export function OrderDetailView({
 									<p className={s.cardMeta}>
 										Статус: {BOOKING_STATUS_LABEL[booking.status]}
 									</p>
+									{departureLabel && (
+										<p className={s.cardMeta}>Выезд: {departureLabel}</p>
+									)}
+									{dateFrom && dateTo && (
+										<p className={s.cardMeta}>
+											Даты: {formatDate(dateFrom)} - {formatDate(dateTo)}
+										</p>
+									)}
 								</div>
 
 								<div className={s.cardAside}>
@@ -80,7 +99,7 @@ export function OrderDetailView({
 										href={bookingHrefBuilder(booking.publicId ?? booking.id)}
 										className={s.detailLink}
 									>
-										Открыть item booking
+										Открыть booking
 									</Link>
 								</div>
 							</div>
@@ -129,7 +148,10 @@ export function OrderDetailView({
 							) : (
 								<div className={s.participants}>
 									{booking.participants.map((participant, index) => (
-										<div key={`${booking.id}-fallback-${index}`} className={s.participant}>
+										<div
+											key={`${booking.id}-fallback-${index}`}
+											className={s.participant}
+										>
 											<div>
 												<h3 className={s.participantName}>
 													{participant.fullNameLatin || participant.fullName}

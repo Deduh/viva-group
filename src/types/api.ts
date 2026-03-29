@@ -18,8 +18,21 @@ export type TourHotel = {
 	baseCurrency: CurrencyCode
 }
 
+export type TourDeparture = {
+	id: string
+	label?: string | null
+	dateFrom: string
+	dateTo: string
+	price: number
+	agentPrice?: number | null
+	available: boolean
+	createdAt?: string
+	updatedAt?: string
+}
+
 export type Tour = {
 	id: string
+	departures?: TourDeparture[]
 	publicId?: string // Публичный ID тура
 	title: string // Название тура
 	shortDescription: string // Краткое описание тура
@@ -67,12 +80,20 @@ export type BookingPricingSnapshot = {
 		title: string
 		basePrice: number
 		baseCurrency: CurrencyCode
+		departureId?: string | null
+		departureLabel?: string | null
+		dateFrom?: string | null
+		dateTo?: string | null
 	}
 	participants: ParticipantPricingSnapshot[]
 	totalAmount: number
 }
 
 export type Booking = {
+	departureId?: string
+	departureLabel?: string | null
+	departureDateFrom?: string | null
+	departureDateTo?: string | null
 	id: string
 	publicId?: string // Публичный ID бронирования
 	orderId?: string
@@ -108,6 +129,10 @@ export type BookingOrder = {
 export type TourCartLeadItemSnapshot = {
 	tourId: string
 	tourPublicId?: string | null
+	departureId?: string | null
+	departureLabel?: string | null
+	dateFrom?: string | null
+	dateTo?: string | null
 	title: string
 	shortDescription: string
 	price: number
@@ -248,6 +273,7 @@ export type TourFilters = {
 }
 
 export type CreateBookingInput = {
+	departureId?: string
 	tourId: string
 	participants: Participant[] // Список участников
 	notes?: string // Заметки
@@ -255,6 +281,7 @@ export type CreateBookingInput = {
 }
 
 export type BookingOrderItemInput = {
+	departureId?: string
 	tourId: string
 	participants: Participant[]
 	notes?: string
@@ -265,6 +292,7 @@ export type CreateBookingOrderInput = {
 }
 
 export type TourCartLeadItemInput = {
+	departureId?: string
 	tourId: string
 	participantsCount: number
 	note?: string

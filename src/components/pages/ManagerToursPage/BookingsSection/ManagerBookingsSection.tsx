@@ -39,6 +39,14 @@ export function ManagerBookingsSection({
 					booking =>
 						booking.tourId.toLowerCase().includes(q) ||
 						(booking.tourPublicId || "").toLowerCase().includes(q) ||
+						(booking.tour?.title || "").toLowerCase().includes(q) ||
+						(booking.pricingSnapshot?.tour.title || "")
+							.toLowerCase()
+							.includes(q) ||
+						(booking.departureLabel || "").toLowerCase().includes(q) ||
+						(booking.pricingSnapshot?.tour.departureLabel || "")
+							.toLowerCase()
+							.includes(q) ||
 						(booking.notes || "").toLowerCase().includes(q),
 				),
 		)
@@ -54,7 +62,13 @@ export function ManagerBookingsSection({
 				lead.publicId.toLowerCase().includes(q) ||
 				lead.name.toLowerCase().includes(q) ||
 				lead.email.toLowerCase().includes(q) ||
-				(lead.phone || "").toLowerCase().includes(q),
+				(lead.phone || "").toLowerCase().includes(q) ||
+				lead.cartSnapshot.items.some(
+					item =>
+						item.title.toLowerCase().includes(q) ||
+						(item.tourPublicId || "").toLowerCase().includes(q) ||
+						(item.departureLabel || "").toLowerCase().includes(q),
+				),
 		)
 	}, [leads, debouncedSearch])
 

@@ -94,7 +94,7 @@ bun install
 bun run dev
 ```
 
-Фронт по умолчанию: `http://localhost:3001` (dev и start).
+Фронт по умолчанию: `http://localhost:3003` (dev и start).
 
 ## Переменные окружения
 

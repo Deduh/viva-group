@@ -1,10 +1,10 @@
 "use client"
 
+import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner/LoadingSpinner"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { useCurrency } from "@/context/CurrencyContext"
 import { useTourCart } from "@/context/TourCartContext"
-import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
 import { useAuth } from "@/hooks/useAuth"
 import { useToast } from "@/hooks/useToast"
 import { formatDate } from "@/lib/format"
@@ -14,7 +14,11 @@ import {
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
-import { getPublicTourHref, getTourAudiencePrice } from "@/lib/tours"
+import {
+	getPublicTourHref,
+	getTourAudiencePrice,
+	getTourDisplayDateRange,
+} from "@/lib/tours"
 import type { Tour } from "@/types"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
@@ -90,7 +94,6 @@ export const ToursGrid = memo(
 			return (
 				<div className={s.empty}>
 					<p className={s.emptyText}>По вашему запросу ничего не найдено</p>
-
 					<p className={s.emptyHint}>
 						Попробуйте изменить параметры поиска или фильтры
 					</p>
@@ -104,6 +107,7 @@ export const ToursGrid = memo(
 					const isAvailable = tour.available !== false
 					const detailHref = getPublicTourHref(tour)
 					const displayPrice = getTourAudiencePrice(tour, user?.role)
+					const { dateFrom, dateTo } = getTourDisplayDateRange(tour)
 
 					const handleAddToCart = () => {
 						addItem({
@@ -152,21 +156,19 @@ export const ToursGrid = memo(
 									<TourHotelPreview tour={tour} />
 
 									<ul className={s.list}>
-										{tour.tags.map((tag, index) => (
-											<li key={index} className={s.listItem}>
+										{tour.tags.map((tag, tagIndex) => (
+											<li key={`${tag}-${tagIndex}`} className={s.listItem}>
 												{tag}
 											</li>
 										))}
 
-										{tour.dateFrom && tour.dateTo && (
+										{dateFrom && dateTo && (
 											<li
 												className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}
 											>
 												<CalendarDays size={"1.4rem"} />
-
 												<span>
-													{formatDate(tour.dateFrom)} —{" "}
-													{formatDate(tour.dateTo)}
+													{formatDate(dateFrom)} - {formatDate(dateTo)}
 												</span>
 											</li>
 										)}
@@ -177,15 +179,11 @@ export const ToursGrid = memo(
 											>
 												<span className={s.metaIconGroup}>
 													<Sun size={"1.2rem"} />
-
 													<Moon size={"1.2rem"} />
 												</span>
-
 												<span>
 													{[
-														tour.durationDays
-															? `${tour.durationDays} дн.`
-															: null,
+														tour.durationDays ? `${tour.durationDays} дн.` : null,
 														tour.durationNights
 															? `${tour.durationNights} ноч.`
 															: null,
@@ -201,7 +199,6 @@ export const ToursGrid = memo(
 								<div className={s.bottom}>
 									<div className={s.price}>
 										<span className={s.pricePlaceholder}>Цена за человека</span>
-
 										<span className={s.priceText}>
 											{formatPrice(displayPrice, tour.baseCurrency)}
 										</span>

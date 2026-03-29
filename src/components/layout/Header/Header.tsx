@@ -67,6 +67,7 @@ export function Header() {
 	const menuButtonRef = useRef<HTMLButtonElement>(null)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isMenuVisible, setIsMenuVisible] = useState(false)
+	const [isScrolled, setIsScrolled] = useState(false)
 	const pathname = usePathname()
 
 	const { isLoaded } = usePreloader()
@@ -106,34 +107,21 @@ export function Header() {
 		}
 	}, [isLoaded, isTransitionComplete])
 
-	useGSAP(
-		() => {
-			if (!headerRef.current) return
+	useEffect(() => {
+		if (typeof window === "undefined") return
 
-			const scrollAnimation = gsap.to(headerRef.current, {
-				"--shell-bg": "rgba(20, 20, 20, 0.76)",
-				"--shell-border": "rgba(255, 255, 255, 0.12)",
-				"--shell-shadow": "0 1rem 3rem rgba(0, 0, 0, 0.5)",
-				"--menu-bg": "rgba(20, 20, 20, 0.85)",
-				"--menu-border": "rgba(255, 255, 255, 0.1)",
-				"--menu-shadow": "0 1rem 3rem rgba(0, 0, 0, 0.5)",
-				"--item-hover": "rgba(255, 255, 255, 0.1)",
-				duration: 0.4,
-				scrollTrigger: {
-					trigger: document.documentElement,
-					start: "top -10%",
-					end: "bottom bottom",
-					toggleActions: "play none none reverse",
-				},
-			})
+		const updateScrolled = () => {
+			setIsScrolled(window.scrollY > 10)
+		}
 
-			return () => {
-				scrollAnimation.scrollTrigger?.kill()
-				scrollAnimation.kill()
-			}
-		},
-		{ scope: headerRef, dependencies: [] },
-	)
+		updateScrolled()
+
+		window.addEventListener("scroll", updateScrolled, { passive: true })
+
+		return () => {
+			window.removeEventListener("scroll", updateScrolled)
+		}
+	}, [pathname])
 
 	useGSAP(
 		() => {
@@ -360,7 +348,9 @@ export function Header() {
 	return (
 		<header
 			ref={headerRef}
-			className={`${s.header} ${useDarkHeader ? s.headerDark : ""}`}
+			className={`${s.header} ${useDarkHeader ? s.headerDark : ""} ${
+				!useDarkHeader && isScrolled ? s.headerScrolled : ""
+			}`}
 		>
 			<div className={s.shell}>
 				<div className={s.logoSlot}>

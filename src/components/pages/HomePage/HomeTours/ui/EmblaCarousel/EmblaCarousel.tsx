@@ -1,5 +1,6 @@
 "use client"
 
+import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { useCurrency } from "@/context/CurrencyContext"
 import { formatDate } from "@/lib/format"
@@ -9,8 +10,11 @@ import {
 	getTourImageAlt,
 	shouldUsePriority,
 } from "@/lib/image-utils"
-import { getPublicTourHref } from "@/lib/tours"
-import { TourHotelPreview } from "@/components/tours/TourHotelPreview/TourHotelPreview"
+import {
+	getPublicTourHref,
+	getTourAudiencePrice,
+	getTourDisplayDateRange,
+} from "@/lib/tours"
 import type { Tour } from "@/types"
 import { useGSAP } from "@gsap/react"
 import { EmblaOptionsType } from "embla-carousel"
@@ -83,107 +87,106 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 		<div ref={containerRef} className={s.embla}>
 			<div className={s.viewport} ref={emblaRef}>
 				<div className={s.container}>
-					{slides.map((item, index) => (
-						<div className={s.card} key={index}>
-							<TransitionLink
-								href={getPublicTourHref(item)}
-								className={s.cardInner}
-								data-embla-card-inner
-							>
-								<div className={s.image}>
-									<Image
-										src={item.image}
-										alt={getTourImageAlt(item.title)}
-										fill
-										sizes={getImageSizes({
-											mobile: "100vw",
-											tablet: "80vw",
-											desktop: "70vw",
-										})}
-										priority={shouldUsePriority(index, 1)}
-										placeholder="blur"
-										blurDataURL={BLUR_PLACEHOLDER}
-									/>
-								</div>
+					{slides.map((item, index) => {
+						const { dateFrom, dateTo } = getTourDisplayDateRange(item)
+						const displayPrice = getTourAudiencePrice(item)
 
-								<div className={s.content}>
-									<div className={s.top}>
-										<div className={s.description}>
-											<div className={s.descriptionWrapper}>
-												<h3 className={s.title}>{item.title}</h3>
+						return (
+							<div className={s.card} key={item.id}>
+								<TransitionLink
+									href={getPublicTourHref(item)}
+									className={s.cardInner}
+									data-embla-card-inner
+								>
+									<div className={s.image}>
+										<Image
+											src={item.image}
+											alt={getTourImageAlt(item.title)}
+											fill
+											sizes={getImageSizes({
+												mobile: "100vw",
+												tablet: "80vw",
+												desktop: "70vw",
+											})}
+											priority={shouldUsePriority(index, 1)}
+											placeholder="blur"
+											blurDataURL={BLUR_PLACEHOLDER}
+										/>
+									</div>
+
+									<div className={s.content}>
+										<div className={s.top}>
+											<div className={s.description}>
+												<div className={s.descriptionWrapper}>
+													<h3 className={s.title}>{item.title}</h3>
+												</div>
+
+												<p className={s.text}>{item.shortDescription}</p>
 											</div>
 
-											<p className={s.text}>{item.shortDescription}</p>
+											<TourHotelPreview tour={item} />
+
+											<ul className={s.list}>
+												{item.tags.map((tag, tagIndex) => (
+													<li key={`${tag}-${tagIndex}`} className={s.listItem}>
+														{tag}
+													</li>
+												))}
+
+												{dateFrom && dateTo && (
+													<li
+														className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}
+													>
+														<CalendarDays size={"1.4rem"} />
+														<span>
+															{formatDate(dateFrom)} - {formatDate(dateTo)}
+														</span>
+													</li>
+												)}
+
+												{(item.durationDays || item.durationNights) && (
+													<li
+														className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDuration}`}
+													>
+														<span className={s.metaIconGroup}>
+															<Sun size={"1.2rem"} />
+															<Moon size={"1.2rem"} />
+														</span>
+
+														<span>
+															{[
+																item.durationDays ? `${item.durationDays} дн.` : null,
+																item.durationNights
+																	? `${item.durationNights} ноч.`
+																	: null,
+															]
+																.filter(Boolean)
+																.join(" / ")}
+														</span>
+													</li>
+												)}
+											</ul>
 										</div>
 
-										<TourHotelPreview tour={item} />
+										<div className={s.bottom}>
+											<div className={s.price}>
+												<span className={s.pricePlaceholder}>
+													Цена за человека
+												</span>
+												<span className={s.priceText}>
+													{formatPrice(displayPrice, item.baseCurrency)}
+												</span>
+											</div>
 
-										<ul className={s.list}>
-											{item.tags.map((tag, index) => (
-												<li key={`${tag}-${index}`} className={s.listItem}>
-													{tag}
-												</li>
-											))}
-
-											{item.dateFrom && item.dateTo && (
-												<li
-													className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDate}`}
-												>
-													<CalendarDays size={"1.4rem"} />
-
-													<span>
-														{formatDate(item.dateFrom)} —{" "}
-														{formatDate(item.dateTo)}
-													</span>
-												</li>
-											)}
-
-											{(item.durationDays || item.durationNights) && (
-												<li
-													className={`${s.listItem} ${s.metaBadge} ${s.metaBadgeDuration}`}
-												>
-													<span className={s.metaIconGroup}>
-														<Sun size={"1.2rem"} />
-
-														<Moon size={"1.2rem"} />
-													</span>
-
-													<span>
-														{[
-															item.durationDays
-																? `${item.durationDays} дн.`
-																: null,
-															item.durationNights
-																? `${item.durationNights} ноч.`
-																: null,
-														]
-															.filter(Boolean)
-															.join(" / ")}
-													</span>
-												</li>
-											)}
-										</ul>
-									</div>
-
-									<div className={s.bottom}>
-										<div className={s.price}>
-											<span className={s.pricePlaceholder}>
-												Цена за человека
-											</span>
-
-											<span className={s.priceText}>
-												{formatPrice(item.price, item.baseCurrency)}
-											</span>
+											<button className={s.bottomButton} type="button">
+												Забронировать
+											</button>
 										</div>
-
-										<button className={s.bottomButton} type="button">
-											Забронировать
-										</button>
 									</div>
-								</div>
-							</TransitionLink>
-						</div>
-					))}
+								</TransitionLink>
+							</div>
+						)
+					})}
 				</div>
 			</div>
 
@@ -202,7 +205,6 @@ export function EmblaCarousel({ slides, options }: EmblaCarouselProps) {
 
 				<div className={s.buttons}>
 					<PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
-
 					<NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
 				</div>
 			</div>

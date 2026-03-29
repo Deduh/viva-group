@@ -5,7 +5,7 @@ export const getSiteUrl = () => {
 		env.NEXTAUTH_URL ||
 		env.APP_URL ||
 		process.env.NEXT_PUBLIC_SITE_URL ||
-		"http://localhost:3001"
+		"http://localhost:3003"
 
 	return base.replace(/\/$/, "")
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { PriceCalculation } from "@/components/pages/ClientToursPage/TourDetail"
+import { Input } from "@/components/ui/Form/Input/Input"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { useTourCart } from "@/context/TourCartContext"
 import { useAuth } from "@/hooks/useAuth"
@@ -21,15 +22,28 @@ export function TourBookingPanel({ tour }: TourBookingPanelProps) {
 	const { addItem } = useTourCart()
 	const { showSuccess } = useToast()
 	const [partySize, setPartySize] = useState(1)
+	const [partySizeInput, setPartySizeInput] = useState("1")
 
 	const callbackUrl = pathname || getPublicTourHref(tour)
 	const canBookAsTraveler = user?.role === "CLIENT" || user?.role === "AGENT"
 
+	const commitPartySize = (rawValue: string) => {
+		const sanitized = rawValue.replace(/[^\d]/g, "")
+		const nextValue = Math.max(1, Number(sanitized) || 1)
+
+		setPartySize(nextValue)
+		setPartySizeInput(String(nextValue))
+
+		return nextValue
+	}
+
 	const handleAddToCart = () => {
+		const nextPartySize = commitPartySize(partySizeInput)
+
 		addItem({
 			tourId: tour.id,
 			tourPublicId: tour.publicId,
-			participantsCount: partySize,
+			participantsCount: nextPartySize,
 		})
 		showSuccess("Тур добавлен в корзину.")
 	}
@@ -43,16 +57,28 @@ export function TourBookingPanel({ tour }: TourBookingPanelProps) {
 					отдельную доплату по каждому участнику и заполните паспортные данные.
 				</p>
 
-				<label className={s.counterField}>
-					<span>Количество участников</span>
-					<input
-						type="number"
-						min="1"
-						value={partySize}
-						disabled={isLoading || tour.available === false}
-						onChange={event => setPartySize(Math.max(1, Number(event.target.value) || 1))}
-					/>
-				</label>
+				<Input
+					className={s.counterField}
+					label="Количество участников"
+					type="text"
+					inputMode="numeric"
+					pattern="[0-9]*"
+					value={partySizeInput}
+					disabled={isLoading || tour.available === false}
+					onChange={event => {
+						const nextValue = event.target.value.replace(/[^\d]/g, "")
+						setPartySizeInput(nextValue)
+					}}
+					onBlur={event => {
+						commitPartySize(event.target.value)
+					}}
+					onKeyDown={event => {
+						if (event.key === "Enter") {
+							event.preventDefault()
+							commitPartySize(partySizeInput)
+						}
+					}}
+				/>
 
 				<div className={s.actions}>
 					<button

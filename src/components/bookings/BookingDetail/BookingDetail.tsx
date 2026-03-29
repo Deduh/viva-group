@@ -54,6 +54,19 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 		enabled: !!tourLookupId,
 	})
 
+	const snapshotTour = booking.pricingSnapshot?.tour
+	const displayDateFrom =
+		snapshotTour?.dateFrom ??
+		booking.departureDateFrom ??
+		tourQuery.data?.dateFrom
+	const displayDateTo =
+		snapshotTour?.dateTo ??
+		booking.departureDateTo ??
+		tourQuery.data?.dateTo
+	const displayBasePrice = snapshotTour?.basePrice ?? tourQuery.data?.price ?? 0
+	const displayDepartureLabel =
+		snapshotTour?.departureLabel ?? booking.departureLabel
+
 	const canCancel =
 		booking.status !== BookingStatus.CANCELLED &&
 		booking.status !== BookingStatus.COMPLETED
@@ -84,7 +97,6 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 						disabled={cancelBookingMutation.isPending}
 					>
 						<X size={"2rem"} />
-
 						<span>Отменить бронирование</span>
 					</button>
 				)}
@@ -93,7 +105,6 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 			<div className={s.header}>
 				<div className={s.headerContent}>
 					<p className={s.bookingId}>Бронирование #{displayBookingId}</p>
-
 					<h1 className={s.headerTitle}>Детали бронирования</h1>
 				</div>
 
@@ -105,7 +116,6 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 						className={s.statusDot}
 						style={{ backgroundColor: statusColor }}
 					/>
-
 					{statusLabel}
 				</div>
 			</div>
@@ -138,7 +148,6 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 							<div className={s.tourInfo}>
 								<p className={s.tourDestination}>{tourQuery.data.title}</p>
-
 								<p className={s.tourDescription}>
 									{tourQuery.data.shortDescription}
 								</p>
@@ -154,14 +163,19 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 								)}
 
 								<div className={s.metaBadges}>
-									{tourQuery.data.dateFrom && tourQuery.data.dateTo && (
+									{displayDateFrom && displayDateTo && (
 										<div className={`${s.metaBadge} ${s.metaBadgeDate}`}>
 											<CalendarDays size={"1.8rem"} />
-
 											<span>
-												{formatDate(tourQuery.data.dateFrom)} —{" "}
-												{formatDate(tourQuery.data.dateTo)}
+												{formatDate(displayDateFrom)} - {formatDate(displayDateTo)}
 											</span>
+										</div>
+									)}
+
+									{displayDepartureLabel && (
+										<div className={`${s.metaBadge} ${s.metaBadgeDate}`}>
+											<CalendarDays size={"1.8rem"} />
+											<span>{displayDepartureLabel}</span>
 										</div>
 									)}
 
@@ -170,10 +184,8 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 										<div className={`${s.metaBadge} ${s.metaBadgeDuration}`}>
 											<div className={s.metaIconGroup}>
 												<Sun size={"1.6rem"} />
-
 												<Moon size={"1.6rem"} />
 											</div>
-
 											<span>
 												{[
 													tourQuery.data.durationDays
@@ -192,10 +204,7 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 
 								<div className={s.tourMeta}>
 									<span className={s.tourPrice}>
-										{formatPrice(
-											tourQuery.data.price,
-											tourQuery.data.baseCurrency,
-										)}
+										{formatPrice(displayBasePrice, tourQuery.data.baseCurrency)}
 									</span>
 								</div>
 							</div>
@@ -208,10 +217,8 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 						<div className={s.infoGrid}>
 							<div className={s.infoItem}>
 								<Calendar size={"2rem"} className={s.infoIcon} />
-
 								<div className={s.infoItemWrapper}>
 									<p className={s.infoLabel}>Дата создания</p>
-
 									<p className={s.infoValue}>{formatDate(booking.createdAt)}</p>
 								</div>
 							</div>
@@ -219,13 +226,9 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 							{booking.updatedAt && (
 								<div className={s.infoItem}>
 									<Calendar size={"2rem"} className={s.infoIcon} />
-
 									<div className={s.infoItemWrapper}>
 										<p className={s.infoLabel}>Последнее обновление</p>
-
-										<p className={s.infoValue}>
-											{formatDate(booking.updatedAt)}
-										</p>
+										<p className={s.infoValue}>{formatDate(booking.updatedAt)}</p>
 									</div>
 								</div>
 							)}
@@ -233,11 +236,19 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 							{tourQuery.data && (
 								<div className={s.infoItem}>
 									<MapPin size={"2rem"} className={s.infoIcon} />
-
 									<div className={s.infoItemWrapper}>
 										<p className={s.infoLabel}>Тур</p>
-
 										<p className={s.infoValue}>{tourQuery.data.title}</p>
+									</div>
+								</div>
+							)}
+
+							{displayDepartureLabel && (
+								<div className={s.infoItem}>
+									<CalendarDays size={"2rem"} className={s.infoIcon} />
+									<div className={s.infoItemWrapper}>
+										<p className={s.infoLabel}>Выезд</p>
+										<p className={s.infoValue}>{displayDepartureLabel}</p>
 									</div>
 								</div>
 							)}
@@ -246,7 +257,6 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 						<div className={s.participants}>
 							<div className={s.participantsHeader}>
 								<h3 className={s.participantsTitle}>Участники</h3>
-
 								<span className={s.participantsCount}>
 									{booking.participants.length}
 								</span>
@@ -259,7 +269,6 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 											<p className={s.participantName}>
 												{participant.fullName}
 											</p>
-
 											<span className={s.participantIndex}>#{index + 1}</span>
 										</div>
 
@@ -267,12 +276,10 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 											<span>
 												Дата рождения: {formatDate(participant.birthDate)}
 											</span>
-
 											<span>
 												Пол:{" "}
 												{participant.gender === "male" ? "Мужской" : "Женский"}
 											</span>
-
 											<span>Паспорт: {participant.passportNumber}</span>
 										</div>
 									</div>
@@ -283,7 +290,6 @@ export function BookingDetail({ booking }: BookingDetailProps) {
 						{booking.notes && (
 							<div className={s.notes}>
 								<h3 className={s.notesTitle}>Заметки</h3>
-
 								<p className={s.notesText}>{booking.notes}</p>
 							</div>
 						)}

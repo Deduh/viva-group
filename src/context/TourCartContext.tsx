@@ -15,6 +15,7 @@ export type TourCartItem = {
 	id: string
 	tourId: string
 	tourPublicId?: string
+	departureId?: string
 	participantsCount: number
 	note?: string
 	addedAt: string
@@ -23,6 +24,7 @@ export type TourCartItem = {
 type AddTourCartItemInput = {
 	tourId: string
 	tourPublicId?: string
+	departureId?: string
 	participantsCount?: number
 	note?: string
 }
@@ -99,6 +101,7 @@ export function TourCartProvider({ children }: { children: ReactNode }) {
 							id: createId(),
 							tourId: input.tourId,
 							tourPublicId: input.tourPublicId,
+							departureId: input.departureId,
 							participantsCount: Math.max(1, input.participantsCount ?? 1),
 							note: input.note?.trim() || undefined,
 							addedAt: new Date().toISOString(),
