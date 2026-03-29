@@ -12,21 +12,9 @@ interface PublicWrapperProps {
 export function PublicWrapper({
 	children,
 	showFooter = true,
-	withHeaderOffset = true,
-	headerOffsetMode = "margin",
 }: PublicWrapperProps) {
-	const offsetClass =
-		withHeaderOffset && headerOffsetMode === "padding"
-			? s.withHeaderOffsetPadding
-			: withHeaderOffset
-				? s.withHeaderOffset
-				: ""
-
 	return (
-		<div
-			className={`${s.wrapper} ${offsetClass}`}
-			data-public-wrapper
-		>
+		<div className={s.wrapper} data-public-wrapper>
 			<div className={s.content}>{children}</div>
 
 			{showFooter && <Footer />}

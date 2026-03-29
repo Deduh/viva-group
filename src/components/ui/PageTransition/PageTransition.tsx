@@ -15,6 +15,16 @@ export function PageTransition() {
 	const { setIsTransitionComplete } = usePageTransition()
 	const lenis = useLenis()
 
+	const scrollToTop = () => {
+		if (lenis) {
+			lenis.scrollTo(0, { immediate: true })
+
+			return
+		}
+
+		window.scrollTo({ top: 0, left: 0, behavior: "auto" })
+	}
+
 	useLayoutEffect(() => {
 		if (!containerRef.current) return
 
@@ -59,15 +69,12 @@ export function PageTransition() {
 				const isCurrentAdmin = isAdminRoute(pathname)
 
 				if (isPrevAdmin && isCurrentAdmin) {
+					scrollToTop()
 					setIsTransitionComplete(true)
 					return
 				}
 
-				if (lenis) {
-					lenis.scrollTo(0, { immediate: true })
-				} else {
-					window.scrollTo({ top: 0, left: 0, behavior: "auto" })
-				}
+				scrollToTop()
 
 				setIsTransitionComplete(false)
 

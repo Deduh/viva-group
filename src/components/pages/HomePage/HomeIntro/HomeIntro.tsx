@@ -1,7 +1,7 @@
 "use client"
 
-import { CurrencySelector } from "@/components/currency/CurrencySelector/CurrencySelector"
-import { CurrencyTicker } from "@/components/currency/CurrencyTicker/CurrencyTicker"
+import { CurrencySelector } from "@/components/pages/HomePage/HomeIntro/ui/currency/CurrencySelector/CurrencySelector"
+import { CurrencyTicker } from "@/components/pages/HomePage/HomeIntro/ui/currency/CurrencyTicker/CurrencyTicker"
 import { StickyHeroSection } from "@/components/ui/StickyHeroSection"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { usePreloader } from "@/context/PreloaderContext"
@@ -95,10 +95,6 @@ export function HomeIntro() {
 							<div className={s.currencySlot}>
 								<CurrencySelector compact />
 							</div>
-
-							{/* <TransitionLink href="/for-agents" className={s.agentBadge}>
-								Для турагентов
-							</TransitionLink> */}
 						</div>
 					</div>
 

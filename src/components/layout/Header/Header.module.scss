@@ -24,13 +24,23 @@
 	}
 }
 
+.headerDark {
+	--shell-bg: rgba(20, 20, 20, 0.76);
+	--shell-border: rgba(255, 255, 255, 0.12);
+	--shell-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+	--menu-bg: rgba(20, 20, 20, 0.85);
+	--menu-border: rgba(255, 255, 255, 0.1);
+	--menu-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+	--item-hover: rgba(255, 255, 255, 0.1);
+}
+
 .shell {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 	align-items: center;
 	gap: 1.6rem;
 
-	width: min(100%, 118rem);
+	width: fit-content;
 	min-height: 9.8rem;
 	margin: 0 auto;
 	padding: 1.1rem 1.6rem;
@@ -166,6 +176,7 @@
 	justify-self: end;
 	gap: 0.8rem;
 	min-width: 0;
+	white-space: nowrap;
 
 	@media (max-width: 1279px) {
 		display: none;

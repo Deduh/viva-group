@@ -1,10 +1,11 @@
 "use client"
 
-import { CurrencySelector } from "@/components/currency/CurrencySelector/CurrencySelector"
+import { CurrencySelector } from "@/components/pages/HomePage/HomeIntro/ui/currency/CurrencySelector/CurrencySelector"
 import { TransitionLink } from "@/components/ui/PageTransition"
 import { usePageTransition } from "@/context/PageTransitionContext"
 import { usePreloader } from "@/context/PreloaderContext"
 import { useAuth } from "@/hooks/useAuth"
+import { shouldUseDarkHeader } from "@/lib/header-theme"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -20,6 +21,7 @@ import {
 	UsersRound,
 } from "lucide-react"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import s from "./Header.module.scss"
 import { LinkItem, NavItem } from "./ui/NavItem/NavItem"
@@ -65,10 +67,12 @@ export function Header() {
 	const menuButtonRef = useRef<HTMLButtonElement>(null)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isMenuVisible, setIsMenuVisible] = useState(false)
+	const pathname = usePathname()
 
 	const { isLoaded } = usePreloader()
 	const { isTransitionComplete } = usePageTransition()
 	const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth()
+	const useDarkHeader = shouldUseDarkHeader(pathname)
 
 	const dashboardHref = (() => {
 		if (!isAuthLoading && !isAuthenticated) {
@@ -354,7 +358,10 @@ export function Header() {
 		))
 
 	return (
-		<header ref={headerRef} className={s.header}>
+		<header
+			ref={headerRef}
+			className={`${s.header} ${useDarkHeader ? s.headerDark : ""}`}
+		>
 			<div className={s.shell}>
 				<div className={s.logoSlot}>
 					<TransitionLink href="/" className={s.logo}>
@@ -425,7 +432,11 @@ export function Header() {
 
 					<div className={s.buttonMobile}>
 						<NavItem
-							item={{ href: dashboardHref, label: "Личный кабинет", icon: LogIn }}
+							item={{
+								href: dashboardHref,
+								label: "Личный кабинет",
+								icon: LogIn,
+							}}
 							isMenuOpen={isMenuOpen}
 							onCloseMenu={handleCloseMenu}
 						/>

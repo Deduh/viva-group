@@ -12,8 +12,8 @@ import {
 	useCreateBookingOrder,
 	useCreateTourCartLead,
 } from "@/hooks/useBookingOrders"
-import { useTours } from "@/hooks/useTours"
 import { useToast } from "@/hooks/useToast"
+import { useTours } from "@/hooks/useTours"
 import { CURRENCY_LOCALE } from "@/lib/currency"
 import { formatCurrency as formatCurrencyValue } from "@/lib/format"
 import {
@@ -66,9 +66,9 @@ export default function CartPage() {
 	const createOrder = useCreateBookingOrder()
 	const createLead = useCreateTourCartLead()
 
-	const [checkoutState, setCheckoutState] = useState<Record<string, CheckoutItemDraft>>(
-		{},
-	)
+	const [checkoutState, setCheckoutState] = useState<
+		Record<string, CheckoutItemDraft>
+	>({})
 	const [isCheckoutHydrated, setIsCheckoutHydrated] = useState(false)
 	const [leadForm, setLeadForm] = useState({
 		name: "",
@@ -120,9 +120,8 @@ export default function CartPage() {
 				item,
 				tour: toursById.get(item.tourPublicId ?? item.tourId),
 			}))
-			.filter(
-				(entry): entry is { item: (typeof items)[number]; tour: Tour } =>
-					Boolean(entry.tour),
+			.filter((entry): entry is { item: (typeof items)[number]; tour: Tour } =>
+				Boolean(entry.tour),
 			)
 	}, [items, toursById])
 
@@ -139,7 +138,8 @@ export default function CartPage() {
 				const existing = current[item.id]
 				const participants = Array.from(
 					{ length: item.participantsCount },
-					(_, index) => existing?.participants[index] ?? createParticipantDraft(),
+					(_, index) =>
+						existing?.participants[index] ?? createParticipantDraft(),
 				)
 
 				next[item.id] = {
@@ -166,7 +166,10 @@ export default function CartPage() {
 			return
 		}
 
-		window.localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(checkoutState))
+		window.localStorage.setItem(
+			CHECKOUT_STORAGE_KEY,
+			JSON.stringify(checkoutState),
+		)
 	}, [checkoutState, isCheckoutHydrated])
 
 	const estimatedTotal = useMemo(() => {
@@ -193,17 +196,18 @@ export default function CartPage() {
 			...current,
 			[itemId]: {
 				...(current[itemId] ?? { participants: [], notes: "" }),
-				participants: (current[itemId]?.participants ?? []).map((participant, idx) =>
-					idx === index
-						? {
-								...participant,
-								...patch,
-								passportNumber:
-									patch.passportNumber !== undefined
-										? patch.passportNumber.toUpperCase()
-										: participant.passportNumber,
-							}
-						: participant,
+				participants: (current[itemId]?.participants ?? []).map(
+					(participant, idx) =>
+						idx === index
+							? {
+									...participant,
+									...patch,
+									passportNumber:
+										patch.passportNumber !== undefined
+											? patch.passportNumber.toUpperCase()
+											: participant.passportNumber,
+								}
+							: participant,
 				),
 			},
 		}))
@@ -250,8 +254,13 @@ export default function CartPage() {
 		for (const { item, tour } of cartEntries) {
 			const checkoutItem = checkoutState[item.id]
 
-			if (!checkoutItem || checkoutItem.participants.length !== item.participantsCount) {
-				showError("Корзина еще не готова к отправке. Обновите количество участников.")
+			if (
+				!checkoutItem ||
+				checkoutItem.participants.length !== item.participantsCount
+			) {
+				showError(
+					"Корзина еще не готова к отправке. Обновите количество участников.",
+				)
 				return
 			}
 
@@ -394,7 +403,9 @@ export default function CartPage() {
 
 										<div className={s.priceBox}>
 											<span>База за человека</span>
-											<strong>{formatPrice(pricePerTraveler, tour.baseCurrency)}</strong>
+											<strong>
+												{formatPrice(pricePerTraveler, tour.baseCurrency)}
+											</strong>
 										</div>
 									</div>
 
@@ -412,9 +423,8 @@ export default function CartPage() {
 												[item.id]: {
 													participants:
 														current[item.id]?.participants ??
-														Array.from(
-															{ length: item.participantsCount },
-															() => createParticipantDraft(),
+														Array.from({ length: item.participantsCount }, () =>
+															createParticipantDraft(),
 														),
 													notes: event.target.value,
 												},
@@ -434,7 +444,10 @@ export default function CartPage() {
 
 											<div className={s.participantsList}>
 												{checkoutItem.participants.map((participant, index) => (
-													<div key={`${item.id}-${index}`} className={s.participantCard}>
+													<div
+														key={`${item.id}-${index}`}
+														className={s.participantCard}
+													>
 														<div className={s.participantHeader}>
 															<UserRound size={"1.8rem"} />
 															<span>Участник {index + 1}</span>
@@ -489,7 +502,9 @@ export default function CartPage() {
 																	value={participant.gender}
 																	onChange={event =>
 																		updateParticipant(item.id, index, {
-																			gender: event.target.value as "male" | "female",
+																			gender: event.target.value as
+																				| "male"
+																				| "female",
 																		})
 																	}
 																>
@@ -572,25 +587,6 @@ export default function CartPage() {
 									CURRENCY_LOCALE[selectedCurrency],
 								)}
 							</h2>
-							<p className={s.sidebarHint}>
-								Итог считается на сервере и фиксируется snapshot в момент
-								отправки заказа.
-							</p>
-
-							<ul className={s.summaryList}>
-								<li>{items.length} позиций в корзине</li>
-								<li>
-									{items.reduce((sum, item) => sum + item.participantsCount, 0)}{" "}
-									участников
-								</li>
-								<li>
-									{user?.role === "AGENT"
-										? "Цены B2B для агента"
-										: isAuthenticated
-											? "Цены B2C для клиента"
-											: "Публичные B2C цены"}
-								</li>
-							</ul>
 
 							{canCheckout ? (
 								<button
@@ -600,7 +596,9 @@ export default function CartPage() {
 									disabled={createOrder.isPending || !cartEntries.length}
 								>
 									<span>
-										{createOrder.isPending ? "Отправляем заказ..." : "Отправить заказ"}
+										{createOrder.isPending
+											? "Отправляем заказ..."
+											: "Отправить заказ"}
 									</span>
 									<ArrowRight size={"1.6rem"} />
 								</button>
@@ -630,7 +628,10 @@ export default function CartPage() {
 									label="Имя"
 									value={leadForm.name}
 									onChange={event =>
-										setLeadForm(current => ({ ...current, name: event.target.value }))
+										setLeadForm(current => ({
+											...current,
+											name: event.target.value,
+										}))
 									}
 								/>
 								<Input
@@ -638,14 +639,20 @@ export default function CartPage() {
 									type="email"
 									value={leadForm.email}
 									onChange={event =>
-										setLeadForm(current => ({ ...current, email: event.target.value }))
+										setLeadForm(current => ({
+											...current,
+											email: event.target.value,
+										}))
 									}
 								/>
 								<Input
 									label="Телефон"
 									value={leadForm.phone}
 									onChange={event =>
-										setLeadForm(current => ({ ...current, phone: event.target.value }))
+										setLeadForm(current => ({
+											...current,
+											phone: event.target.value,
+										}))
 									}
 								/>
 								<button
@@ -654,7 +661,9 @@ export default function CartPage() {
 									onClick={handleSubmitLead}
 									disabled={createLead.isPending || !cartEntries.length}
 								>
-									{createLead.isPending ? "Отправляем..." : "Отправить быстрый lead"}
+									{createLead.isPending
+										? "Отправляем..."
+										: "Отправить быстрый lead"}
 								</button>
 							</div>
 						)}
@@ -664,8 +673,8 @@ export default function CartPage() {
 
 			{items.length > 0 && cartEntries.length !== items.length && (
 				<p className={s.warningText}>
-					Часть туров из корзины сейчас не найдена в актуальной витрине. Проверьте
-					их вручную или очистите устаревшие позиции.
+					Часть туров из корзины сейчас не найдена в актуальной витрине.
+					Проверьте их вручную или очистите устаревшие позиции.
 				</p>
 			)}
 		</div>

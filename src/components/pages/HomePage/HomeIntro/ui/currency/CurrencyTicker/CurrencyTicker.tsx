@@ -8,8 +8,9 @@ import s from "./CurrencyTicker.module.scss"
 export function CurrencyTicker() {
 	const { market, quotes, settings } = useCurrency()
 	const updatedAt = market.updatedAt
-	const resolvedQuotes =
-		quotes.some(quote => quote.id === "EUR") ? quotes : buildCurrencyQuotes(settings)
+	const resolvedQuotes = quotes.some(quote => quote.id === "EUR")
+		? quotes
+		: buildCurrencyQuotes(settings)
 
 	return (
 		<div className={s.ticker}>
@@ -21,9 +22,7 @@ export function CurrencyTicker() {
 							<span className={s.symbol}>{quote.symbol}</span>
 						</span>
 
-						<span className={s.value}>
-							{quote.value.toFixed(4)}
-						</span>
+						<span className={s.value}>{quote.value.toFixed(4)}</span>
 					</div>
 				))}
 			</div>

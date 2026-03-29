@@ -15,7 +15,6 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useLenis } from "lenis/react"
 import { useRef } from "react"
-import s from "./page.module.scss"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -113,7 +112,7 @@ export default function AllToursPage() {
 			<ToursHero season="all" />
 
 			<PublicWrapper>
-				<div ref={containerRef} className={s.wrapper}>
+				<div ref={containerRef}>
 					<ErrorBoundary
 						fallback={
 							<SectionErrorFallback
